@@ -1,0 +1,1656 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>NOREM — Cart</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --black:#878787;--white:#fff;--mid:#9a9690;
+  --border:#e4e0da;--cream:#f4f2ee;--err:#c0392b;
+}
+body{font-family:'Lato','Hiragino Sans',sans-serif;background:var(--white);color:#565656;min-height:100vh}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 144px;height:60px;
+  background:transparent;
+  backdrop-filter:blur(28px);
+  -webkit-backdrop-filter:blur(28px);
+  border-bottom:1px solid transparent;
+  transition:background 0.8s cubic-bezier(0.4,0,0.2,1),border-color 0.8s cubic-bezier(0.4,0,0.2,1),transform 0.35s cubic-bezier(0.4,0,0.2,1);
+}
+nav.nav-hidden{transform:translateY(-100%)}
+nav.scrolled{background:transparent;backdrop-filter:none;-webkit-backdrop-filter:none}
+.nav-logo{display:inline-flex;align-items:center;gap:10px;font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:400;letter-spacing:0.24em;color:#878787;text-decoration:none;transition:color 0.8s ease}
+nav.scrolled .nav-logo{color:var(--black)}
+.nav-logo-img{height:36px;width:auto;object-fit:contain;filter:brightness(0) invert(1) brightness(0.337);transition:filter 0.8s ease}
+nav.scrolled .nav-logo-img{filter:brightness(0) invert(1) brightness(0.337)}
+.nav-links{position:absolute;left:50%;transform:translateX(-50%);display:flex;gap:32px;list-style:none}
+.nav-links a{font-size:0.67rem;letter-spacing:0.18em;text-transform:uppercase;color:#878787;text-decoration:none;transition:color 0.8s ease}
+nav.scrolled .nav-links a{color:var(--black)}
+.nav-links a:hover{opacity:0.6}
+.nav-label{font-size:0.67rem;letter-spacing:0.18em;text-transform:uppercase;color:inherit;cursor:pointer}
+.coll-overlay{position:fixed;top:0;left:0;right:0;height:auto;background:rgba(255,255,255,0.85);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);z-index:90;display:flex;align-items:flex-start;justify-content:center;padding:88px 0 140px;opacity:0;pointer-events:none;transition:opacity 0.45s cubic-bezier(0.4,0,0.2,1);-webkit-mask-image:linear-gradient(to bottom,black calc(100% - 110px),transparent 100%);mask-image:linear-gradient(to bottom,black calc(100% - 110px),transparent 100%)}
+nav.overlay-open{background:transparent !important;backdrop-filter:none !important;-webkit-backdrop-filter:none !important;border-color:transparent !important;transition:background 0.2s,border-color 0.2s,transform 0.35s cubic-bezier(0.4,0,0.2,1) !important}
+.coll-overlay.open{opacity:1;pointer-events:auto}
+.coll-overlay-inner{display:flex;flex-direction:row;align-items:flex-start;justify-content:center;gap:72px;text-align:center}
+.nav-overlay-col{display:flex;flex-direction:column;align-items:center;gap:1.1em}
+@keyframes navItemIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.nav-overlay-heading{font-size:0.54rem;letter-spacing:0.3em;text-transform:uppercase;color:#878787;padding-bottom:0.8em;border-bottom:1px solid var(--border);width:100%;opacity:0}
+.coll-overlay.open .nav-overlay-heading{animation:navItemIn 0.3s cubic-bezier(0.16,1,0.3,1) both}
+.nav-overlay-sub{font-size:clamp(0.52rem,0.76vw,0.6rem) !important;letter-spacing:0.2em !important;color:#a0a0a0 !important}
+.coll-overlay-inner a{font-family:'Cormorant Garamond',serif;font-size:clamp(0.62rem,0.9vw,0.72rem);font-weight:300;letter-spacing:0.32em;text-transform:uppercase;color:#878787;text-decoration:none;opacity:0;transition:color 0.2s}
+.coll-overlay.open .coll-overlay-inner a{animation:navItemIn 0.3s cubic-bezier(0.16,1,0.3,1) both}
+.coll-overlay-inner a:hover{color:#888888}
+.nav-right{display:flex;align-items:center;gap:18px}
+.nav-icon{background:none;border:none;cursor:pointer;color:#878787;display:flex;transition:color 0.8s ease}
+nav.scrolled .nav-icon{color:var(--black)}
+.nav-right-icon{background:none;border:none;cursor:pointer;color:var(--black);display:flex;align-items:center;text-decoration:none}
+.nav-back{font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--mid);text-decoration:none;transition:color 0.2s}
+.nav-back:hover{color:var(--black)}
+.hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:4px}
+.hamburger span{display:block;width:22px;height:1px;background:#878787;transition:transform 0.3s,opacity 0.3s,background 0.8s ease}
+nav.scrolled .hamburger span{background:var(--black)}
+.hamburger.open span:nth-child(1){transform:translateY(6px) rotate(45deg)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+.mobile-menu{display:none;position:fixed;inset:60px 0 0;background:var(--white);z-index:99;flex-direction:column;align-items:center;justify-content:center;gap:36px}
+.mobile-menu.open{display:flex}
+.mobile-menu a{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:300;letter-spacing:0.12em;color:var(--black);text-decoration:none;-webkit-tap-highlight-color:transparent}
+.mobile-coll-wrap{width:100%;text-align:center}
+.mobile-coll-toggle{display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;background:none;border:none;font-family:inherit;font-size:1.1rem;font-weight:300;letter-spacing:0.12em;color:var(--black);text-decoration:none;width:100%;-webkit-tap-highlight-color:transparent}
+.mobile-coll-arrow{font-size:0.7rem;color:var(--mid);transition:transform 0.25s}
+.mobile-coll-arrow.open{transform:rotate(180deg)}
+.mobile-coll-seasons{display:flex;flex-direction:column;gap:14px;margin-top:0;max-height:0;overflow:hidden;opacity:0;transition:max-height 0.35s ease,opacity 0.3s ease,margin-top 0.3s ease}
+.mobile-coll-seasons.open{max-height:300px;opacity:1;margin-top:14px}
+.mobile-coll-seasons a{font-size:0.78rem !important;letter-spacing:0.14em;color:var(--mid) !important}
+
+/* ── STEPS ── */
+.steps{display:flex;justify-content:center;gap:0;padding:24px 0 0;border-bottom:1px solid var(--border);margin-top:60px}
+.step{font-size:0.6rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--mid);padding:0 32px 16px;border-bottom:2px solid transparent}
+.step.active{color:var(--black);border-bottom-color:var(--black)}
+.step.done{color:var(--mid)}
+
+/* ── PAGE WRAP ── */
+.page-wrap{max-width:1200px;margin:0 auto;padding:0 48px}
+
+/* ── LAYOUT ── */
+.cart-layout{display:grid;grid-template-columns:1fr 420px;gap:48px;padding:48px 0 80px;align-items:start}
+.cart-left{}
+.cart-right{background:var(--cream);padding:32px}
+
+/* ── SECTION TITLE ── */
+.sec-title{font-size:0.6rem;letter-spacing:0.28em;text-transform:uppercase;color:var(--mid);margin-bottom:20px}
+
+/* ── CART ITEMS ── */
+.cart-item{display:grid;grid-template-columns:88px 1fr;gap:16px;padding:20px 0;border-bottom:1px solid var(--border);align-items:start}
+.cart-item:first-child{border-top:1px solid var(--border)}
+.cart-item-img{width:88px;aspect-ratio:2/3;background:var(--cream);background-size:cover;background-position:center;flex-shrink:0}
+.cart-item-name{font-size:0.82rem;letter-spacing:0.04em;color:var(--black);margin-bottom:4px}
+.cart-item-meta{font-size:0.72rem;color:var(--mid);margin-bottom:6px}
+.cart-item-price{font-size:0.82rem;color:var(--black)}
+.cart-item-bespoke{font-size:0.65rem;color:var(--mid);margin-top:4px;font-style:italic}
+.cart-item-remove{background:none;border:none;cursor:pointer;font-size:0.6rem;color:var(--mid);letter-spacing:0.1em;text-decoration:underline;margin-top:10px;display:inline-block}
+.cart-empty{text-align:center;padding:80px 0;color:var(--mid);font-size:0.85rem}
+.cart-empty a{color:var(--black);text-decoration:underline}
+
+/* ── SHIPPING INFO ── */
+.shipping-box{border:1px solid var(--border);padding:16px 20px;margin-top:28px;font-size:0.75rem;line-height:1.9}
+.shipping-box strong{font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;display:block;margin-bottom:8px;color:var(--black)}
+.shipping-eta{color:var(--mid)}
+
+/* ── ORDER SUMMARY ── */
+.summary-row{display:flex;justify-content:space-between;font-size:0.78rem;padding:7px 0;color:#565656}
+.summary-row.total{border-top:1px solid var(--border);margin-top:8px;padding-top:14px;font-size:0.9rem;color:var(--black);font-weight:400}
+.summary-note{font-size:0.62rem;color:var(--mid);margin-top:10px;line-height:1.8}
+
+/* ── FORM ── */
+.form-section{margin-top:28px;padding-top:28px;border-top:1px solid var(--border)}
+.form-section h3{font-size:0.6rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--mid);margin-bottom:16px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--mid);margin-bottom:5px}
+.field input,.field select{
+  width:100%;padding:10px 12px;border:1px solid var(--border);
+  font-size:0.82rem;font-family:inherit;color:var(--black);
+  background:var(--white);outline:none;border-radius:0;transition:border-color 0.2s;
+}
+.field input:focus,.field select:focus{border-color:var(--black)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field-note{font-size:0.6rem;color:var(--mid);margin-top:4px}
+.field-zip-wrap{display:flex;gap:8px;align-items:flex-end}
+.field-zip-wrap input{flex:1}
+.btn-zip{padding:10px 14px;background:var(--black);color:var(--white);border:none;font-size:0.62rem;letter-spacing:0.12em;cursor:pointer;white-space:nowrap;transition:opacity 0.2s}
+.btn-zip:hover{opacity:0.8}
+.zip-status{font-size:0.6rem;margin-top:4px}
+
+/* ── ACCOUNT ── */
+.account-toggle{display:flex;align-items:center;gap:8px;font-size:0.75rem;cursor:pointer;margin-bottom:12px}
+.account-toggle input{accent-color:var(--black);width:14px;height:14px}
+.account-fields{display:none}
+.account-fields.show{display:block}
+
+/* ── PAYMENT ── */
+.pay-methods{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.pay-opt{display:flex;align-items:center;gap:12px;padding:11px 14px;border:1px solid var(--border);cursor:pointer;transition:border-color 0.2s}
+.pay-opt:hover{border-color:var(--black)}
+.pay-opt.active{border-color:var(--black);background:var(--white)}
+.pay-opt input{accent-color:var(--black)}
+.pay-opt-label{font-size:0.78rem;color:var(--black);flex:1}
+.pay-opt-sub{font-size:0.62rem;color:var(--mid)}
+
+/* ── 数量 ── */
+.qty-ctrl{display:flex;align-items:center;gap:8px;margin-top:10px}
+.qty-ctrl button{width:26px;height:26px;border:1px solid var(--border);background:none;cursor:pointer;font-size:1rem;line-height:1;transition:border-color 0.15s}
+.qty-ctrl button:hover{border-color:var(--black)}
+.qty-ctrl span{font-size:0.82rem;color:var(--black);min-width:20px;text-align:center}
+
+/* ── Loginモーダル ── */
+.login-modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:500;align-items:center;justify-content:center}
+.login-modal-bg.open{display:flex}
+.login-modal{background:var(--white);padding:36px 32px;width:100%;max-width:400px;margin:0 20px}
+.login-modal h3{font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--mid);margin-bottom:20px}
+.login-modal .field{margin-bottom:14px}
+.login-error{font-size:0.72rem;color:var(--err);margin-bottom:12px;display:none}
+.btn-login-submit{width:100%;padding:13px;background:var(--black);color:var(--white);border:none;font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;cursor:pointer;transition:opacity 0.2s}
+.btn-login-submit:hover{opacity:0.8}
+.btn-login-close{background:none;border:none;font-size:0.62rem;letter-spacing:0.12em;color:var(--mid);cursor:pointer;margin-top:14px;display:block;text-align:center;width:100%}
+.login-status{display:none;align-items:center;gap:10px;padding:12px 14px;background:#f0fdf4;border:1px solid #bbf7d0;font-size:0.75rem;color:var(--black);margin-bottom:12px}
+.login-status.show{display:flex}
+.login-avatar{width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;border:1.5px solid #86efac}
+.login-avatar-placeholder{width:32px;height:32px;border-radius:50%;background:#06C755;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.login-info{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
+.login-info-name{font-size:0.78rem;font-weight:400;color:var(--black);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.login-info-label{font-size:0.6rem;letter-spacing:0.08em;color:#16a34a;display:flex;align-items:center;gap:4px}
+.btn-logout{background:none;border:none;font-size:0.6rem;color:var(--mid);cursor:pointer;text-decoration:underline;flex-shrink:0}
+
+/* ── FOOTER ── */
+footer{background:var(--white);border-top:1px solid var(--border);padding:56px 48px 32px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.footer-top{display:flex;justify-content:space-between;align-items:flex-start;gap:48px;padding-bottom:40px;border-bottom:1px solid var(--border);margin-bottom:24px}
+.footer-logo{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:300;letter-spacing:0.24em;color:var(--black);text-decoration:none;flex-shrink:0}
+.footer-cols{display:flex;gap:56px;flex-wrap:wrap}
+.footer-col h4{font-size:0.58rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--mid);margin-bottom:16px;white-space:nowrap}
+.footer-col ul{list-style:none;display:flex;flex-direction:column;gap:11px}
+.footer-col a{font-size:0.75rem;color:var(--mid);text-decoration:none;transition:color 0.2s}
+.footer-col a:hover{color:var(--black)}
+.footer-bottom{display:flex;justify-content:space-between;align-items:center}
+.footer-copy{font-size:0.58rem;letter-spacing:0.1em;color:var(--mid)}
+.footer-ig{color:var(--mid);transition:color 0.2s;display:flex}
+.footer-ig:hover{color:var(--black)}
+
+/* ── CTA ── */
+.btn-checkout{width:100%;padding:15px;background:var(--black);color:var(--white);border:none;font-size:0.72rem;letter-spacing:0.22em;text-transform:uppercase;cursor:pointer;margin-top:20px;transition:opacity 0.2s}
+.btn-checkout:hover{opacity:0.8}
+.btn-checkout:disabled{opacity:0.35;cursor:not-allowed}
+.checkout-note{font-size:0.6rem;color:var(--mid);text-align:center;margin-top:10px;line-height:1.7}
+/* ── 決済UI ── */
+.express-checkout{margin-bottom:24px;padding-bottom:24px;border-bottom:1px solid var(--border)}
+.express-checkout-label{font-size:0.58rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--mid);margin-bottom:12px}
+.express-btns{display:flex;flex-direction:column;gap:10px}
+.express-btn{width:100%;height:44px;border:none;border-radius:4px;cursor:pointer;font-size:0.8rem;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity 0.15s;letter-spacing:0.04em}
+.express-btn:hover{opacity:0.85}
+.express-btn:disabled{opacity:0.35;cursor:not-allowed}
+.express-btn-gpay{background:#000;color:#fff}
+.express-btn-paypal{background:#FFC439;color:#003087}
+.express-btn-paypay{background:#FF0033;color:#fff}
+.express-btn-amazon{background:#FF9900;color:#111}
+#stripeGpayWrap{width:100%}
+.pay-or{display:flex;align-items:center;gap:12px;margin:20px 0 16px;font-size:0.62rem;letter-spacing:0.1em;color:var(--mid)}
+.pay-or::before,.pay-or::after{content:'';flex:1;height:1px;background:var(--border)}
+#stripeCardElement{padding:12px;border:1px solid var(--border);background:var(--white);margin-top:10px;transition:border-color 0.2s}
+#stripeCardElement.StripeElement--focus{border-color:var(--black)}
+#stripeCardError{color:var(--err);font-size:0.7rem;margin-top:6px;min-height:16px}
+.pay-opt-disabled{opacity:0.45;pointer-events:none}
+
+/* ── CONFIRM ── */
+.confirm-wrap{max-width:720px;margin:48px auto;padding:0 48px 80px}
+.confirm-block{border:1px solid var(--border);padding:24px;margin-bottom:16px;font-size:0.78rem;line-height:2}
+.confirm-block dt{font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--mid);margin-top:14px}
+.confirm-block dt:first-child{margin-top:0}
+.confirm-block dd{color:var(--black)}
+.btn-row{display:flex;gap:12px;margin-top:20px}
+.btn-back{flex:1;padding:14px;background:none;border:1px solid var(--border);font-size:0.68rem;letter-spacing:0.18em;text-transform:uppercase;cursor:pointer;transition:border-color 0.2s}
+.btn-back:hover{border-color:var(--black)}
+.btn-submit{flex:2;padding:14px;background:var(--black);color:var(--white);border:none;font-size:0.68rem;letter-spacing:0.18em;text-transform:uppercase;cursor:pointer;transition:opacity 0.2s}
+.btn-submit:hover{opacity:0.8}
+
+/* ── COMPLETE ── */
+.complete-wrap{padding:80px 48px;text-align:center;max-width:560px;margin:0 auto}
+.complete-icon{width:56px;height:56px;border:1.5px solid var(--black);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px}
+.complete-title{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:300;letter-spacing:0.08em;margin-bottom:14px;color:var(--black)}
+.complete-msg{font-size:0.78rem;line-height:2;color:var(--mid);margin-bottom:32px}
+.btn-continue{display:inline-block;padding:13px 40px;border:1px solid var(--black);font-size:0.68rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--black);text-decoration:none;transition:all 0.2s}
+.btn-continue:hover{background:var(--black);color:var(--white)}
+
+@media(max-width:900px){
+  nav{padding:0 20px !important;height:60px;width:100%;left:0;right:0}
+  .nav-links{display:none}
+  .hamburger{display:flex}
+  .nav-logo{font-size:1.1rem}
+  .nav-back{display:block;font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--mid);text-decoration:none}
+  .steps{padding:16px 0 0}
+  .step{padding:0 16px 14px;font-size:0.55rem}
+  .page-wrap{padding:0 20px}
+  .cart-layout{grid-template-columns:1fr;gap:0}
+  .cart-right{margin-top:32px;padding:24px 20px}
+  .field-row{grid-template-columns:1fr}
+  .confirm-wrap{padding:24px 20px 60px;max-width:100%;overflow:hidden}
+  .confirm-block{padding:16px;word-break:break-word}
+  .complete-wrap{padding:48px 20px;max-width:100%}
+  body{overflow-x:hidden}
+}
+</style>
+</head>
+<body>
+
+<!-- ========== NAV ========== -->
+<nav id="nav">
+  <a class="nav-logo" href="index.html">
+    <img class="nav-logo-img" src="logo.png" alt="" onerror="this.style.display='none'"/>
+    NOREM
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li id="collNavItem" onmouseenter="openNavOverlay('coll')" onmouseleave="scheduleCloseNavOverlay()"><a href="collection.html?season=2026-27AW">Collection</a></li>
+    <li id="shopNavItem" onmouseenter="openNavOverlay('shop')" onmouseleave="scheduleCloseNavOverlay()"><a href="shop.html" id="navShopLink">Shop</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="cart.html" class="nav-icon nav-cart" aria-label="Cart" style="position:relative;text-decoration:none">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+      <span class="cart-badge" id="cartBadge" style="display:none;position:absolute;top:-6px;right:-6px;background:#0d0d0d;color:#fff;font-size:9px;min-width:16px;height:16px;border-radius:8px;text-align:center;line-height:16px;padding:0 3px">0</span>
+    </a>
+    <button class="nav-icon" aria-label="Search">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
+    </button>
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html" class="mobile-nav-link">Home</a>
+  <a href="about.html" class="mobile-nav-link">About</a>
+  <div class="mobile-coll-wrap">
+    <button class="mobile-coll-toggle" onclick="toggleMobileColl(event)">Collection <span class="mobile-coll-arrow" id="mobileCollArrow">▼</span></button>
+    <div class="mobile-coll-seasons" id="mobileCollSeasons"></div>
+  </div>
+  <a href="shop.html" class="mobile-nav-link">Shop</a>
+  <a href="contact.html" class="mobile-nav-link">Contact</a>
+</div>
+
+<!-- ========== NAV OVERLAY ========== -->
+<div class="coll-overlay" id="collOverlay">
+  <div class="coll-overlay-inner" id="collOverlayInner"></div>
+</div>
+
+<div class="steps">
+  <div class="step active" id="step1">入力</div>
+  <div class="step" id="step2">確認</div>
+  <div class="step" id="step3">完了</div>
+</div>
+
+<!-- ── Loginモーダル ── -->
+<div class="login-modal-bg" id="loginModalBg">
+  <div class="login-modal">
+    <h3>メールアドレスでLogin</h3>
+    <div class="login-error" id="loginError"></div>
+    <div class="field">
+      <label>メールアドレス</label>
+      <input type="email" id="loginEmail" placeholder="sample@example.com"/>
+    </div>
+    <div class="field">
+      <label>パスワード</label>
+      <input type="password" id="loginPassword" placeholder="••••••••"/>
+    </div>
+    <button class="btn-login-submit" onclick="doLogin()">Login</button>
+    <a href="reset-password.html" style="display:block;text-align:center;font-size:0.62rem;color:var(--mid);margin-top:12px;letter-spacing:0.1em">パスワードを忘れた方はこちら</a>
+    <button class="btn-login-close" onclick="closeLoginModal()">キャンセル</button>
+  </div>
+</div>
+
+<!-- ── STEP 1 ── -->
+<div id="viewInput">
+  <div class="page-wrap">
+    <div class="cart-layout">
+
+      <!-- LEFT -->
+      <div class="cart-left">
+        <p class="sec-title" id="i18nCartTitle">Cart</p>
+        <div id="cartItems"></div>
+
+        <div class="shipping-box">
+          <strong id="i18nShippingTitle">Shipping</strong>
+          <span id="i18nCarrier">通常配送（ヤマト運輸）</span><br>
+          <span class="shipping-eta" id="i18nEta">発送日の目安：ご注文確認後 <span id="etaDays">3〜5営業日</span> 以内</span><br>
+          <span class="shipping-eta" id="i18nBespokeNote">※別注商品はお振込み確認後の発送となります</span>
+        </div>
+      </div>
+
+      <!-- RIGHT -->
+      <div class="cart-right">
+        <p class="sec-title" id="i18nOrderSummary">Order Summary</p>
+        <div id="orderSummary"></div>
+        <div class="summary-note">
+          価格はすべて税込表示です。<br>
+          配送料：全国一律 ¥550（¥10,000以上のご購入で送料無料）
+        </div>
+
+        <!-- お客様情報 -->
+        <div class="form-section">
+          <h3 id="i18nCustomerInfo">お客様情報</h3>
+
+          <!-- Login状態 -->
+          <div class="login-status" id="loginStatus">
+            <img id="loginAvatar" class="login-avatar" src="" alt="" style="display:none" onerror="this.style.display='none'"/>
+            <div class="login-avatar-placeholder" id="loginAvatarPlaceholder" style="display:none">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+            </div>
+            <div class="login-info">
+              <span class="login-info-name" id="loginStatusText"></span>
+              <span class="login-info-label" id="loginStatusLabel"></span>
+            </div>
+            <button class="btn-logout" onclick="doLogout()" id="i18nLogout">ログアウト</button>
+          </div>
+
+          <!-- Loginボタン（未Login時のみ表示）-->
+          <div id="loginButtons" style="margin-bottom:18px">
+            <a href="login.html" style="display:block;width:100%;padding:13px 0;border:1px solid var(--border);font-size:0.62rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--mid);text-decoration:none;text-align:center;transition:border-color 0.3s,color 0.3s;box-sizing:border-box" onmouseover="this.style.borderColor='var(--black)';this.style.color='var(--black)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--mid)'">Login</a>
+          </div>
+
+          <!-- 入力フォーム：姓名→メール→アカウント作成 -->
+          <div class="field-row" style="margin-top:14px">
+            <div class="field">
+              <label id="i18nLastName">姓 <span style="color:var(--err)">*</span></label>
+              <input type="text" id="fLastName" placeholder="鈴木"/>
+            </div>
+            <div class="field">
+              <label id="i18nFirstName">名 <span style="color:var(--err)">*</span></label>
+              <input type="text" id="fFirstName" placeholder="太郎"/>
+            </div>
+          </div>
+          <div class="field">
+            <label id="i18nEmail">メールアドレス <span style="color:var(--err)">*</span></label>
+            <input type="email" id="fEmail" placeholder="sample@example.com"/>
+          </div>
+
+          <!-- アカウント作成（任意）-->
+          <label class="account-toggle" style="margin-top:12px">
+            <input type="checkbox" id="createAccount">
+            Create Account
+          </label>
+          <div class="account-fields" id="accountFields">
+            <div class="field">
+              <label id="i18nPassword">パスワード（8文字以上）</label>
+              <input type="password" id="fPassword" placeholder="••••••••"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- お届け先 -->
+        <div class="form-section">
+          <h3 id="labelShipping">お届け先</h3>
+          <div class="field">
+            <label id="labelCountry">国 <span style="color:var(--err)">*</span></label>
+            <select id="fCountry" onchange="onCountryChange()">
+              <option value="JP">日本</option>
+              <option value="US">United States</option>
+              <option value="GB">United Kingdom</option>
+              <option value="FR">France</option>
+              <option value="DE">Deutschland</option>
+              <option value="IT">Italia</option>
+              <option value="ES">España</option>
+              <option value="KR">한국</option>
+              <option value="CN">中国</option>
+              <option value="TW">台灣</option>
+              <option value="HK">Hong Kong</option>
+              <option value="SG">Singapore</option>
+              <option value="AU">Australia</option>
+              <option value="CA">Canada</option>
+              <option value="OTHER">Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label id="labelZip">郵便番号 <span style="color:var(--err)">*</span></label>
+            <div class="field-zip-wrap">
+              <input type="text" id="fZip" placeholder="106-0032" style="flex:1"/>
+              <button class="btn-zip" id="btnZipSearch" onclick="searchZip()">住所検索</button>
+            </div>
+            <p class="zip-status" id="zipStatus"></p>
+          </div>
+          <div class="field" id="fieldRegion">
+            <label id="labelRegion">都道府県 <span style="color:var(--err)">*</span></label>
+            <select id="fPrefSelect">
+              <option value="">都道府県を選択</option>
+              <option>北海道</option><option>青森県</option><option>岩手県</option><option>宮城県</option><option>秋田県</option><option>山形県</option><option>福島県</option><option>茨城県</option><option>栃木県</option><option>群馬県</option><option>埼玉県</option><option>千葉県</option><option>東京都</option><option>神奈川県</option><option>新潟県</option><option>富山県</option><option>石川県</option><option>福井県</option><option>山梨県</option><option>長野県</option><option>岐阜県</option><option>静岡県</option><option>愛知県</option><option>三重県</option><option>滋賀県</option><option>京都府</option><option>大阪府</option><option>兵庫県</option><option>奈良県</option><option>和歌山県</option><option>鳥取県</option><option>島根県</option><option>岡山県</option><option>広島県</option><option>山口県</option><option>徳島県</option><option>香川県</option><option>愛媛県</option><option>高知県</option><option>福岡県</option><option>佐賀県</option><option>長崎県</option><option>熊本県</option><option>大分県</option><option>宮崎県</option><option>鹿児島県</option><option>沖縄県</option>
+            </select>
+            <input type="text" id="fPrefText" placeholder="" style="display:none"/>
+          </div>
+          <div class="field">
+            <label id="labelCity">市区町村 <span style="color:var(--err)">*</span></label>
+            <input type="text" id="fCity" placeholder="港区"/>
+          </div>
+          <div class="field">
+            <label id="labelAddr">番地・建物名 <span style="color:var(--err)">*</span></label>
+            <input type="text" id="fAddr" placeholder="六本木3丁目2-1 グランドハイツ307"/>
+          </div>
+        </div>
+
+        <!-- お支払い方法 -->
+        <div class="form-section">
+          <h3 id="payMethodTitle">お支払い方法</h3>
+
+          <!-- ── エクスプレス決済ボタン ── -->
+          <div class="express-checkout" id="expressCheckout">
+            <p class="express-checkout-label">Quick Pay</p>
+            <div class="express-btns" id="expressBtns">
+              <!-- Google Pay（Stripe有効 & ブラウザ対応時に差し替え） -->
+              <button class="express-btn express-btn-gpay" id="btnGpay" type="button" disabled>
+                <svg width="41" height="17" viewBox="0 0 41 17" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19.8 8.5c0 4.4-3.4 7.5-7.5 7.5C8.2 16 5 12.8 5 8.5 5 4.3 8.2 1 12.3 1c2.2 0 4 .8 5.4 2.1l-2.2 2.2c-.6-.6-1.8-1.3-3.2-1.3-2.7 0-4.9 2.2-4.9 5s2.2 5 4.9 5c3.1 0 4.3-2.2 4.5-3.4h-4.5V8.5h7.5v.0z" fill="white"/><path d="M32.6 7.8h-1.7V6.1h-1.7v1.7h-1.7v1.7h1.7v1.7h1.7V9.5h1.7V7.8z" fill="white"/><path d="M38.5 7.8c0-1.9-1.5-3.3-3.4-3.3-1.9 0-3.4 1.5-3.4 3.3v.2h1.7c0-1 .8-1.7 1.7-1.7s1.7.8 1.7 1.7v3.1h-1.7c-.9 0-1.7-.8-1.7-1.7h-1.7c0 1.9 1.5 3.3 3.4 3.3h1.7V11h.7V7.8h-.5z" fill="white"/></svg>
+                Google Pay
+              </button>
+              <!-- PayPal -->
+              <div id="paypalExpressWrap">
+                <button class="express-btn express-btn-paypal" id="btnPaypalFallback" type="button" disabled>
+                  <svg height="20" viewBox="0 0 101 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.2 2.2H5.6C5.1 2.2 4.7 2.6 4.6 3L2 19.5c-.1.3.2.6.5.6h3.2c.5 0 .9-.4 1-.8l.7-4.4c.1-.5.5-.8 1-.8h2.1c4.4 0 6.9-2.1 7.6-6.3.3-1.8 0-3.2-.8-4.2-.9-1.1-2.5-1.4-5.1-1.4z" fill="#003087"/><path d="M28.2 2.2h-6.6c-.5 0-.9.4-1 .8L18 19.5c-.1.3.2.6.5.6h3.4c.4 0 .7-.3.7-.6l.7-4.6c.1-.5.5-.8 1-.8h2.1c4.4 0 6.9-2.1 7.6-6.3.3-1.8 0-3.2-.8-4.2-.9-1.1-2.5-1.4-5-1.4z" fill="#0070E0"/></svg>
+                  PayPal
+                </button>
+              </div>
+              <!-- PayPay -->
+              <button class="express-btn express-btn-paypay" id="btnPaypay" type="button" disabled>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="12" fill="white"/><text x="50%" y="58%" text-anchor="middle" dominant-baseline="middle" font-size="9" font-weight="bold" fill="#FF0033" font-family="Arial">PAY</text></svg>
+                PayPay
+              </button>
+            </div>
+            <div class="pay-or">または</div>
+          </div>
+
+          <!-- ── 通常決済 ── -->
+          <div class="pay-methods" id="payMethods">
+            <label class="pay-opt active">
+              <input type="radio" name="payMethod" value="transfer" checked>
+              <span class="pay-opt-label" id="payLabelTransfer">銀行振込</span>
+              <span class="pay-opt-sub" id="paySubTransfer">手数料無料</span>
+            </label>
+            <label class="pay-opt" id="optCard">
+              <input type="radio" name="payMethod" value="card">
+              <span class="pay-opt-label">クレジットカード</span>
+              <span class="pay-opt-sub" id="paySubCard"></span>
+            </label>
+          </div>
+
+          <!-- Stripe カード入力フォーム -->
+          <div id="stripeCardWrap" style="display:none;margin-top:12px">
+            <div id="stripeCardElement"></div>
+            <div id="stripeCardError"></div>
+          </div>
+
+          <p id="payMethodNote" style="font-size:0.65rem;color:var(--mid);margin-top:10px;line-height:1.8">
+            ※銀行振込の場合、ご注文確認後メールにて振込先口座をご案内します。
+          </p>
+        </div>
+
+        <button class="btn-checkout" id="btnToConfirm">注文内容の確認へ</button>
+        <p class="checkout-note" id="i18nConfirmNote">ご注文後、確認メールをお送りします</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── STEP 2 ── -->
+<div id="viewConfirm" style="display:none">
+  <div class="confirm-wrap">
+    <p class="sec-title" id="i18nConfirmTitle">注文内容の確認</p>
+    <dl class="confirm-block" id="confirmContent"></dl>
+    <div class="btn-row">
+      <button class="btn-back" id="btnBackInput">← <span id="i18nBack">戻る</span></button>
+      <button class="btn-submit" id="btnSubmit" data-i18n="btnSubmit">注文を確定する</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── STEP 3 ── -->
+<div id="viewComplete" style="display:none">
+  <div class="complete-wrap">
+    <div class="complete-icon">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h2 class="complete-title" id="i18nCompleteTitle">ご注文ありがとうございます</h2>
+    <p class="complete-msg" id="completeMsg"></p>
+    <a class="btn-continue" href="shop.html" id="i18nContinue">ショッピングを続ける</a>
+  </div>
+</div>
+
+<script src="collections-data.js"></script>
+<script>
+const SHOP_CATEGORIES = [
+  { label: 'New Arrivals', slug: 'new-arrivals' },
+  { label: 'Tops', slug: 'tops', sub: [
+    { label: 'Shirts', slug: 'shirts' },
+    { label: 'Knit', slug: 'knit' },
+    { label: 'Cut &amp; Sew / Sweat', slug: 'cut-sew-sweat' },
+  ]},
+  { label: 'Bottoms', slug: 'bottoms', sub: [
+    { label: 'Pants', slug: 'pants' },
+    { label: 'Skirts', slug: 'skirts' },
+  ]},
+  { label: 'Outerwear', slug: 'outerwear', sub: [
+    { label: 'Jackets', slug: 'jackets' },
+    { label: 'Coats', slug: 'coats' },
+  ]},
+  { label: 'Dresses / Setup', slug: 'dresses-setup' },
+  { label: 'Bags', slug: 'bags' },
+  { label: 'Shoes', slug: 'shoes' },
+  { label: 'Accessories', slug: 'accessories' },
+  { label: 'Sale', slug: 'sale' },
+];
+
+let _navCloseTimer = null;
+let _navCurrentType = null;
+
+function openNavOverlay(type) {
+  clearTimeout(_navCloseTimer);
+  const overlay = document.getElementById('collOverlay');
+  const inner   = document.getElementById('collOverlayInner');
+  if (_navCurrentType !== type && typeof COLLECTIONS_DATA !== 'undefined') {
+    _navCurrentType = type;
+    const items = COLLECTIONS_DATA.filter(c => c.published);
+    const seasonLinks = items.map((c, i) => {
+      const href = type === 'coll'
+        ? `collection.html?season=${encodeURIComponent(c.season)}`
+        : `shop.html?season=${encodeURIComponent(c.season)}`;
+      return `<a href="${href}">${c.season}</a>`;
+    }).join('');
+
+    if (type === 'coll') {
+      inner.innerHTML = `
+        <div class="nav-overlay-col">
+          <p class="nav-overlay-heading">Season Look</p>
+          ${seasonLinks}
+        </div>`;
+    } else {
+      const catLinks = SHOP_CATEGORIES.map(cat => {
+        let html = `<a href="shop.html?category=${cat.slug}">${cat.label}</a>`;
+        if (cat.sub) cat.sub.forEach(sub => {
+          html += `<a href="shop.html?category=${sub.slug}" class="nav-overlay-sub">${sub.label}</a>`;
+        });
+        return html;
+      }).join('');
+
+      inner.innerHTML = `
+        <div class="nav-overlay-col">
+          <p class="nav-overlay-heading">Season Look</p>
+          ${seasonLinks}
+        </div>
+        <div class="nav-overlay-col">
+          <p class="nav-overlay-heading">Category</p>
+          ${catLinks}
+        </div>`;
+    }
+  }
+  overlay.classList.add('open');
+  _nav.classList.add('overlay-open');
+}
+
+function scheduleCloseNavOverlay() {
+  _navCloseTimer = setTimeout(() => {
+    document.getElementById('collOverlay').classList.remove('open');
+    _nav.classList.remove('overlay-open');
+    _navCurrentType = null;
+  }, 120);
+}
+
+document.getElementById('collOverlay').addEventListener('mouseenter', () => clearTimeout(_navCloseTimer));
+document.getElementById('collOverlay').addEventListener('mouseleave', scheduleCloseNavOverlay);
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.getElementById('collOverlay').classList.remove('open');
+    _nav.classList.remove('overlay-open');
+    _navCurrentType = null;
+  }
+});
+
+// nav scroll
+const _nav = document.getElementById('nav');
+let _lastScrollY = window.scrollY;
+let _lastScrollTime = Date.now();
+window.addEventListener('scroll', () => {
+  const scrollY = window.scrollY;
+  const now = Date.now();
+  const dt = now - _lastScrollTime || 1;
+  const velocity = (scrollY - _lastScrollY) / dt;
+  _nav.classList.toggle('scrolled', scrollY > 40);
+  if (scrollY <= 0) {
+    _nav.classList.remove('nav-hidden');
+  } else if (scrollY > _lastScrollY && scrollY > 80 && velocity > 0.8) {
+    _nav.classList.add('nav-hidden');
+    document.getElementById('collOverlay').classList.remove('open');
+    _nav.classList.remove('overlay-open');
+    _navCurrentType = null;
+  } else if (scrollY < _lastScrollY && velocity < -2.4) {
+    _nav.classList.remove('nav-hidden');
+  }
+  _lastScrollY = scrollY;
+  _lastScrollTime = now;
+});
+
+function toggleMobileColl(e) {
+  e.stopPropagation();
+  const seasons = document.getElementById('mobileCollSeasons');
+  const arrow   = document.getElementById('mobileCollArrow');
+  const isOpen  = seasons.classList.contains('open');
+  seasons.classList.toggle('open', !isOpen);
+  arrow.classList.toggle('open', !isOpen);
+  if (!isOpen && seasons.innerHTML === '' && typeof COLLECTIONS_DATA !== 'undefined') {
+    seasons.innerHTML = COLLECTIONS_DATA.filter(c => c.published).map(c =>
+      '<a href="collection.html?season=' + encodeURIComponent(c.season) + '">' + c.season + '</a>'
+    ).join('');
+  }
+}
+
+const hamburger = document.getElementById('hamburger');
+const mobileMenu = document.getElementById('mobileMenu');
+hamburger.addEventListener('click', () => {
+  hamburger.classList.toggle('open');
+  mobileMenu.classList.toggle('open');
+  document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
+});
+document.querySelectorAll('.mobile-nav-link').forEach(link => {
+  link.addEventListener('click', () => {
+    hamburger.classList.remove('open');
+    mobileMenu.classList.remove('open');
+    document.body.style.overflow = '';
+  });
+});
+</script>
+<script src="products-data.js"></script>
+<script>
+// ── 多言語翻訳 ──────────────────────────────
+const CART_LANG = {
+  JP: {
+    cartTitle:'Cart', shippingTitle:'Shipping', carrier:'通常配送（ヤマト運輸）',
+    eta:'発送日の目安：ご注文確認後 {days} 以内', bespokeNote:'※別注商品はお振込み確認後の発送となります',
+    orderSummary:'Order Summary', subtotal:'小計', shippingFee:'配送料', total:'合計（税込）', free:'無料',
+    customerInfo:'お客様情報', logout:'ログアウト',
+    lastName:'姓', firstName:'名', email:'メールアドレス', password:'パスワード（8文字以上）',
+    btnConfirm:'注文内容の確認へ', confirmNote:'ご注文後、確認メールをお送りします',
+    confirmTitle:'注文内容の確認', back:'戻る', btnSubmit:'注文を確定する',
+    completeTitle:'ご注文ありがとうございます', continueShopping:'ショッピングを続ける',
+  },
+  KR: {
+    cartTitle:'장바구니', shippingTitle:'배송', carrier:'일반 배송',
+    eta:'예상 출발일: 주문 확인 후 {days} 이내', bespokeNote:'※주문 제작 상품은 계좌 이체 확인 후 출발합니다',
+    orderSummary:'주문 요약', subtotal:'소계', shippingFee:'배송비', total:'합계（세금 포함）', free:'무료',
+    customerInfo:'고객 정보', logout:'로그아웃',
+    lastName:'성', firstName:'이름', email:'이메일 주소', password:'비밀번호（8자 이상）',
+    btnConfirm:'주문 내용 확인하기', confirmNote:'주문 후 확인 이메일을 보내드립니다',
+    confirmTitle:'주문 확인', back:'뒤로', btnSubmit:'주문 확정',
+    completeTitle:'주문해 주셔서 감사합니다', continueShopping:'쇼핑 계속하기',
+  },
+  CN: {
+    cartTitle:'购物车', shippingTitle:'配送', carrier:'普通配送',
+    eta:'预计发货：确认订单后 {days} 内', bespokeNote:'※定制商品在确认汇款后发货',
+    orderSummary:'订单摘要', subtotal:'小计', shippingFee:'运费', total:'合计（含税）', free:'免费',
+    customerInfo:'客户信息', logout:'退出登录',
+    lastName:'姓', firstName:'名', email:'电子邮件', password:'密码（8位以上）',
+    btnConfirm:'确认订单内容', confirmNote:'下单后将发送确认邮件',
+    confirmTitle:'确认订单', back:'返回', btnSubmit:'提交订单',
+    completeTitle:'感谢您的订购', continueShopping:'继续购物',
+  },
+  TW: {
+    cartTitle:'購物車', shippingTitle:'配送', carrier:'一般配送',
+    eta:'預計出貨：確認訂單後 {days} 內', bespokeNote:'※訂製商品於確認匯款後出貨',
+    orderSummary:'訂單摘要', subtotal:'小計', shippingFee:'運費', total:'合計（含稅）', free:'免費',
+    customerInfo:'顧客資訊', logout:'登出',
+    lastName:'姓', firstName:'名', email:'電子郵件', password:'密碼（8位以上）',
+    btnConfirm:'確認訂單內容', confirmNote:'下單後將寄送確認信件',
+    confirmTitle:'確認訂單', back:'返回', btnSubmit:'確認下單',
+    completeTitle:'感謝您的訂購', continueShopping:'繼續購物',
+  },
+  FR: {
+    cartTitle:'Panier', shippingTitle:'Livraison', carrier:'Livraison standard',
+    eta:'Expédition estimée : dans {days} jours ouvrés après confirmation', bespokeNote:'※Les articles sur mesure sont expédiés après confirmation du virement',
+    orderSummary:'Récapitulatif', subtotal:'Sous-total', shippingFee:'Frais de port', total:'Total (TTC)', free:'Gratuit',
+    customerInfo:'Informations client', logout:'Se déconnecter',
+    lastName:'Nom', firstName:'Prénom', email:'Adresse e-mail', password:'Mot de passe (8 caractères min.)',
+    btnConfirm:'Vérifier la commande', confirmNote:'Un e-mail de confirmation vous sera envoyé',
+    confirmTitle:'Confirmation de commande', back:'Retour', btnSubmit:'Confirmer la commande',
+    completeTitle:'Merci pour votre commande', continueShopping:'Continuer les achats',
+  },
+  DE: {
+    cartTitle:'Warenkorb', shippingTitle:'Versand', carrier:'Standardversand',
+    eta:'Voraussichtlicher Versand: innerhalb von {days} Werktagen nach Bestellbestätigung', bespokeNote:'※Maßgefertigte Artikel werden nach Bestätigung der Überweisung versandt',
+    orderSummary:'Bestellübersicht', subtotal:'Zwischensumme', shippingFee:'Versandkosten', total:'Gesamt (inkl. MwSt.)', free:'Kostenlos',
+    customerInfo:'Kundendaten', logout:'Abmelden',
+    lastName:'Nachname', firstName:'Vorname', email:'E-Mail-Adresse', password:'Passwort (mind. 8 Zeichen)',
+    btnConfirm:'Bestellung prüfen', confirmNote:'Nach der Bestellung erhalten Sie eine Bestätigungs-E-Mail',
+    confirmTitle:'Bestellbestätigung', back:'Zurück', btnSubmit:'Bestellung aufgeben',
+    completeTitle:'Vielen Dank für Ihre Bestellung', continueShopping:'Weiter einkaufen',
+  },
+};
+function getCartLang() {
+  const c = document.getElementById('fCountry')?.value || 'JP';
+  return CART_LANG[c] || {
+    cartTitle:'Cart', shippingTitle:'Shipping', carrier:'Standard Shipping',
+    eta:'Estimated dispatch: within {days} business days after order confirmation', bespokeNote:'※Bespoke items will be dispatched after bank transfer confirmation',
+    orderSummary:'Order Summary', subtotal:'Subtotal', shippingFee:'Shipping', total:'Total (incl. tax)', free:'Free',
+    customerInfo:'Customer Information', logout:'Logout',
+    lastName:'Last Name', firstName:'First Name', email:'Email Address', password:'Password (8+ characters)',
+    btnConfirm:'Proceed to Order Review', confirmNote:'A confirmation email will be sent after ordering',
+    confirmTitle:'Order Confirmation', back:'Back', btnSubmit:'Place Order',
+    completeTitle:'Thank you for your order', continueShopping:'Continue Shopping',
+  };
+}
+function applyCartLang() {
+  const L = getCartLang();
+  const req = '<span style="color:var(--err)">*</span>';
+  const days = document.getElementById('etaDays')?.textContent || '3〜5営業日';
+  const set = (id, html) => { const el = document.getElementById(id); if(el) el.innerHTML = html; };
+  set('i18nCartTitle', L.cartTitle);
+  set('i18nShippingTitle', L.shippingTitle);
+  set('i18nCarrier', L.carrier);
+  set('i18nEta', L.eta.replace('{days}', `<span id="etaDays">${days}</span>`));
+  set('i18nBespokeNote', L.bespokeNote);
+  set('i18nOrderSummary', L.orderSummary);
+  set('i18nCustomerInfo', L.customerInfo);
+  set('i18nLogout', L.logout);
+  set('i18nLastName', L.lastName + ' ' + req);
+  set('i18nFirstName', L.firstName + ' ' + req);
+  set('i18nEmail', L.email + ' ' + req);
+  set('i18nPassword', L.password);
+  document.getElementById('btnToConfirm').textContent = L.btnConfirm;
+  set('i18nConfirmNote', L.confirmNote);
+  set('i18nConfirmTitle', L.confirmTitle);
+  set('i18nBack', L.back);
+  document.getElementById('btnSubmit').textContent = L.btnSubmit;
+  set('i18nCompleteTitle', L.completeTitle);
+  set('i18nContinue', L.continueShopping);
+}
+
+// 国別送料設定
+function getShippingFee(subtotal) {
+  const country = document.getElementById('fCountry')?.value || 'JP';
+  if (country === 'JP') {
+    return subtotal >= 10000 ? 0 : 550;
+  } else {
+    return subtotal >= 30000 ? 0 : 3000;
+  }
+}
+function isJapan() {
+  return (document.getElementById('fCountry')?.value || 'JP') === 'JP';
+}
+function fmtPrice(n) {
+  return isJapan() ? '¥' + n.toLocaleString() : 'JPY ' + n.toLocaleString();
+}
+const SHIPPING_FREE = 10000, SHIPPING = 550; // 後方互換用
+
+function getCart(){ try{ return JSON.parse(localStorage.getItem('norem_cart')||'[]') }catch(e){return[]} }
+function saveCart(c){ localStorage.setItem('norem_cart', JSON.stringify(c)) }
+
+let cart = getCart();
+
+/* ── 国・言語設定 ── */
+const COUNTRY_CONFIG = {
+  JP: {
+    zip: '郵便番号', zipPh: '106-0032', zipSearch: true,
+    region: '都道府県', regionSelect: true,
+    city: '市区町村', cityPh: '港区',
+    addr: '番地・建物名', addrPh: '六本木3丁目2-1 グランドハイツ307',
+    shipping: 'お届け先', country: '国',
+  },
+  US: {
+    zip: 'ZIP Code', zipPh: '90210', zipSearch: false,
+    region: 'State', regionSelect: false, regionPh: 'California',
+    city: 'City', cityPh: 'Los Angeles',
+    addr: 'Street Address', addrPh: '123 Main St',
+    shipping: 'Shipping Address', country: 'Country',
+  },
+  GB: {
+    zip: 'Postcode', zipPh: 'SW1A 1AA', zipSearch: false,
+    region: 'County', regionSelect: false, regionPh: 'Greater London',
+    city: 'City / Town', cityPh: 'London',
+    addr: 'Address', addrPh: '10 Downing Street',
+    shipping: 'Shipping Address', country: 'Country',
+  },
+  FR: {
+    zip: 'Code postal', zipPh: '75001', zipSearch: false,
+    region: 'Région', regionSelect: false, regionPh: 'Île-de-France',
+    city: 'Ville', cityPh: 'Paris',
+    addr: 'Adresse', addrPh: '1 Rue de Rivoli',
+    shipping: 'Adresse de livraison', country: 'Pays',
+  },
+  DE: {
+    zip: 'Postleitzahl', zipPh: '10115', zipSearch: false,
+    region: 'Bundesland', regionSelect: false, regionPh: 'Bayern',
+    city: 'Stadt', cityPh: 'Berlin',
+    addr: 'Straße', addrPh: 'Unter den Linden 1',
+    shipping: 'Lieferadresse', country: 'Land',
+  },
+  IT: {
+    zip: 'CAP', zipPh: '00100', zipSearch: false,
+    region: 'Provincia', regionSelect: false, regionPh: 'RM',
+    city: 'Città', cityPh: 'Roma',
+    addr: 'Indirizzo', addrPh: 'Via del Corso 1',
+    shipping: 'Indirizzo di spedizione', country: 'Paese',
+  },
+  ES: {
+    zip: 'Código postal', zipPh: '28001', zipSearch: false,
+    region: 'Provincia', regionSelect: false, regionPh: 'Madrid',
+    city: 'Ciudad', cityPh: 'Madrid',
+    addr: 'Dirección', addrPh: 'Calle Gran Vía 1',
+    shipping: 'Dirección de envío', country: 'País',
+  },
+  KR: {
+    zip: '우편번호', zipPh: '04524', zipSearch: false,
+    region: '시/도', regionSelect: false, regionPh: '서울특별시',
+    city: '시/군/구', cityPh: '강남구',
+    addr: '상세주소', addrPh: '테헤란로 1',
+    shipping: '배송지', country: '국가',
+  },
+  CN: {
+    zip: '邮政编码', zipPh: '100000', zipSearch: false,
+    region: '省/自治区', regionSelect: false, regionPh: '北京市',
+    city: '城市', cityPh: '北京',
+    addr: '详细地址', addrPh: '长安街1号',
+    shipping: '收货地址', country: '国家',
+  },
+  TW: {
+    zip: '郵遞區號', zipPh: '100', zipSearch: false,
+    region: '縣/市', regionSelect: false, regionPh: '台北市',
+    city: '區', cityPh: '中正區',
+    addr: '地址', addrPh: '忠孝東路1段1號',
+    shipping: '收件地址', country: '國家',
+  },
+  HK: {
+    zip: 'District', zipPh: 'Central', zipSearch: false,
+    region: null,
+    city: 'Area', cityPh: 'Hong Kong Island',
+    addr: 'Address', addrPh: '1 Harbour Road, Wan Chai',
+    shipping: 'Shipping Address', country: 'Region',
+  },
+  SG: {
+    zip: 'Postal Code', zipPh: '018956', zipSearch: false,
+    region: null,
+    city: 'District', cityPh: 'Orchard',
+    addr: 'Street Address', addrPh: '1 Orchard Road',
+    shipping: 'Shipping Address', country: 'Country',
+  },
+  AU: {
+    zip: 'Postcode', zipPh: '2000', zipSearch: false,
+    region: 'State / Territory', regionSelect: false, regionPh: 'NSW',
+    city: 'Suburb / City', cityPh: 'Sydney',
+    addr: 'Street Address', addrPh: '1 George Street',
+    shipping: 'Shipping Address', country: 'Country',
+  },
+  CA: {
+    zip: 'Postal Code', zipPh: 'K1A 0A6', zipSearch: false,
+    region: 'Province', regionSelect: false, regionPh: 'Ontario',
+    city: 'City', cityPh: 'Toronto',
+    addr: 'Street Address', addrPh: '1 Main Street',
+    shipping: 'Shipping Address', country: 'Country',
+  },
+  OTHER: {
+    zip: 'Postal Code', zipPh: '', zipSearch: false,
+    region: 'State / Province / Region', regionSelect: false, regionPh: '',
+    city: 'City', cityPh: '',
+    addr: 'Street Address', addrPh: '',
+    shipping: 'Shipping Address', country: 'Country',
+  },
+};
+
+function onCountryChange() {
+  const c = COUNTRY_CONFIG[document.getElementById('fCountry').value] || COUNTRY_CONFIG.OTHER;
+  const req = '<span style="color:var(--err)">*</span>';
+
+  document.getElementById('labelShipping').textContent = c.shipping;
+  document.getElementById('labelCountry').innerHTML = c.country + ' ' + req;
+  document.getElementById('labelZip').innerHTML = c.zip + ' ' + req;
+  document.getElementById('fZip').placeholder = c.zipPh;
+  document.getElementById('btnZipSearch').style.display = c.zipSearch ? '' : 'none';
+  document.getElementById('zipStatus').textContent = '';
+
+  const fieldRegion = document.getElementById('fieldRegion');
+  if (c.region === null) {
+    fieldRegion.style.display = 'none';
+  } else {
+    fieldRegion.style.display = '';
+    document.getElementById('labelRegion').innerHTML = c.region + ' ' + req;
+    const sel = document.getElementById('fPrefSelect');
+    const txt = document.getElementById('fPrefText');
+    if (c.regionSelect) {
+      sel.style.display = ''; txt.style.display = 'none';
+    } else {
+      sel.style.display = 'none'; txt.style.display = '';
+      txt.placeholder = c.regionPh || '';
+    }
+  }
+
+  document.getElementById('labelCity').innerHTML = c.city + ' ' + req;
+  document.getElementById('fCity').placeholder = c.cityPh;
+  document.getElementById('labelAddr').innerHTML = c.addr + ' ' + req;
+  document.getElementById('fAddr').placeholder = c.addrPh;
+
+  // 送料再計算・通貨表記更新・全UI言語切替
+  renderSummary();
+  applyCartLang();
+
+  // 支払い方法の言語切替
+  const PAY_LANG = {
+    JP: { title:'お支払い方法', transfer:'銀行振込', transferSub:'手数料無料', card:'クレジットカード', cardSub:'準備中', paypay:'PayPay', paypaySub:'準備中', note:'※銀行振込の場合、ご注文確認後メールにて振込先口座をご案内します。' },
+    KR: { title:'결제 방법', transfer:'계좌이체', transferSub:'수수료 없음', card:'신용카드', cardSub:'준비 중', paypay:'PayPay', paypaySub:'준비 중', note:'※계좌이체의 경우, 주문 확인 후 계좌 정보를 이메일로 안내해 드립니다.' },
+    CN: { title:'支付方式', transfer:'银行转账', transferSub:'免手续费', card:'信用卡', cardSub:'准备中', paypay:'PayPay', paypaySub:'准备中', note:'※选择银行转账时，确认订单后将通过邮件发送账户信息。' },
+    TW: { title:'付款方式', transfer:'銀行轉帳', transferSub:'免手續費', card:'信用卡', cardSub:'準備中', paypay:'PayPay', paypaySub:'準備中', note:'※選擇銀行轉帳時，確認訂單後將透過電郵發送帳戶資訊。' },
+    FR: { title:'Mode de paiement', transfer:'Virement bancaire', transferSub:'Sans frais', card:'Carte de crédit', cardSub:'En préparation', paypay:'PayPay', paypaySub:'En préparation', note:'※Pour les virements bancaires, les coordonnées vous seront envoyées par e-mail.' },
+    DE: { title:'Zahlungsmethode', transfer:'Banküberweisung', transferSub:'Gebührenfrei', card:'Kreditkarte', cardSub:'In Vorbereitung', paypay:'PayPay', paypaySub:'In Vorbereitung', note:'※Bei Banküberweisung senden wir Ihnen die Kontodaten per E-Mail.' },
+  };
+  const selectedCountry = document.getElementById('fCountry').value;
+  const pl = PAY_LANG[selectedCountry] || {
+    title:'Payment Method', transfer:'Bank Transfer', transferSub:'No fee', card:'Credit Card', cardSub:'Coming soon', paypay:'PayPay', paypaySub:'Coming soon',
+    note:'※For bank transfers, account details will be sent by email after order confirmation.'
+  };
+  document.getElementById('payMethodTitle').textContent    = pl.title;
+  document.getElementById('payLabelTransfer').textContent  = pl.transfer;
+  document.getElementById('paySubTransfer').textContent    = pl.transferSub;
+  const cardSub = document.getElementById('paySubCard');
+  if (cardSub && typeof _payCfg === 'undefined') cardSub.textContent = pl.cardSub;
+  document.getElementById('payMethodNote').textContent     = pl.note;
+}
+
+/* ── 郵便番号検索（日本のみ）── */
+async function searchZip() {
+  const zip = document.getElementById('fZip').value.replace(/\D/g,'');
+  const st  = document.getElementById('zipStatus');
+  if (zip.length !== 7) {
+    st.style.color = 'var(--err)';
+    st.textContent = '郵便番号を正しく入力してください（7桁）';
+    return;
+  }
+  st.style.color = 'var(--mid)'; st.textContent = '検索中…';
+  try {
+    const res = await fetch('https://postcode.teraren.com/postcodes/' + zip + '.json');
+    if (!res.ok) throw new Error('not found');
+    const r = await res.json();
+    const _pref = r.prefecture || ''; document.getElementById('fPrefSelect').value = _pref; document.getElementById('fPrefText').value = _pref;
+    document.getElementById('fCity').value = (r.city || '') + (r.suburb || '');
+    document.getElementById('fAddr').focus();
+    st.style.color = '#27ae60';
+    st.textContent = '✓ ' + (r.prefecture||'') + (r.city||'') + (r.suburb||'');
+  } catch(e) {
+    st.style.color = 'var(--err)';
+    st.textContent = '住所が見つかりませんでした。手動で入力してください';
+  }
+}
+function getZipValue() {
+  return document.getElementById('fZip').value.replace(/\D/g,'');
+}
+
+
+
+// 郵便番号7桁入力完了で自動検索（日本のみ）
+document.getElementById('fZip').addEventListener('input', function() {
+  if (document.getElementById('fCountry').value === 'JP' && getZipValue().length === 7) searchZip();
+});
+document.getElementById('fZip').addEventListener('keydown', e => {
+  if(e.key==='Enter'){e.preventDefault();searchZip()}
+});
+
+/* ── Loginモーダル ── */
+function openLoginModal() {
+  document.getElementById('loginModalBg').classList.add('open');
+  document.getElementById('loginEmail').focus();
+}
+function closeLoginModal() {
+  document.getElementById('loginModalBg').classList.remove('open');
+  document.getElementById('loginError').style.display = 'none';
+}
+
+async function doLogin() {
+  const email    = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const errEl    = document.getElementById('loginError');
+  errEl.style.display = 'none';
+  if (!email || !password) { errEl.textContent='入力してください'; errEl.style.display='block'; return; }
+
+  const { data, error } = await sbSignIn(email, password);
+  if (error) {
+    errEl.textContent = 'メールアドレスまたはパスワードが正しくありません';
+    errEl.style.display = 'block';
+    return;
+  }
+  closeLoginModal();
+  await fillFormFromUser(data.user);
+}
+
+async function doLogout() {
+  await sbSignOut();
+  document.getElementById('loginStatus').classList.remove('show');
+  document.getElementById('loginButtons').style.display = 'block';
+}
+
+async function fillFormFromUser(user) {
+  if (!user) return;
+
+  // プロフィール取得（住所・名前）
+  const profile = await sbGetProfile();
+
+  // メールアドレス（LINEユーザーは偽メールを表示しない）
+  const isLineUser = user.email?.endsWith('@norem.line');
+  const emailEl = document.getElementById('fEmail');
+  if (emailEl && !isLineUser) emailEl.value = user.email || '';
+
+  // 姓名（profile.full_name を 姓 名 に分割）
+  if (profile?.full_name) {
+    const parts = profile.full_name.trim().split(/\s+/);
+    const lastEl  = document.getElementById('fLastName');
+    const firstEl = document.getElementById('fFirstName');
+    if (lastEl)  lastEl.value  = parts[0] || '';
+    if (firstEl) firstEl.value = parts.slice(1).join(' ') || '';
+  }
+
+  // 住所（プロフィールから優先取得）
+  const addr = profile?.postal_code ? profile : null;
+  if (addr) {
+    if (addr.postal_code) document.getElementById('fZip').value = addr.postal_code;
+    if (addr.prefecture) { document.getElementById('fPrefSelect').value = addr.prefecture; document.getElementById('fPrefText').value = addr.prefecture; }
+    if (addr.city)        document.getElementById('fCity').value = addr.city;
+    if (addr.address)     document.getElementById('fAddr').value = addr.address;
+  }
+
+  // Login済みはアカウント作成セクションを非表示
+  const accountToggle = document.querySelector('.account-toggle');
+  if (accountToggle) accountToggle.style.display = 'none';
+  document.getElementById('accountFields').style.display = 'none';
+
+  // LINEユーザーはメール欄を空にして入力させる（任意）
+  if (isLineUser) {
+    const label = document.querySelector('label[for="fEmail"]') ||
+      document.getElementById('fEmail')?.closest('.field')?.querySelector('label');
+    if (label) label.innerHTML = 'メールアドレス <span style="color:var(--mid);font-size:0.55rem">（任意・注文確認メール用）</span>';
+    if (emailEl) { emailEl.value = profile?.email_contact || ''; emailEl.removeAttribute('required'); }
+  }
+
+  // Login状態表示
+  const isLine    = user.email?.endsWith('@norem.line');
+  const meta      = user.user_metadata || {};
+  const name      = profile?.full_name || meta.full_name || user.email || '';
+  const avatarUrl = meta.avatar_url || '';
+
+  document.getElementById('loginStatusText').textContent = name;
+
+  const labelEl = document.getElementById('loginStatusLabel');
+  if (isLine) {
+    labelEl.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="#06C755"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg> LINEでLogin中`;
+  } else {
+    labelEl.textContent = 'Login中';
+    labelEl.style.color = '#9a9690';
+  }
+
+  if (avatarUrl) {
+    const img = document.getElementById('loginAvatar');
+    img.src = avatarUrl;
+    img.style.display = 'block';
+  } else {
+    document.getElementById('loginAvatarPlaceholder').style.display = 'flex';
+  }
+
+  document.getElementById('loginStatus').classList.add('show');
+  document.getElementById('loginButtons').style.display = 'none';
+}
+
+// ページ読み込み時にLogin済みか確認（LINELogin後のセッション受け取りも兼ねる）
+(async () => {
+  const hash    = new URLSearchParams(location.hash.slice(1));
+  const access  = hash.get('access_token');
+  const refresh = hash.get('refresh_token');
+  if (access && refresh) {
+    await getSupabase().auth.setSession({ access_token: access, refresh_token: refresh });
+    history.replaceState(null, '', location.pathname + location.search);
+  }
+
+  const user = await sbGetUser();
+  if (user) {
+    const profile = await sbGetProfile();
+    await fillFormFromUser(user);
+  }
+})();
+
+
+/* ── アカウント登録トグル ── */
+document.getElementById('createAccount').addEventListener('change', function(){
+  document.getElementById('accountFields').classList.toggle('show', this.checked);
+});
+
+/* ── 支払い選択 ── */
+document.querySelectorAll('.pay-opt').forEach(opt => {
+  opt.addEventListener('click', () => {
+    document.querySelectorAll('.pay-opt').forEach(o => o.classList.remove('active'));
+    opt.classList.add('active');
+  });
+});
+
+/* ── カートレンダリング ── */
+function renderCart() {
+  const el = document.getElementById('cartItems');
+  if (!cart.length) {
+    el.innerHTML = '<div class="cart-empty">カートに商品がありません。<br><a href="shop.html">ショッピングを続ける</a></div>';
+    document.getElementById('btnToConfirm').disabled = true;
+    return;
+  }
+  el.innerHTML = cart.map((item, idx) => {
+    const payLabel = item.isBespoke
+      ? (item.paymentType==='deposit' ? `30%先払い（¥${Math.ceil(item.price*0.3).toLocaleString()}）` : `全額（¥${item.price.toLocaleString()}）`)
+      : '';
+    return `
+    <div class="cart-item">
+      <div class="cart-item-img" style="${item.image?`background-image:url('${item.image}')`:''};"></div>
+      <div>
+        <p class="cart-item-name">${item.name}</p>
+        <p class="cart-item-meta">サイズ: ${item.size||'−'} &nbsp;|&nbsp; 数量: ${item.qty}</p>
+        <p class="cart-item-price">¥${item.price.toLocaleString()} (TAX IN)</p>
+        ${item.isBespoke?`<p class="cart-item-bespoke">別注 / ${payLabel}</p>`:''}
+        <div class="qty-ctrl">
+          <button onclick="changeQty(${idx},-1)">−</button>
+          <span id="qty-${idx}">${item.qty}</span>
+          <button onclick="changeQty(${idx},1)">＋</button>
+        </div>
+        <button class="cart-item-remove" onclick="removeItem(${idx})">削除</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function removeItem(idx){
+  cart.splice(idx,1); saveCart(cart); cart=getCart(); renderCart(); renderSummary();
+}
+
+function changeQty(idx, delta){
+  cart[idx].qty = Math.max(1, (cart[idx].qty||1) + delta);
+  saveCart(cart);
+  const el = document.getElementById('qty-'+idx);
+  if(el) el.textContent = cart[idx].qty;
+  renderSummary();
+}
+
+/* ── サマリー ── */
+function renderSummary() {
+  const subtotal = cart.reduce((s,i)=>{
+    const p = i.isBespoke && i.paymentType==='deposit' ? Math.ceil(i.price*0.3) : i.price;
+    return s+p*i.qty;
+  },0);
+  const ship = getShippingFee(subtotal);
+  const freeThreshold = isJapan() ? 10000 : 30000;
+  const shippingNote = isJapan()
+    ? `¥10,000以上で送料無料 / 未満は¥550`
+    : `JPY 30,000以上で送料無料 / 未満はJPY 3,000`;
+  const L = getCartLang();
+  document.getElementById('orderSummary').innerHTML=`
+    <div class="summary-row"><span>${L.subtotal}</span><span>${fmtPrice(subtotal)}</span></div>
+    <div class="summary-row"><span>${L.shippingFee}</span><span>${ship===0?L.free:fmtPrice(ship)}</span></div>
+    <div class="summary-row total"><span>${L.total}</span><span>${fmtPrice(subtotal+ship)}</span></div>`;
+  document.getElementById('etaDays').textContent = cart.some(i=>i.isBespoke) ? '振込確認後 5〜10営業日' : '3〜5営業日';
+  // 送料メモ更新
+  const noteEl = document.querySelector('.summary-note');
+  if (noteEl) noteEl.innerHTML = `価格はすべて税込表示です。<br>${shippingNote}`;
+}
+
+/* ── 確認へ ── */
+document.getElementById('btnToConfirm').addEventListener('click', async ()=>{
+  const currentUser = await sbGetUser();
+  const isLineUser  = currentUser?.email?.endsWith('@norem.line');
+  const inputEmail  = document.getElementById('fEmail').value.trim();
+  const vals = {
+    email: isLineUser ? (inputEmail || currentUser.email) : inputEmail,
+    emailDisplay: isLineUser ? (inputEmail || 'LINEアカウント') : inputEmail,
+    last:  document.getElementById('fLastName').value.trim(),
+    first: document.getElementById('fFirstName').value.trim(),
+    zip:   getZipValue(),
+    pref:  (document.getElementById('fPrefSelect').style.display!=='none'
+             ? document.getElementById('fPrefSelect').value
+             : document.getElementById('fPrefText').value).trim(),
+    city:  document.getElementById('fCity').value.trim(),
+    addr:  document.getElementById('fAddr').value.trim(),
+    pay:   document.querySelector('input[name="payMethod"]:checked')?.value,
+    createAccount: document.getElementById('createAccount').checked,
+    password: document.getElementById('fPassword').value,
+  };
+  if((!isLineUser&&!vals.email)||!vals.last||!vals.first||!vals.zip||!vals.pref||!vals.city||!vals.addr){
+    alert('必須項目をすべて入力してください'); return;
+  }
+  if(vals.createAccount && vals.password.length < 8){
+    alert('パスワードは8文字以上で入力してください'); return;
+  }
+  if(!cart.length){ alert('カートが空です'); return; }
+
+  const payLabels={transfer:'銀行振込',card:'クレジットカード',gpay:'Google Pay',paypay:'PayPay',paypal:'PayPal',amazon:'Amazon Pay'};
+  const subtotal = cart.reduce((s,i)=>{
+    const p=i.isBespoke&&i.paymentType==='deposit'?Math.ceil(i.price*0.3):i.price;
+    return s+p*i.qty;
+  },0);
+  const ship = getShippingFee(subtotal);
+
+  document.getElementById('confirmContent').innerHTML=`
+    <dt>お名前</dt><dd>${vals.last} ${vals.first}</dd>
+    <dt>メールアドレス</dt><dd>${vals.emailDisplay}</dd>
+    <dt>お届け先</dt><dd>〒${vals.zip} ${vals.pref}${vals.city} ${vals.addr}</dd>
+    <dt>お支払い方法</dt><dd>${payLabels[vals.pay]||vals.pay}</dd>
+    ${vals.createAccount?'<dt>アカウント</dt><dd>今回の注文でCreate Accountします</dd>':''}
+    <dt>ご注文商品</dt><dd>${cart.map(i=>`${i.name}（${i.size||'−'}）× ${i.qty}`).join('<br>')}</dd>
+    <dt>合計金額 / Total</dt><dd>${fmtPrice(subtotal+ship)}（税込・配送料含む）</dd>`;
+
+  window._order = {...vals, subtotal, ship, cart:[...cart]};
+
+  // Login済みならプロフィールに住所・名前・メールを即時保存
+  if (currentUser) {
+    const profileData = {
+      fullName:   `${vals.last} ${vals.first}`.trim(),
+      postalCode: vals.zip,
+      prefecture: vals.pref,
+      city:       vals.city,
+      address:    vals.addr,
+    };
+    // LINEユーザーが実メールを入力した場合は保存
+    if (isLineUser && inputEmail) profileData.emailContact = inputEmail;
+    sbUpdateProfile(profileData)
+      .then(() => console.log('プロフィール保存完了'))
+      .catch(e => console.warn('プロフィール保存失敗:', e.message));
+  }
+  document.getElementById('viewInput').style.display='none';
+  document.getElementById('viewConfirm').style.display='block';
+  ['step1'].forEach(s=>document.getElementById(s).classList.remove('active'));
+  document.getElementById('step2').classList.add('active');
+  window.scrollTo(0,0);
+});
+
+document.getElementById('btnBackInput').addEventListener('click',()=>{
+  document.getElementById('viewConfirm').style.display='none';
+  document.getElementById('viewInput').style.display='block';
+  document.getElementById('step2').classList.remove('active');
+  document.getElementById('step1').classList.add('active');
+});
+
+document.getElementById('btnSubmit').addEventListener('click', async () => {
+  const d = window._order;
+  const btn = document.getElementById('btnSubmit');
+  btn.disabled = true;
+  btn.textContent = '処理中...';
+
+  try {
+    // アカウント作成
+    if (d.createAccount && d.password) {
+      const { error } = await sbSignUp(d.email, d.password, `${d.last} ${d.first}`);
+      if (error && error.message !== 'User already registered') {
+        console.warn('signup:', error.message);
+      }
+    }
+    // Login済みならセッション取得
+    await sbSignIn(d.email, d.password).catch(() => {});
+
+    // 注文を Supabase に保存
+    const { data: order, error: orderErr } = await sbSaveOrder({
+      email:          d.email,
+      fullName:       `${d.last} ${d.first}`,
+      zip:            d.zip,
+      pref:           d.pref,
+      city:           d.city,
+      addr:           d.addr,
+      cart:           d.cart,
+      subtotal:       d.subtotal,
+      shipping:       d.ship,
+      payMethod:      d.pay,
+      bespokePayment: d.cart.some(i=>i.isBespoke) ? (d.cart.find(i=>i.isBespoke)?.paymentType||null) : null,
+    });
+    if (orderErr) console.warn('order save:', orderErr.message);
+
+    // プロフィールに姓名・住所を保存（次回Login時に自動入力）
+    await sbUpdateProfile({
+      fullName:    `${d.last} ${d.first}`,
+      postalCode:  d.zip,
+      prefecture:  d.pref,
+      city:        d.city,
+      address:     d.addr,
+    }).catch(() => {});
+
+    const orderId = order?.id?.slice(-8).toUpperCase() || Date.now().toString().slice(-8);
+    const hasBespoke = d.cart.some(i => i.isBespoke);
+    let msg = `ご注文番号: <strong>#${orderId}</strong><br><br>`;
+    msg += `確認メールを <strong>${d.email}</strong> にお送りします。<br><br>`;
+    if (d.pay === 'transfer' || hasBespoke) {
+      msg += `【銀行振込について】<br>振込先口座はメールにてご案内いたします。<br>`;
+      if (hasBespoke) msg += `別注商品はお振込み確認後の発送となります。`;
+    }
+    if (d.createAccount) msg += `<br><br>Create Accountしました。次回からかんたんにLoginできます。`;
+
+    document.getElementById('completeMsg').innerHTML = msg;
+    saveCart([]);
+    document.getElementById('viewConfirm').style.display = 'none';
+    document.getElementById('viewComplete').style.display = 'block';
+    document.getElementById('step2').classList.remove('active');
+    document.getElementById('step2').classList.add('done');
+    document.getElementById('step3').classList.add('active');
+    window.scrollTo(0, 0);
+
+    // 注文確認メール送信
+    const payLabelMap = {transfer:'銀行振込',card:'クレジットカード',gpay:'Google Pay',paypay:'PayPay',paypal:'PayPal',amazon:'Amazon Pay'};
+    sendOrderMail({
+      orderId,
+      name: `${d.last} ${d.first}`,
+      email: d.email,
+      address: `〒${d.zip} ${d.pref}${d.city}${d.addr}`,
+      payMethod: payLabelMap[d.pay] || d.pay,
+      items: d.cart.map(i => ({ name: i.name || i.id, size: i.size, price: i.price * (i.qty||1) })),
+      total: d.subtotal + d.ship,
+    });
+
+  } catch(e) {
+    console.error(e);
+    btn.disabled = false;
+    btn.textContent = '注文を確定する';
+    alert('エラーが発生しました。もう一度お試しください。');
+  }
+});
+
+// ═══════════════════════════════════════════════════
+//  決済初期化
+// ═══════════════════════════════════════════════════
+let _payCfg = { stripe:{enabled:false}, paypay:{enabled:false}, paypal:{enabled:false}, amazonPay:{enabled:false}, mail:{enabled:false} };
+let _stripeInstance = null;
+let _stripeElements = null;
+let _stripeCard     = null;
+
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }
+    const s = document.createElement('script'); s.src = src;
+    s.onload = resolve; s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+function calcTotal() {
+  const cart = loadCart();
+  const sub  = cart.reduce((s, i) => s + i.price * (i.qty||1), 0);
+  return sub + (sub < 30000 && sub > 0 ? 1100 : 0);
+}
+
+async function initPayments() {
+  try {
+    const r = await fetch('http://localhost:3001/api/payment/config');
+    _payCfg = await r.json();
+  } catch(e) {}
+
+  // ── Stripe（クレカ）──────────────────────────
+  if (_payCfg.stripe?.enabled && _payCfg.stripe?.pubKey) {
+    await loadScript('https://js.stripe.com/v3/');
+    _stripeInstance = Stripe(_payCfg.stripe.pubKey);
+    _stripeElements = _stripeInstance.elements();
+    _stripeCard = _stripeElements.create('card', {
+      style: { base: { fontFamily: 'Lato, sans-serif', fontSize: '14px', color: '#878787', '::placeholder': { color: '#bbb' } } },
+    });
+    _stripeCard.on('change', e => {
+      document.getElementById('stripeCardError').textContent = e.error ? e.error.message : '';
+    });
+    document.getElementById('paySubCard').textContent = 'Visa / Mastercard / Amex';
+
+    // Google Pay（ブラウザ対応確認）
+    const pr = _stripeInstance.paymentRequest({
+      country: 'JP', currency: 'jpy',
+      total: { label: 'NOREM', amount: calcTotal() || 100 },
+      requestPayerName: true, requestPayerEmail: true,
+    });
+    const canMake = await pr.canMakePayment();
+    const btnGpay = document.getElementById('btnGpay');
+    if (canMake?.googlePay || canMake?.applePay) {
+      // ブラウザ対応：Stripe公式ボタンに差し替え
+      btnGpay.style.display = 'none';
+      const gpayWrap = document.createElement('div');
+      gpayWrap.id = 'stripeGpayReal';
+      btnGpay.parentNode.insertBefore(gpayWrap, btnGpay);
+      _stripeElements.create('paymentRequestButton', {
+        paymentRequest: pr,
+        style: { paymentRequestButton: { type: 'buy', theme: 'dark', height: '44px' } },
+      }).mount('#stripeGpayReal');
+      pr.on('paymentmethod', async ev => {
+        const intentRes = await fetch('http://localhost:3001/api/payment/stripe/create-intent', {
+          method: 'POST', headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ amount: calcTotal() }),
+        });
+        const { clientSecret } = await intentRes.json();
+        const { error, paymentIntent } = await _stripeInstance.confirmCardPayment(
+          clientSecret, { payment_method: ev.paymentMethod.id }, { handleActions: false }
+        );
+        if (error) { ev.complete('fail'); alert(error.message); return; }
+        ev.complete('success');
+        window._stripePaymentIntentId = paymentIntent.id;
+        window._expressPayMethod = 'gpay';
+        document.querySelector('input[name="payMethod"][value="transfer"]').checked = true;
+        document.getElementById('btnToConfirm').click();
+      });
+    } else {
+      // ブラウザ非対応：グレーアウト
+      btnGpay.disabled = true;
+      btnGpay.title = 'このブラウザではGoogle Payを利用できません';
+      btnGpay.style.opacity = '0.4';
+    }
+  } else {
+    document.getElementById('btnGpay').title = '準備中';
+  }
+
+  // ── PayPal ─────────────────────────────────────
+  if (_payCfg.paypal?.enabled && _payCfg.paypal?.clientId) {
+    await loadScript(`https://www.paypal.com/sdk/js?client-id=${_payCfg.paypal.clientId}&currency=JPY`);
+    const fallback = document.getElementById('btnPaypalFallback');
+    fallback.style.display = 'none';
+    const ppDiv = document.getElementById('paypalExpressWrap');
+    paypal.Buttons({
+      style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'paypal', height: 44 },
+      createOrder: async () => {
+        const res = await fetch('http://localhost:3001/api/payment/paypal/create-order', {
+          method: 'POST', headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ amount: calcTotal() }),
+        });
+        const d = await res.json();
+        if (!d.ok) throw new Error(d.error);
+        return d.orderId;
+      },
+      onApprove: async (data) => {
+        const res = await fetch('http://localhost:3001/api/payment/paypal/capture', {
+          method: 'POST', headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ orderId: data.orderID }),
+        });
+        const d = await res.json();
+        if (d.ok) {
+          window._paypalOrderId = data.orderID;
+          window._expressPayMethod = 'paypal';
+          document.querySelector('input[name="payMethod"][value="transfer"]').checked = true;
+          document.getElementById('btnToConfirm').click();
+        } else { alert('PayPal決済に失敗しました: ' + d.error); }
+      },
+      onError: err => alert('PayPal決済エラー: ' + err),
+    }).render('#paypalExpressWrap');
+  }
+
+  // ── PayPay ─────────────────────────────────────
+  const btnPaypay = document.getElementById('btnPaypay');
+  if (_payCfg.paypay?.enabled) {
+    btnPaypay.disabled = false;
+    btnPaypay.addEventListener('click', async () => {
+      btnPaypay.disabled = true; btnPaypay.textContent = '処理中...';
+      const orderId = 'NRM-' + Date.now();
+      try {
+        const res = await fetch('http://localhost:3001/api/payment/paypay/create', {
+          method: 'POST', headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ amount: calcTotal(), orderId, orderDescription: 'NOREM Order' }),
+        });
+        const d = await res.json();
+        if (d.ok && d.redirectUrl) { location.href = d.redirectUrl; }
+        else { alert('PayPayエラー: ' + (d.error||'不明')); btnPaypay.disabled=false; btnPaypay.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="12" fill="white"/><text x="50%" y="58%" text-anchor="middle" dominant-baseline="middle" font-size="9" font-weight="bold" fill="#FF0033" font-family="Arial">PAY</text></svg> PayPay'; }
+      } catch(e) { alert(e.message); btnPaypay.disabled=false; }
+    });
+  } else {
+    btnPaypay.title = '準備中';
+  }
+
+
+  // カード選択時のフォーム表示
+  document.querySelectorAll('input[name="payMethod"]').forEach(radio => {
+    radio.addEventListener('change', onPayMethodChange);
+  });
+  onPayMethodChange();
+}
+
+function onPayMethodChange() {
+  const method = document.querySelector('input[name="payMethod"]:checked')?.value || 'transfer';
+  const stripeWrap = document.getElementById('stripeCardWrap');
+  if (method === 'card' && _payCfg.stripe?.enabled) {
+    stripeWrap.style.display = 'block';
+    if (_stripeCard) _stripeCard.mount('#stripeCardElement');
+  } else {
+    stripeWrap.style.display = 'none';
+    if (_stripeCard) try { _stripeCard.unmount(); } catch(e) {}
+  }
+}
+
+// 注文確定ボタン：Stripe決済を行ってからSupabase保存
+const _origSubmit = document.getElementById('btnSubmit').onclick;
+document.getElementById('btnSubmit').addEventListener('click', async (e) => {
+  const method = window._order?.pay || 'transfer';
+  if (method !== 'card' && method !== 'gpay') return; // 他の方法は既存ハンドラーに任せる
+  e.stopImmediatePropagation();
+
+  const btn = document.getElementById('btnSubmit');
+  btn.disabled = true;
+  btn.textContent = '決済処理中...';
+
+  try {
+    const total = calcTotal();
+    const d = window._order;
+
+    if (method === 'card' && _stripeCard) {
+      // Stripe カード決済
+      const intentRes = await fetch('http://localhost:3001/api/payment/stripe/create-intent', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ amount: total, metadata: { email: d.email } }),
+      });
+      const intentData = await intentRes.json();
+      if (!intentData.ok) throw new Error(intentData.error);
+
+      const { error: stripeErr, paymentIntent } = await _stripeInstance.confirmCardPayment(
+        intentData.clientSecret,
+        { payment_method: { card: _stripeCard, billing_details: { name: `${d.last} ${d.first}`, email: d.email } } }
+      );
+      if (stripeErr) throw new Error(stripeErr.message);
+      window._stripePaymentIntentId = paymentIntent.id;
+
+    } else if (method === 'gpay' && _stripeInstance) {
+      // Google Pay（Stripe Payment Request）
+      const pr = _stripeInstance.paymentRequest({
+        country: 'JP', currency: 'jpy',
+        total: { label: 'NOREM', amount: total },
+        requestPayerName: true, requestPayerEmail: true,
+      });
+      const canMake = await pr.canMakePayment();
+      if (!canMake?.googlePay) throw new Error('Google Payが使用できません');
+      const prBtn = _stripeElements.create('paymentRequestButton', { paymentRequest: pr });
+      // 直接confirm
+      const result = await new Promise((res, rej) => {
+        pr.on('paymentmethod', async ev => {
+          const { error, paymentIntent } = await _stripeInstance.confirmCardPayment(
+            (await (await fetch('http://localhost:3001/api/payment/stripe/create-intent', {
+              method:'POST', headers:{'Content-Type':'application/json'},
+              body: JSON.stringify({ amount: total }),
+            })).json()).clientSecret,
+            { payment_method: ev.paymentMethod.id }, { handleActions: false }
+          );
+          if (error) { ev.complete('fail'); rej(error); }
+          else { ev.complete('success'); res(paymentIntent); }
+        });
+        pr.show();
+      });
+      window._stripePaymentIntentId = result.id;
+    }
+
+    // Stripe決済成功 → 通常の注文確定フローへ
+    btn.textContent = '注文を確定する';
+    btn.disabled = false;
+    // 通常の注文保存処理を呼び出す（元のイベントと同じ処理）
+    btn.dispatchEvent(Object.assign(new Event('click'), { _stripeConfirmed: true }));
+
+  } catch(err) {
+    console.error('Payment error:', err);
+    btn.disabled = false;
+    btn.textContent = '注文を確定する';
+    document.getElementById('stripeCardError').textContent = err.message || '決済エラーが発生しました';
+    alert('決済エラー: ' + (err.message || '不明なエラー'));
+  }
+}, true); // capture phase
+
+// メール送信（注文確定後）
+async function sendOrderMail(order) {
+  try {
+    await fetch('http://localhost:3001/api/order/send-mail', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(order),
+    });
+  } catch(e) { console.warn('mail send failed:', e); }
+}
+
+// PayPay決済完了URLから戻ってきた場合の処理
+(function checkPayPayReturn() {
+  const params = new URLSearchParams(location.search);
+  if (params.get('payment') === 'paypay_complete') {
+    const orderId = params.get('merchantPaymentId') || Date.now().toString().slice(-8);
+    document.getElementById('completeMsg').innerHTML =
+      `ご注文番号: <strong>#${orderId}</strong><br><br>PayPayでのお支払いが完了しました。<br>確認メールをお送りします。`;
+    document.getElementById('viewConfirm').style.display = 'none';
+    document.getElementById('viewComplete').style.display = 'block';
+  }
+})();
+
+initPayments();
+renderCart();
+renderSummary();
+</script>
+<footer>
+  <div class="footer-top">
+    <a class="footer-logo" href="index.html">NOREM</a>
+    <div class="footer-cols">
+      <div class="footer-col">
+        <h4>Account / Contact</h4>
+        <ul>
+          <li><a href="signup.html">Create Account</a></li>
+          <li><a href="login.html">Login</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+              <div class="footer-col">
+          <h4>Policy</h4>
+          <ul>
+            <li><a href="shipping.html">Shipping</a></li>
+            <li><a href="privacy-policy.html">Privacy Policy</a></li>
+            <li><a href="terms.html">Terms &amp; Conditions</a></li>
+            <li><a href="returns.html">Returns &amp; Refunds</a></li>
+          </ul>
+        </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p class="footer-copy">© 2025 NOREM. All rights reserved.</p>
+    <a href="https://www.instagram.com/norem___official/?hl=ja" target="_blank" rel="noopener noreferrer" class="footer-ig" aria-label="Instagram">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none"/></svg>
+    </a>
+  </div>
+</footer>
+  <script src="cookie-consent.js"></script>
+  <script src="search.js"></script>
+</body>
+</html>

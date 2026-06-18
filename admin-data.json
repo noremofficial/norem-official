@@ -1,0 +1,705 @@
+{
+  "about": {
+    "conceptTitle": "Toward Belonging",
+    "conceptBody": "誰かの一部になれるように、誰かの居場所になれるように\n不安と葛藤の中で安心でいられる場所を見つけ出す。",
+    "designerName": "Tatsuya",
+    "designerIg": "https://www.instagram.com/tatsuya_vfd/"
+  },
+  "news": {},
+  "newArticles": [
+    {
+      "id": 1,
+      "date": "2026.06.08",
+      "category": "Info",
+      "title": "NOREMウェブサイトを開設しました",
+      "excerpt": "この度、NOREMの公式ウェブサイトを開設いたしました。",
+      "image": "news/1/main.png",
+      "images": [],
+      "content": "平素よりNOREMをご愛顧いただき、誠にありがとうございます。\n\nこの度、NOREMの公式ウェブサイトを開設いたしました。\n\n当サイトでは、最新コレクションのご紹介や商品のご購入、ブランドに関するお知らせなどを発信してまいります。\n\nぜひ定期的にご覧いただけますと幸いです。\n\n今後ともNOREMをよろしくお願いいたします。",
+      "url": "news-article.html?id=1",
+      "published": false,
+      "_isNew": true
+    },
+    {
+      "id": 2,
+      "date": "2026.06.08",
+      "category": "New",
+      "title": "SS 2025 コレクション発売開始",
+      "excerpt": "新コレクションの発売をお知らせいたします。",
+      "image": "",
+      "images": [],
+      "content": "この度、NOREMより新コレクションの発売を開始いたしました。\n\n[img:1]\n\n今シーズンのテーマは「○○」。\n自然素材にこだわり、着る人の日常に寄り添うアイテムを揃えました。\n\n[img:2]\n\n▼ 詳細・ご購入はショップページから\n各アイテムの詳細については、ショップページをご覧ください。\n\nどうぞよろしくお願いいたします。",
+      "url": "news-article.html?id=2",
+      "published": false,
+      "_isNew": true
+    },
+    {
+      "id": 3,
+      "date": "2026.06.08",
+      "category": "Event",
+      "title": "ポップアップストア開催のお知らせ",
+      "excerpt": "ポップアップストアの開催をお知らせいたします。",
+      "image": "",
+      "images": [],
+      "content": "NOREMのポップアップストアを開催いたします。\n\n[img:1]\n\n■ 開催概要\n日時：○○年○月○日（○）〜 ○月○日（○）\n時間：11:00 〜 19:00\n場所：○○（住所）\n\n[img:2]\n\n■ 内容\n最新コレクションの展示・販売を行います。\nスタッフも常駐しておりますので、お気軽にお立ち寄りください。\n\n皆様のご来場をお待ちしております。",
+      "url": "news-article.html?id=3",
+      "published": false,
+      "_isNew": true
+    }
+  ],
+  "collections": {
+    "2027SS": {
+      "published": false,
+      "label": "2027SS",
+      "kvSeasonFont": ""
+    },
+    "2026-27AW": {
+      "published": false,
+      "label": "",
+      "kvSeasonFont": "'Cormorant Garamond', serif"
+    },
+    "2028SS": {
+      "published": false,
+      "label": "2028SS"
+    }
+  },
+  "item01.PNG": {
+    "status": "bespoke",
+    "price": 20000,
+    "taxIn": true,
+    "showOnHome": true,
+    "saleDate": "",
+    "sizes": [
+      {
+        "label": "0",
+        "status": "available",
+        "stock": 6
+      },
+      {
+        "label": "1",
+        "status": "available",
+        "stock": 6
+      },
+      {
+        "label": "2",
+        "status": "available"
+      },
+      {
+        "label": "3",
+        "status": "available"
+      },
+      {
+        "label": "",
+        "status": "available"
+      }
+    ],
+    "description": "（商品の紹介文・コピーライティングを入力）\nテステステス",
+    "infoText": "素材：テス\n伸縮性：テス\n透け感：テス",
+    "notes": "※製品洗い加工を施しているため、風合いや色味に個体差がございます。\n※商品写真はできる限り実物の色に近づけるよう徹底しておりますが、お使いのモニター設定、お部屋の照明等により実際の商品と色味が異なる場合がございます。\n※畳みでの配送のため、保管/配送状況によりシワや紐のよれが生じる場合がございます。予めご了承ください。\n※商品の仕様、デザインが写真と現物に差異がある場合、現物を優先いたします。",
+    "sizeChart": {
+      "headers": [
+        "サイズ",
+        "ウエスト",
+        "総丈",
+        "肩幅",
+        "袖丈",
+        "裾幅",
+        "バスト幅",
+        "袖ぐり"
+      ],
+      "rows": [
+        [
+          "0",
+          "73",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "1",
+          "76",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "2",
+          "78",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "3",
+          "80",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "",
+          "110.0",
+          "83.0",
+          "77.0",
+          "55.0",
+          "63.5",
+          "110.0",
+          "34.0"
+        ]
+      ],
+      "note": "※全て平置きでの採寸となります。"
+    },
+    "careIcons": [],
+    "published": false
+  },
+  "item02.PNG": {
+    "status": "comingsoon",
+    "price": 0,
+    "taxIn": true,
+    "showOnHome": true,
+    "saleDate": "",
+    "sizes": [
+      {
+        "label": "0",
+        "status": "available"
+      },
+      {
+        "label": "1",
+        "status": "available"
+      }
+    ],
+    "description": "（商品の紹介文・コピーライティングを入力）",
+    "infoText": "素材：\n伸縮性：\n透け感：",
+    "notes": "",
+    "sizeChart": {
+      "headers": [
+        "サイズ",
+        "ウエスト",
+        "ヒップ",
+        "総丈",
+        "股下",
+        "渡り",
+        "バスト幅",
+        "肩幅",
+        "袖丈",
+        "袖ぐり",
+        "袖口幅",
+        "内(衿)天幅",
+        "裾幅"
+      ],
+      "rows": [
+        [
+          "0",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "1",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ]
+      ],
+      "note": "※全て平置きでの採寸となります。"
+    },
+    "published": false
+  },
+  "item03.PNG": {
+    "status": "soldout",
+    "price": 0,
+    "taxIn": true,
+    "showOnHome": true,
+    "saleDate": "",
+    "sizes": [
+      {
+        "label": "0",
+        "status": "available"
+      },
+      {
+        "label": "1",
+        "status": "available"
+      }
+    ],
+    "description": "（商品の紹介文・コピーライティングを入力）",
+    "infoText": "素材：\n伸縮性：\n透け感：",
+    "notes": "",
+    "sizeChart": {
+      "headers": [
+        "サイズ",
+        "ウエスト",
+        "ヒップ",
+        "総丈",
+        "股下",
+        "渡り",
+        "バスト幅",
+        "肩幅",
+        "袖丈",
+        "袖ぐり",
+        "袖口幅",
+        "内(衿)天幅",
+        "裾幅"
+      ],
+      "rows": [
+        [
+          "0",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "1",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ]
+      ],
+      "note": "※全て平置きでの採寸となります。"
+    },
+    "published": false
+  },
+  "item04.PNG": {
+    "status": "comingsoon",
+    "price": 0,
+    "taxIn": true,
+    "showOnHome": true,
+    "saleDate": "",
+    "sizes": [
+      {
+        "label": "0",
+        "status": "available"
+      },
+      {
+        "label": "1",
+        "status": "available"
+      }
+    ],
+    "description": "（商品の紹介文・コピーライティングを入力）",
+    "infoText": "素材：\n伸縮性：\n透け感：",
+    "notes": "",
+    "sizeChart": {
+      "headers": [
+        "サイズ",
+        "ウエスト",
+        "ヒップ",
+        "総丈",
+        "股下",
+        "渡り",
+        "バスト幅",
+        "肩幅",
+        "袖丈",
+        "袖ぐり",
+        "袖口幅",
+        "内(衿)天幅",
+        "裾幅"
+      ],
+      "rows": [
+        [
+          "0",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "1",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ]
+      ],
+      "note": "※全て平置きでの採寸となります。"
+    },
+    "published": false
+  },
+  "item05.PNG": {
+    "published": false
+  },
+  "item06.PNG": {
+    "published": false
+  },
+  "item07.PNG": {
+    "published": false
+  },
+  "item08.PNG": {
+    "published": false
+  },
+  "item09.PNG": {
+    "published": false
+  },
+  "item10.PNG": {
+    "published": false
+  },
+  "item11.PNG": {
+    "published": false
+  },
+  "item12.PNG": {
+    "published": false
+  },
+  "item13.PNG": {
+    "published": false
+  },
+  "item14.PNG": {
+    "published": false
+  },
+  "products/2026-27AW/item01.jpg": {
+    "status": "available",
+    "price": 0,
+    "taxIn": true,
+    "showOnHome": true,
+    "saleDate": "",
+    "sizes": [
+      {
+        "label": "0",
+        "status": "available"
+      },
+      {
+        "label": "1",
+        "status": "available"
+      }
+    ],
+    "description": "（商品の紹介文・コピーライティングを入力）\nテストテストテスト",
+    "infoText": "素材：テスト\n伸縮性：テスト\n透け感：テスト",
+    "notes": "",
+    "sizeChart": {
+      "headers": [
+        "サイズ（平置き）",
+        "ウエスト",
+        "ヒップ",
+        "総丈",
+        "股下",
+        "渡り",
+        "バスト幅",
+        "肩幅",
+        "袖丈",
+        "袖ぐり",
+        "袖口幅",
+        "内(衿)天幅",
+        "裾幅"
+      ],
+      "rows": [
+        [
+          "0",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "1",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ]
+      ],
+      "note": "※全て平置きでの採寸となります。"
+    },
+    "careIcons": [],
+    "published": true,
+    "imageLayout": "layout1",
+    "imageRotations": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "products/2026-27AW/item02.jpg": {
+    "published": true
+  },
+  "products/2026-27AW/item03.jpg": {
+    "published": true
+  },
+  "products/2026-27AW/item04.jpg": {
+    "status": "bespoke",
+    "price": 5000,
+    "taxIn": true,
+    "showOnHome": true,
+    "saleDate": "",
+    "sizes": [
+      {
+        "label": "0",
+        "status": "available"
+      },
+      {
+        "label": "1",
+        "status": "available"
+      },
+      {
+        "label": "2",
+        "status": "available"
+      },
+      {
+        "label": "3",
+        "status": "available"
+      }
+    ],
+    "description": "（商品の紹介文・コピーライティングを入力）",
+    "infoText": "素材：\n伸縮性：\n透け感：",
+    "notes": "",
+    "sizeChart": {
+      "headers": [
+        "サイズ（平置き）",
+        "ウエスト",
+        "ヒップ",
+        "総丈",
+        "股下",
+        "渡り",
+        "バスト幅",
+        "肩幅",
+        "袖丈",
+        "袖ぐり",
+        "袖口幅",
+        "内(衿)天幅",
+        "裾幅"
+      ],
+      "rows": [
+        [
+          "0",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "1",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "2",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        [
+          "3",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ]
+      ],
+      "note": "※全て平置きでの採寸となります。"
+    },
+    "careIcons": [],
+    "categories": [
+      "new-arrivals"
+    ],
+    "published": true,
+    "imageLayout": "scroll",
+    "imageRotations": [
+      0,
+      0
+    ]
+  },
+  "products/2026-27AW/item05.jpg": {
+    "published": true
+  },
+  "products/2026-27AW/item06.jpg": {
+    "published": true
+  },
+  "products/2026-27AW/item07.jpg": {
+    "published": true
+  },
+  "products/2026-27AW/item08.jpg": {
+    "published": true
+  },
+  "products/2026-27AW/item09.jpg": {
+    "published": true
+  },
+  "products/2026-27AW/item10.jpg": {
+    "published": true
+  },
+  "products/2026-27AW/item11.jpg": {
+    "published": true
+  },
+  "products/2026-27AW/item12.jpg": {
+    "published": true
+  },
+  "products/2026-27AW/item13.jpg": {
+    "published": true
+  },
+  "products/2026-27AW/item14.jpg": {
+    "published": true
+  },
+  "homeImages": [
+    {
+      "src": "home/home1.png",
+      "link": "http://localhost:8765/about.html",
+      "active": true
+    },
+    {
+      "src": "home/home2.png",
+      "link": "collection.html",
+      "active": false
+    },
+    {
+      "src": "home/home3.png",
+      "link": "collection.html",
+      "active": false
+    }
+  ],
+  "products/2028AW/item01.jpg": {
+    "published": false
+  },
+  "products/2028AW/item02.jpg": {
+    "published": false
+  },
+  "products/2028AW/item03.jpg": {
+    "published": false
+  },
+  "products/2028AW/item04.jpg": {
+    "published": false
+  },
+  "products/2028AW/item05.jpg": {
+    "published": false
+  },
+  "products/2028AW/item06.jpg": {
+    "published": false
+  },
+  "products/2028AW/item07.jpg": {
+    "published": false
+  },
+  "products/2028AW/item08.jpg": {
+    "published": false
+  },
+  "products/2028AW/item09.jpg": {
+    "published": false
+  },
+  "products/2028AW/item10.jpg": {
+    "published": false
+  },
+  "products/2028AW/item11.jpg": {
+    "published": false
+  },
+  "products/2028AW/item12.jpg": {
+    "published": false
+  },
+  "products/2028AW/item13.jpg": {
+    "published": false
+  },
+  "products/2028AW/item14.jpg": {
+    "published": false
+  }
+}

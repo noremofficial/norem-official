@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>NOREM — Create Account</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--black:#bababa;--white:#fff;--mid:#9a9690;--border:#e4e0da;--cream:#f4f2ee;--err:#c0392b;--ok:#27ae60}
+body{font-family:'Lato','Hiragino Sans',sans-serif;background:var(--white);color:#565656;min-height:100vh}
+
+/* ========== NAV ========== */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 144px; height: 60px;
+  background: rgba(255,255,255,0.5); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  transition: background 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.nav-logo {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.3rem; font-weight: 400; letter-spacing: 0.24em;
+  color: var(--black); text-decoration: none;
+}
+.nav-logo-img { height: 36px; width: auto; object-fit: contain; }
+.nav-links {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 32px; list-style: none;
+}
+.nav-links a {
+  font-size: 0.67rem; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--black); text-decoration: none; transition: color 0.2s;
+}
+.nav-links a:hover { opacity: 0.6; }
+.nav-label { font-size: 0.67rem; letter-spacing: 0.18em; text-transform: uppercase; color: inherit; cursor: pointer; }
+.coll-overlay {
+  position: fixed; top: 0; left: 0; right: 0; height: auto;
+  background: rgba(255,255,255,0.85); backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px);
+  z-index: 90; display: flex; align-items: flex-start; justify-content: center;
+  padding: 88px 0 140px; opacity: 0; pointer-events: none;
+  transition: opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 110px), transparent 100%);
+  mask-image: linear-gradient(to bottom, black calc(100% - 110px), transparent 100%);
+}
+nav.overlay-open { background: transparent !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; border-color: transparent !important; transition: background 0.2s, border-color 0.2s !important; }
+.coll-overlay.open { opacity: 1; pointer-events: auto; }
+.coll-overlay-inner { display: flex; flex-direction: row; align-items: flex-start; justify-content: center; gap: 72px; text-align: center; }
+.nav-overlay-col { display: flex; flex-direction: column; align-items: center; gap: 1.1em; }
+@keyframes navItemIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.nav-overlay-heading { font-size: 0.54rem; letter-spacing: 0.3em; text-transform: uppercase; color: #878787; padding-bottom: 0.8em; border-bottom: 1px solid var(--border); width: 100%; opacity: 0; }
+.coll-overlay.open .nav-overlay-heading { animation: navItemIn 0.3s cubic-bezier(0.16,1,0.3,1) both; }
+.nav-overlay-sub { font-size: clamp(0.52rem, 0.76vw, 0.6rem) !important; letter-spacing: 0.2em !important; color: #a0a0a0 !important; }
+.coll-overlay-inner a { font-family: 'Cormorant Garamond', serif; font-size: clamp(0.62rem, 0.9vw, 0.72rem); font-weight: 300; letter-spacing: 0.32em; text-transform: uppercase; color: #878787; text-decoration: none; opacity: 0; transition: color 0.2s; }
+.coll-overlay.open .coll-overlay-inner a { animation: navItemIn 0.3s cubic-bezier(0.16,1,0.3,1) both; }
+.coll-overlay-inner a:hover { color: #888888; }
+.nav-right { display: flex; align-items: center; gap: 18px; }
+.nav-icon { background: none; border: none; cursor: pointer; color: var(--black); display: flex; }
+.hamburger {
+  display: none; flex-direction: column; gap: 5px;
+  background: none; border: none; cursor: pointer; padding: 4px;
+}
+.hamburger span {
+  display: block; width: 22px; height: 1px; background: var(--black);
+  transition: transform 0.3s, opacity 0.3s;
+}
+.hamburger.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity: 0; }
+.hamburger.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+.mobile-menu {
+  display: none; position: fixed; inset: 60px 0 0;
+  background: var(--white); z-index: 99;
+  flex-direction: column; align-items: center; justify-content: center; gap: 36px;
+}
+.mobile-menu.open { display: flex; }
+.mobile-menu a {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem; font-weight: 300; letter-spacing: 0.12em;
+  color: var(--black); text-decoration: none;
+}
+.mobile-coll-wrap { width: 100%; text-align: center; }
+.mobile-coll-toggle { display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; background: none; border: none; font-family: inherit; font-size: 1.1rem; font-weight: 300; letter-spacing: 0.12em; color: var(--black); text-decoration: none; width: 100%; -webkit-tap-highlight-color: transparent; }
+.mobile-coll-arrow { font-size: 0.7rem; color: var(--mid); transition: transform 0.25s; }
+.mobile-coll-arrow.open { transform: rotate(180deg); }
+.mobile-coll-seasons { display: flex; flex-direction: column; gap: 14px; margin-top: 0; max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.35s ease, opacity 0.3s ease, margin-top 0.3s ease; }
+.mobile-coll-seasons.open { max-height: 300px; opacity: 1; margin-top: 14px; }
+.mobile-coll-seasons a { font-size: 0.78rem !important; letter-spacing: 0.14em; color: var(--mid) !important; }
+
+/* ========== FORM ========== */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.signup-section {
+  margin: 0 clamp(24px, 34.7vw, 500px);
+  padding: 72px 0 100px;
+  animation: fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) both;
+}
+
+.signup-title {
+  font-size: 0.62rem; letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--mid); margin-bottom: 56px;
+}
+
+.form-group { margin-bottom: 0; }
+
+.form-input {
+  width: 100%; border: none;
+  border-bottom: 1px solid var(--border);
+  padding: 18px 0; font-size: 0.82rem;
+  font-family: 'Lato', sans-serif;
+  color: var(--black); background: transparent;
+  outline: none; transition: border-color 0.3s;
+}
+.form-input::placeholder { color: var(--mid); letter-spacing: 0.08em; }
+.form-input:focus { border-color: var(--black); }
+
+.form-submit {
+  width: 100%; padding: 18px;
+  background: transparent; color: var(--mid);
+  border: none; border-top: 1px solid var(--border);
+  font-size: 0.62rem; letter-spacing: 0.3em;
+  text-transform: uppercase; cursor: pointer;
+  transition: color 0.3s; font-family: 'Lato', sans-serif;
+  text-align: left;
+}
+.form-submit:hover { color: var(--black); }
+.form-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.msg { font-size: 0.72rem; margin-top: 16px; line-height: 1.8; display: none; letter-spacing: 0.06em; }
+.msg.error { color: var(--err); display: block; }
+.msg.ok { color: var(--ok); display: block; }
+
+.login-link { margin-top: 32px; font-size: 0.65rem; letter-spacing: 0.08em; color: var(--mid); border-top: 1px solid var(--border); padding-top: 18px; }
+.login-link a { color: var(--black); text-decoration: none; border-bottom: 1px solid var(--border); }
+.login-link a:hover { border-color: var(--black); }
+
+.done-section { margin: 0 clamp(24px, 34.7vw, 500px); padding: 72px 0 100px; display: none; text-align: center; }
+.done-section p { font-size: 0.72rem; color: var(--mid); line-height: 2; letter-spacing: 0.06em; margin-bottom: 40px; }
+.done-link { display: inline-block; font-size: 0.62rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--mid); text-decoration: none; border-bottom: 1px solid var(--border); padding-bottom: 2px; transition: color 0.3s; }
+.done-link:hover { color: var(--black); }
+
+/* ========== FOOTER ========== */
+footer { background: var(--white); border-top: 1px solid var(--border); padding: 56px 48px 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+.footer-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 48px; padding-bottom: 40px; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+.footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 300; letter-spacing: 0.24em; color: var(--black); text-decoration: none; flex-shrink: 0; }
+.footer-cols { display: flex; gap: 56px; flex-wrap: wrap; }
+.footer-col h4 { font-size: 0.58rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--mid); margin-bottom: 16px; white-space: nowrap; }
+.footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 11px; }
+.footer-col a { font-size: 0.75rem; color: var(--mid); text-decoration: none; transition: color 0.2s; }
+.footer-col a:hover { color: var(--black); }
+.footer-bottom { display: flex; justify-content: space-between; align-items: center; }
+.footer-copy { font-size: 0.58rem; letter-spacing: 0.1em; color: var(--mid); }
+.footer-ig { color: var(--mid); transition: color 0.2s; display: flex; }
+.footer-ig:hover { color: var(--black); }
+
+@media (max-width: 900px) {
+  nav { padding: 0 20px; }
+  .nav-links { display: none; }
+  .hamburger { display: flex; }
+  footer { padding: 20px; }
+}
+*:not(.nav-logo):not(.footer-logo):not(.logo-mark):not(.nav-logo img) {
+  font-family: 'Lato', 'Hiragino Sans', sans-serif !important;
+}
+.nav-logo, .footer-logo, .logo-mark {
+  font-family: 'Cormorant Garamond', serif !important;
+}
+@media (max-width: 480px) {
+  .footer-top { flex-direction: column; gap: 20px; }
+  .footer-cols { flex-direction: column; gap: 16px; }
+  .footer-bottom { flex-direction: column; gap: 8px; }
+}
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <a class="nav-logo" href="index.html">
+    <img class="nav-logo-img" src="logo.png" alt="" onerror="this.style.display='none'"/>
+    NOREM
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li id="collNavItem" onmouseenter="openNavOverlay('coll')" onmouseleave="scheduleCloseNavOverlay()"><a href="collection.html?season=2026-27AW">Collection</a></li>
+    <li id="shopNavItem" onmouseenter="openNavOverlay('shop')" onmouseleave="scheduleCloseNavOverlay()"><a href="shop.html" id="navShopLink">Shop</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="cart.html" class="nav-icon nav-cart" aria-label="Cart" style="position:relative;text-decoration:none">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+      <span class="cart-badge" id="cartBadge" style="display:none;position:absolute;top:-6px;right:-6px;background:#0d0d0d;color:#fff;font-size:9px;min-width:16px;height:16px;border-radius:8px;text-align:center;line-height:16px;padding:0 3px">0</span>
+    </a>
+    <button class="nav-icon" aria-label="Search">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
+    </button>
+    <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<div class="coll-overlay" id="collOverlay">
+  <div class="coll-overlay-inner" id="collOverlayInner"></div>
+</div>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html">Home</a>
+  <a href="about.html">About</a>
+  <div class="mobile-coll-wrap">
+    <button class="mobile-coll-toggle" onclick="toggleMobileColl(event)">Collection <span class="mobile-coll-arrow" id="mobileCollArrow">▼</span></button>
+    <div class="mobile-coll-seasons" id="mobileCollSeasons"></div>
+  </div>
+  <a href="shop.html">Shop</a>
+  <a href="contact.html">Contact</a>
+</div>
+
+<div class="signup-section" id="signupSection">
+  <p class="signup-title">Create Account</p>
+  <form id="signupForm" novalidate>
+    <div class="form-group">
+      <input class="form-input" type="text" id="sLast" placeholder="Last Name" required/>
+    </div>
+    <div class="form-group">
+      <input class="form-input" type="text" id="sFirst" placeholder="First Name" required/>
+    </div>
+    <div class="form-group">
+      <input class="form-input" type="email" id="sEmail" placeholder="Email" required/>
+    </div>
+    <div class="form-group">
+      <input class="form-input" type="password" id="sPassword" placeholder="Password (min. 8 characters)" required/>
+    </div>
+    <button class="form-submit" id="signupBtn" type="submit">Create Account →</button>
+    <div class="msg" id="signupMsg"></div>
+  </form>
+  <p class="login-link">Already have an account? <a href="login.html">Login here</a></p>
+</div>
+
+<div class="done-section" id="doneSection">
+  <p class="signup-title">Account Created</p>
+  <p id="doneMsg"></p>
+  <a href="index.html" class="done-link">Continue Shopping →</a>
+</div>
+
+<footer>
+  <div class="footer-top">
+    <a class="footer-logo" href="index.html">NOREM</a>
+    <div class="footer-cols">
+      <div class="footer-col">
+        <h4>Account / Contact</h4>
+        <ul>
+          <li><a href="signup.html">Create Account</a></li>
+          <li><a href="login.html">Login</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+              <div class="footer-col">
+          <h4>Policy</h4>
+          <ul>
+            <li><a href="shipping.html">Shipping</a></li>
+            <li><a href="privacy-policy.html">Privacy Policy</a></li>
+            <li><a href="terms.html">Terms &amp; Conditions</a></li>
+            <li><a href="returns.html">Returns &amp; Refunds</a></li>
+          </ul>
+        </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p class="footer-copy">© 2025 NOREM. All rights reserved.</p>
+    <a href="https://www.instagram.com/norem___official/?hl=ja" target="_blank" rel="noopener noreferrer" class="footer-ig" aria-label="Instagram">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none"/></svg>
+    </a>
+  </div>
+</footer>
+
+<script src="collections-data.js"></script>
+<script src="news-data.js"></script>
+<script src="products-data.js"></script>
+  <script src="search.js"></script>
+<script>
+    const _nav = document.getElementById('nav');
+  let _navCloseTimer = null;
+  let _navCurrentType = null;
+  const SHOP_CATEGORIES = [
+    { label: 'Tops', slug: 'tops', sub: [
+      { label: 'Shirts / Blouses', slug: 'shirts-blouses' },
+      { label: 'Cut & Sew / Sweat', slug: 'cut-sew-sweat' },
+    ]},
+    { label: 'Bottoms', slug: 'bottoms', sub: [
+      { label: 'Pants', slug: 'pants' },
+      { label: 'Skirts', slug: 'skirts' },
+    ]},
+    { label: 'Outerwear', slug: 'outerwear', sub: [
+      { label: 'Jackets', slug: 'jackets' },
+      { label: 'Coats', slug: 'coats' },
+    ]},
+    { label: 'Dresses / Setup', slug: 'dresses-setup' },
+    { label: 'Bags', slug: 'bags' },
+    { label: 'Shoes', slug: 'shoes' },
+    { label: 'Accessories', slug: 'accessories' },
+    { label: 'Sale', slug: 'sale' },
+  ];
+
+  function openNavOverlay(type) {
+    clearTimeout(_navCloseTimer);
+    const overlay = document.getElementById('collOverlay');
+    const inner   = document.getElementById('collOverlayInner');
+    if (_navCurrentType !== type) {
+      _navCurrentType = type;
+      let seasonLinks = '';
+      if (type === 'coll') {
+        const items = typeof COLLECTIONS_DATA !== 'undefined' ? COLLECTIONS_DATA.filter(c => c.published) : [];
+        seasonLinks = items.map(c => `<a href="collection.html?season=${encodeURIComponent(c.season)}">${c.season}</a>`).join('');
+      } else {
+        const seasons = typeof PRODUCTS_DATA !== 'undefined'
+          ? [...new Set(PRODUCTS_DATA.filter(p => p.published !== false).map(p => p.season))].sort().reverse()
+          : [];
+        seasonLinks = seasons.map(s => `<a href="shop.html?season=${encodeURIComponent(s)}">${s}</a>`).join('');
+      }
+      if (type === 'coll') {
+        inner.innerHTML = `<div class="nav-overlay-col"><p class="nav-overlay-heading">Season Look</p>${seasonLinks}</div>`;
+      } else {
+        const catLinks = SHOP_CATEGORIES.map(cat => {
+          let html = `<a href="shop.html?category=${cat.slug}">${cat.label}</a>`;
+          if (cat.sub) cat.sub.forEach(s => { html += `<a href="shop.html?category=${s.slug}" class="nav-overlay-sub">${s.label}</a>`; });
+          return html;
+        }).join('');
+        inner.innerHTML = `
+          <div class="nav-overlay-col"><p class="nav-overlay-heading">Season Look</p>${seasonLinks}</div>
+          <div class="nav-overlay-col"><p class="nav-overlay-heading">Category</p>${catLinks}</div>`;
+      }
+    }
+    overlay.classList.add('open');
+    _nav.classList.add('overlay-open');
+  }
+  function scheduleCloseNavOverlay() {
+    _navCloseTimer = setTimeout(() => {
+      document.getElementById('collOverlay').classList.remove('open');
+      _nav.classList.remove('overlay-open');
+      _navCurrentType = null;
+    }, 120);
+  }
+  document.getElementById('collOverlay').addEventListener('mouseenter', () => clearTimeout(_navCloseTimer));
+  document.getElementById('collOverlay').addEventListener('mouseleave', scheduleCloseNavOverlay);
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      document.getElementById('collOverlay').classList.remove('open');
+      _nav.classList.remove('overlay-open');
+      _navCurrentType = null;
+    }
+  });
+
+  document.getElementById('hamburger').addEventListener('click', function() {
+    this.classList.toggle('open');
+    document.getElementById('mobileMenu').classList.toggle('open');
+  });
+
+  function toggleMobileColl(e) {
+    e.stopPropagation();
+    const seasons = document.getElementById('mobileCollSeasons');
+    const arrow   = document.getElementById('mobileCollArrow');
+    const isOpen  = seasons.classList.contains('open');
+    seasons.classList.toggle('open', !isOpen);
+    arrow.classList.toggle('open', !isOpen);
+    if (!isOpen && seasons.innerHTML === '' && typeof COLLECTIONS_DATA !== 'undefined') {
+      seasons.innerHTML = COLLECTIONS_DATA.filter(c => c.published).map(c =>
+        `<a href="collection.html?season=${encodeURIComponent(c.season)}">${c.season}</a>`
+      ).join('');
+    }
+  }
+  if (typeof COLLECTIONS_DATA !== 'undefined') {
+    const ms = document.getElementById('mobileCollSeasons');
+    if (ms) ms.innerHTML = COLLECTIONS_DATA.filter(c => c.published).map(c =>
+      `<a href="collection.html?season=${encodeURIComponent(c.season)}">${c.season}</a>`
+    ).join('');
+  }
+
+  document.getElementById('signupForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const last  = document.getElementById('sLast').value.trim();
+    const first = document.getElementById('sFirst').value.trim();
+    const email = document.getElementById('sEmail').value.trim();
+    const pw    = document.getElementById('sPassword').value;
+    const msgEl = document.getElementById('signupMsg');
+    const btn   = document.getElementById('signupBtn');
+
+    msgEl.className = 'msg';
+
+    if (!last || !first || !email || !pw) {
+      msgEl.className = 'msg error'; msgEl.textContent = 'Please fill in all fields.'; return;
+    }
+    if (pw.length < 8) {
+      msgEl.className = 'msg error'; msgEl.textContent = 'Password must be at least 8 characters.'; return;
+    }
+
+    btn.disabled = true; btn.textContent = '...';
+
+    const { data, error } = await sbSignUp(email, pw, `${last} ${first}`);
+
+    if (error) {
+      btn.disabled = false; btn.textContent = 'Create Account →';
+      msgEl.className = 'msg error';
+      msgEl.textContent = error.message.includes('already registered')
+        ? 'This email is already registered.'
+        : 'Something went wrong. Please try again.';
+      return;
+    }
+
+    document.getElementById('signupSection').style.display = 'none';
+    document.getElementById('doneSection').style.display   = 'block';
+    document.getElementById('doneMsg').textContent =
+      `A confirmation email has been sent to ${email}. Please click the link to activate your account.`;
+  });
+</script>
+  <script src="cookie-consent.js"></script>
+</body>
+</html>

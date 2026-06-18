@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>NOREM — アカウント設定</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--black:#0d0d0d;--white:#fff;--mid:#9a9690;--border:#e4e0da;--cream:#f4f2ee;--err:#c0392b}
+body{font-family:'Lato','Hiragino Sans',sans-serif;background:var(--cream);color:#565656;min-height:100vh;display:flex;flex-direction:column}
+nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 144px;height:60px;background:rgba(255,255,255,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-logo{display:inline-flex;align-items:center;gap:10px;font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:400;letter-spacing:0.24em;color:var(--black);text-decoration:none}
+.nav-logo-img{height:36px;width:auto;object-fit:contain}
+.main{flex:1;display:flex;align-items:center;justify-content:center;padding:48px 20px}
+.card{background:var(--white);padding:48px 40px;width:100%;max-width:480px}
+h1{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:300;letter-spacing:0.1em;color:var(--black);margin-bottom:6px;text-align:center}
+.sub{font-size:0.72rem;color:var(--mid);text-align:center;margin-bottom:32px;line-height:1.8}
+.badge{display:inline-flex;align-items:center;gap:8px;background:#f0fdf4;border:1px solid #bbf7d0;color:#15803d;font-size:0.68rem;letter-spacing:0.08em;padding:6px 14px;margin:0 auto 28px;display:flex;width:fit-content}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--mid);margin-bottom:5px}
+.field input,.field select{width:100%;padding:10px 12px;border:1px solid var(--border);font-size:0.82rem;font-family:inherit;color:var(--black);outline:none;background:var(--white);transition:border-color 0.2s;-webkit-appearance:none}
+.field input:focus,.field select:focus{border-color:var(--black)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.section-label{font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--mid);margin:22px 0 12px;border-bottom:1px solid var(--border);padding-bottom:8px}
+.zip-row{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:end}
+.zip-row .field{margin:0}
+.zip-sep{padding-bottom:11px;color:var(--mid);font-size:1rem;align-self:end}
+.btn{width:100%;padding:14px;background:var(--black);color:var(--white);border:none;font-size:0.72rem;letter-spacing:0.18em;text-transform:uppercase;cursor:pointer;margin-top:8px;transition:opacity 0.2s}
+.btn:hover{opacity:0.8}
+.btn:disabled{opacity:0.4;cursor:not-allowed}
+.skip{display:block;text-align:center;margin-top:16px;font-size:0.68rem;color:var(--mid);cursor:pointer;text-decoration:underline}
+.skip:hover{color:var(--black)}
+.msg{font-size:0.75rem;text-align:center;margin-top:14px;color:var(--err);display:none}
+.loading{text-align:center;padding:60px 0;color:var(--mid);font-size:0.8rem;letter-spacing:0.1em}
+footer{background:var(--white);border-top:1px solid var(--border);padding:24px 144px;display:flex;justify-content:space-between;align-items:center}
+.footer-copy{font-size:0.58rem;letter-spacing:0.08em;color:var(--mid)}
+@media(max-width:900px){nav{padding:0 20px}footer{padding:20px;flex-direction:column;gap:10px}.card{padding:32px 24px}.field-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html">
+    <img class="nav-logo-img" src="logo.png" alt="" onerror="this.style.display='none'"/>
+    NOREM
+  </a>
+</nav>
+
+<main class="main">
+  <div class="card" id="loadingCard">
+    <p class="loading">ログイン処理中...</p>
+  </div>
+
+  <div class="card" id="formCard" style="display:none">
+    <h1>アカウント設定</h1>
+    <p class="sub">LINEアカウントでNOREMへの登録が完了しました。<br>お名前とお届け先をご登録ください。</p>
+
+    <div class="badge">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="#15803d"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+      LINEアカウント連携完了
+    </div>
+
+    <div class="section-label">本名</div>
+    <div class="field-row">
+      <div class="field">
+        <label>姓 <span style="color:var(--err)">*</span></label>
+        <input type="text" id="fLast" placeholder="鈴木" autocomplete="family-name"/>
+      </div>
+      <div class="field">
+        <label>名 <span style="color:var(--err)">*</span></label>
+        <input type="text" id="fFirst" placeholder="太郎" autocomplete="given-name"/>
+      </div>
+    </div>
+
+    <div class="section-label">お届け先住所</div>
+    <div class="field">
+      <label>郵便番号 <span style="color:var(--err)">*</span></label>
+      <input type="text" id="fZip" placeholder="1234567" maxlength="7" inputmode="numeric"
+             oninput="this.value=this.value.replace(/[^0-9]/g,'')" onblur="autoFillAddress()"/>
+    </div>
+    <div class="field">
+      <label>都道府県 <span style="color:var(--err)">*</span></label>
+      <select id="fPref">
+        <option value="">選択してください</option>
+        <option>北海道</option><option>青森県</option><option>岩手県</option><option>宮城県</option>
+        <option>秋田県</option><option>山形県</option><option>福島県</option><option>茨城県</option>
+        <option>栃木県</option><option>群馬県</option><option>埼玉県</option><option>千葉県</option>
+        <option>東京都</option><option>神奈川県</option><option>新潟県</option><option>富山県</option>
+        <option>石川県</option><option>福井県</option><option>山梨県</option><option>長野県</option>
+        <option>岐阜県</option><option>静岡県</option><option>愛知県</option><option>三重県</option>
+        <option>滋賀県</option><option>京都府</option><option>大阪府</option><option>兵庫県</option>
+        <option>奈良県</option><option>和歌山県</option><option>鳥取県</option><option>島根県</option>
+        <option>岡山県</option><option>広島県</option><option>山口県</option><option>徳島県</option>
+        <option>香川県</option><option>愛媛県</option><option>高知県</option><option>福岡県</option>
+        <option>佐賀県</option><option>長崎県</option><option>熊本県</option><option>大分県</option>
+        <option>宮崎県</option><option>鹿児島県</option><option>沖縄県</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>市区町村 <span style="color:var(--err)">*</span></label>
+      <input type="text" id="fCity" placeholder="渋谷区渋谷" autocomplete="address-level2"/>
+    </div>
+    <div class="field">
+      <label>番地・建物名</label>
+      <input type="text" id="fAddr" placeholder="1-2-3 ○○マンション 101" autocomplete="street-address"/>
+    </div>
+
+    <button class="btn" id="saveBtn" onclick="doSave()">登録してカートへ進む</button>
+    <span class="skip" onclick="goCart()">今はスキップしてカートへ</span>
+    <p class="msg" id="errMsg"></p>
+  </div>
+</main>
+
+<footer>
+  <span class="footer-copy">© 2025 NOREM. All rights reserved.</span>
+  <a href="index.html" style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:300;letter-spacing:0.22em;color:var(--black);text-decoration:none">NOREM</a>
+</footer>
+
+<script>
+async function init() {
+  // URLハッシュからセッションをセット
+  const hash    = new URLSearchParams(location.hash.slice(1));
+  const access  = hash.get('access_token');
+  const refresh = hash.get('refresh_token');
+  if (access && refresh) {
+    await getSupabase().auth.setSession({ access_token: access, refresh_token: refresh });
+    history.replaceState(null, '', location.pathname);
+  }
+
+  // プロフィールが既に完成していればカートへ
+  const profile = await sbGetProfile();
+  if (profile?.full_name && profile?.postal_code) {
+    goCart(); return;
+  }
+
+  // 既存データがあれば入力欄に反映
+  if (profile?.full_name) {
+    const parts = profile.full_name.trim().split(/\s+/);
+    document.getElementById('fLast').value  = parts[0] || '';
+    document.getElementById('fFirst').value = parts.slice(1).join(' ') || '';
+  }
+  if (profile?.postal_code) document.getElementById('fZip').value  = profile.postal_code.replace('-','');
+  if (profile?.prefecture) {
+    Array.from(document.getElementById('fPref').options).forEach(o => {
+      if (o.text === profile.prefecture) o.selected = true;
+    });
+  }
+  if (profile?.city)    document.getElementById('fCity').value = profile.city;
+  if (profile?.address) document.getElementById('fAddr').value = profile.address;
+
+  document.getElementById('loadingCard').style.display = 'none';
+  document.getElementById('formCard').style.display    = 'block';
+}
+
+async function autoFillAddress() {
+  const zip = document.getElementById('fZip').value.replace(/[^0-9]/g,'');
+  if (zip.length !== 7) return;
+  try {
+    const res  = await fetch(`https://zipcloud.ibsnet.co.jp/api/search?zipcode=${zip}`);
+    const data = await res.json();
+    if (data.results) {
+      const r = data.results[0];
+      const pref = document.getElementById('fPref');
+      Array.from(pref.options).forEach(o => { if (o.text === r.address1) o.selected = true; });
+      document.getElementById('fCity').value = r.address2 + r.address3;
+    }
+  } catch(e) {}
+}
+
+async function doSave() {
+  const last  = document.getElementById('fLast').value.trim();
+  const first = document.getElementById('fFirst').value.trim();
+  const zip   = document.getElementById('fZip').value.replace(/[^0-9]/g,'');
+  const pref  = document.getElementById('fPref').value;
+  const city  = document.getElementById('fCity').value.trim();
+  const addr  = document.getElementById('fAddr').value.trim();
+  const errMsg = document.getElementById('errMsg');
+  const btn    = document.getElementById('saveBtn');
+
+  errMsg.style.display = 'none';
+
+  if (!last || !first)  { errMsg.textContent = 'お名前は必須です'; errMsg.style.display='block'; return; }
+  if (zip.length !== 7) { errMsg.textContent = '郵便番号は7桁で入力してください'; errMsg.style.display='block'; return; }
+  if (!pref)            { errMsg.textContent = '都道府県を選択してください'; errMsg.style.display='block'; return; }
+  if (!city)            { errMsg.textContent = '市区町村は必須です'; errMsg.style.display='block'; return; }
+
+  btn.disabled = true; btn.textContent = '保存中...';
+
+  await sbUpdateProfile({
+    fullName:   `${last} ${first}`,
+    postalCode: zip,
+    prefecture: pref,
+    city:       city,
+    address:    addr,
+  });
+
+  goCart();
+}
+
+function goCart() {
+  location.href = 'cart.html';
+}
+
+init();
+</script>
+  <script src="cookie-consent.js"></script>
+</body>
+</html>

@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NOREM — Collection</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Lato:wght@300;400;700&family=Shippori+Mincho:wght@400;500&family=Noto+Serif+JP:wght@200;300;400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Serif+Display:ital@0;1&family=Josefin+Sans:wght@300;400&family=Cinzel:wght@400;600&family=EB+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #878787;
+      --white: #ffffff;
+      --off-white: #fafaf8;
+      --cream: #f2f0eb;
+      --mid: #9a9690;
+      --border: #e0dcd6;
+      --accent: #b5a99a;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Lato', 'Hiragino Sans', sans-serif;
+      background: var(--off-white);
+      color: #878787;
+      overflow-x: hidden;
+    }
+
+    /* ========== NAV ========== */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 144px;
+      height: 60px;
+      background: transparent;
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border-bottom: 1px solid transparent;
+      transition: background 0.8s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    nav.nav-hidden {
+      transform: translateY(-100%);
+    }
+
+    nav.scrolled {
+      background: transparent;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+
+    .nav-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.3rem;
+      font-weight: 400;
+      letter-spacing: 0.24em;
+      color: #878787;
+      text-decoration: none;
+      transition: color 0.8s ease;
+    }
+
+    nav.scrolled .nav-logo { color: var(--black); }
+
+    .nav-logo-img {
+      height: 36px;
+      width: auto;
+      object-fit: contain;
+      filter: brightness(0) invert(1) brightness(0.337);
+      transition: filter 0.8s ease;
+    }
+
+    nav.scrolled .nav-logo-img { filter: brightness(0) invert(1) brightness(0.337); }
+
+    .nav-links {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 0.67rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #878787;
+      text-decoration: none;
+      transition: color 0.8s ease;
+    }
+
+    nav.scrolled .nav-links a { color: var(--black); }
+
+    .nav-links a:hover { opacity: 0.6; }
+
+    /* Collection / Shop オーバーレイ */
+    .nav-label { font-size: 0.67rem; letter-spacing: 0.18em; text-transform: uppercase; color: inherit; cursor: pointer; }
+
+    .coll-overlay {
+      position: fixed;
+      top: 0;
+      left: 0; right: 0;
+      height: auto;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      z-index: 90;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 88px 0 140px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+      -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 110px), transparent 100%);
+      mask-image: linear-gradient(to bottom, black calc(100% - 110px), transparent 100%);
+    }
+
+    nav.overlay-open {
+      background: transparent !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      border-color: transparent !important;
+      transition: background 0.2s, border-color 0.2s, transform 0.35s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+
+    .coll-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .coll-overlay-inner {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 72px;
+      text-align: center;
+    }
+
+    .nav-overlay-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.1em;
+    }
+
+    @keyframes navItemIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .nav-overlay-heading {
+      font-size: 0.54rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: #878787;
+      padding-bottom: 0.8em;
+      border-bottom: 1px solid var(--border);
+      width: 100%;
+      opacity: 0;
+    }
+
+    .coll-overlay.open .nav-overlay-heading {
+      animation: navItemIn 0.3s cubic-bezier(0.16,1,0.3,1) both;
+    }
+
+    .nav-overlay-sub {
+      font-size: clamp(0.52rem, 0.76vw, 0.6rem) !important;
+      letter-spacing: 0.2em !important;
+      color: #a0a0a0 !important;
+    }
+
+    .coll-overlay-inner a {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(0.62rem, 0.9vw, 0.72rem);
+      font-weight: 300;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: #878787;
+      text-decoration: none;
+      opacity: 0;
+      transition: color 0.2s;
+    }
+
+    .coll-overlay.open .coll-overlay-inner a {
+      animation: navItemIn 0.3s cubic-bezier(0.16,1,0.3,1) both;
+    }
+
+    .coll-overlay-inner a:hover { color: #888888; }
+
+    .nav-right { display: flex; align-items: center; gap: 18px; }
+
+    .nav-icon {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #878787;
+      display: flex;
+      transition: color 0.8s ease;
+    }
+
+    nav.scrolled .nav-icon { color: var(--black); }
+
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .hamburger span {
+      display: block;
+      width: 22px;
+      height: 1px;
+      background: #878787;
+      transition: transform 0.3s, opacity 0.3s, background 0.8s ease;
+    }
+
+    nav.scrolled .hamburger span { background: var(--black); }
+    .hamburger.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      inset: 60px 0 0;
+      background: var(--white);
+      z-index: 99;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 36px;
+    }
+
+    .mobile-menu.open { display: flex; }
+
+    .mobile-menu a {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.1rem;
+      font-weight: 300;
+      letter-spacing: 0.12em;
+      color: var(--black);
+      text-decoration: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .mobile-coll-wrap { width: 100%; text-align: center; }
+    .mobile-coll-toggle { display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; background: none; border: none; font-family: inherit; font-size: 1.1rem; font-weight: 300; letter-spacing: 0.12em; color: var(--black); text-decoration: none; width: 100%; -webkit-tap-highlight-color: transparent; }
+    .mobile-coll-arrow { font-size: 0.7rem; color: var(--mid); transition: transform 0.25s; }
+    .mobile-coll-arrow.open { transform: rotate(180deg); }
+    .mobile-coll-seasons { display: flex; flex-direction: column; gap: 14px; margin-top: 0; max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.35s ease, opacity 0.3s ease, margin-top 0.3s ease; }
+    .mobile-coll-seasons.open { max-height: 300px; opacity: 1; margin-top: 14px; }
+    .mobile-coll-seasons a { font-size: 0.78rem !important; letter-spacing: 0.14em; color: var(--mid) !important; }
+
+    /* ========== KEY VISUAL ========== */
+    .kv {
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+      background: #aaaaaa;
+    }
+
+    /* キービジュアル未設定時：グレー背景を消してシーズン名だけ小さく表示 */
+    .kv--no-image {
+      height: auto;
+      background: transparent;
+      padding: 120px 0 48px;
+    }
+    .kv--no-image .kv-bg,
+    .kv--no-image .kv-overlay,
+    .kv--no-image .kv-scroll { display: none; }
+    .kv--no-image .kv-content {
+      position: static;
+      transform: none;
+      opacity: 1;
+      animation: none;
+      text-align: center;
+    }
+    .kv--no-image .kv-season { color: #878787; }
+
+    /* ルック写真未登録時：runway の余白を消す */
+    .runway--empty { display: none; }
+
+    /* キービジュアル背景 ──
+       自分の画像を my-website/ に置いて
+       url('keyvisual.jpg') に変更してください  */
+    .kv-bg {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      background-color: #aaaaaa;
+      opacity: 0;
+      transform: translateY(30px) scale(1.04);
+      animation: kvFloat 3s 0s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes kvFloat {
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .kv-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to top,
+        rgba(13,13,13,0.7) 0%,
+        rgba(13,13,13,0.2) 50%,
+        rgba(13,13,13,0.35) 100%
+      );
+      z-index: 1;
+    }
+
+    @keyframes kvTextFloat {
+      from { opacity: 0; transform: translate(-50%, calc(-50% + 20px)); }
+      to   { opacity: 1; transform: translate(-50%, -50%); }
+    }
+
+    .kv-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+      opacity: 0;
+      text-align: center;
+      white-space: nowrap;
+      animation: kvTextFloat 2s 1s ease forwards;
+    }
+
+    .kv-season {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 1.55rem;
+      font-weight: 200;
+      letter-spacing: 0.32em;
+      padding-left: 0.32em; /* letter-spacing の視覚ズレ補正 */
+      text-transform: uppercase;
+      color: var(--white);
+      text-align: center;
+      display: block;
+    }
+
+    .kv-title {
+      font-family: 'Shippori Mincho', 'Yu Mincho', '游明朝', serif;
+      font-size: clamp(3rem, 8vw, 7rem);
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      color: var(--white);
+      line-height: 0.95;
+    }
+
+    .kv-title em { font-style: italic; color: var(--accent); }
+
+    /* スクロール誘導（アニメーション完了後に表示） */
+    .kv-scroll {
+      position: absolute;
+      bottom: 36px;
+      right: 48px;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+    }
+
+    .kv-scroll.visible {
+      animation: fadeIn 0.8s ease forwards;
+    }
+
+    .kv-scroll-label {
+      font-size: 0.58rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+      writing-mode: vertical-rl;
+    }
+
+    .kv-scroll-line {
+      width: 1px;
+      height: 48px;
+      background: rgba(255,255,255,0.15);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kv-scroll-line::after {
+      content: '';
+      position: absolute;
+      top: -100%;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--accent);
+      animation: scrollPulse 1.8s ease infinite;
+    }
+
+    @keyframes scrollPulse {
+      0%   { top: -100%; }
+      100% { top: 100%; }
+    }
+
+    /* ========== RUNWAY SECTION ========== */
+    .runway {
+      background: var(--off-white);
+      padding: clamp(60px, 8vw, 120px) clamp(125px, 21.875vw, 344px) clamp(80px, 8vw, 140px);
+    }
+
+    .runway-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      column-gap: 5px;
+      row-gap: 5px;
+    }
+
+    /* ルック写真カード */
+    .look-card {
+      cursor: pointer;
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: transform, opacity;
+    }
+
+    .look-card.visible { opacity: 1; transform: translateY(0); }
+
+    .look-img {
+      width: 100%;
+      aspect-ratio: 2/3;
+      overflow: hidden;
+      position: relative;
+      background-size: cover !important;
+      background-position: center !important;
+    }
+
+    /* ── ルック写真はここを差し替え ──
+       例: style="background-image:url('look01.jpg')"  */
+    .look-img.l1 { background: #d8d8d8; }
+    .look-img.l2 { background: #e4e4e4; }
+    .look-img.l3 { background: #cccccc; }
+    .look-img.l4 { background: #dcdcdc; }
+    .look-img.l5 { background: #d0d0d0; }
+    .look-img.l6 { background: #e8e8e8; }
+    .look-img.l7 { background: #c8c8c8; }
+    .look-img.l8 { background: #dedede; }
+    .look-img.l9 { background: #d4d4d4; }
+
+    .look-inner {
+      position: absolute;
+      inset: 0;
+      background: rgba(13,13,13,0);
+      transition: background 0.4s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .look-card:hover .look-inner { background: rgba(13,13,13,0.22); }
+
+    .look-zoom {
+      opacity: 0;
+      transform: scale(0.9);
+      transition: opacity 0.35s, transform 0.35s;
+      color: var(--white);
+    }
+
+    .look-card:hover .look-zoom { opacity: 1; transform: scale(1); }
+
+    .look-meta { display: none; }
+    .look-num { display: none; }
+
+    .look-detail { display: none; }
+
+    /* ========== LIGHTBOX ========== */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+    }
+
+    .lightbox.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .lb-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(13,13,13,0.92);
+      cursor: pointer;
+    }
+
+    .lb-inner {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      transform: translateY(20px);
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .lightbox.active .lb-inner { transform: translateY(0); }
+
+    .lb-img-wrap {
+      position: relative;
+      max-width: 60vw;
+      max-height: 85vh;
+    }
+
+    .lb-img {
+      width: 55vw;
+      max-width: 520px;
+      aspect-ratio: 2/3;
+      background-size: cover !important;
+      background-position: center !important;
+      transition: background 0.3s;
+    }
+
+    .lb-arrow {
+      background: none;
+      border: 1px solid rgba(255,255,255,0.25);
+      color: var(--white);
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.2s, border-color 0.2s, transform 0.15s;
+      z-index: 3;
+    }
+
+    .lb-arrow:hover {
+      background: rgba(255,255,255,0.12);
+      border-color: rgba(255,255,255,0.6);
+      transform: scale(1.05);
+    }
+
+    .lb-counter {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.62rem;
+      letter-spacing: 0.28em;
+      color: rgba(255,255,255,0.45);
+      z-index: 3;
+    }
+
+    .lb-close {
+      position: fixed;
+      top: 24px;
+      right: 32px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: rgba(255,255,255,0.5);
+      z-index: 3;
+      transition: color 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    .lb-close:hover { color: var(--white); }
+
+    /* ========== FOOTER ========== */
+    footer { background: var(--white); border-top: 1px solid var(--border); padding: 56px 48px 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+    .footer-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 48px; padding-bottom: 40px; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+    .footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 300; letter-spacing: 0.24em; color: var(--black); text-decoration: none; flex-shrink: 0; }
+    .footer-cols { display: flex; gap: 56px; flex-wrap: wrap; }
+    .footer-col h4 { font-size: 0.58rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--mid); margin-bottom: 16px; white-space: nowrap; }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 11px; }
+    .footer-col a { font-size: 0.75rem; color: var(--mid); text-decoration: none; transition: color 0.2s; }
+    .footer-col a:hover { color: var(--black); }
+    .footer-bottom { display: flex; justify-content: space-between; align-items: center; }
+    .footer-copy { font-size: 0.58rem; letter-spacing: 0.1em; color: var(--mid); }
+    .footer-ig { color: var(--mid); transition: color 0.2s; display: flex; }
+    .footer-ig:hover { color: var(--black); }
+
+    /* ========== ANIMATIONS ========== */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 1100px) {
+      .runway-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 900px) {
+      nav { padding: 0 20px; }
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+      .runway { padding: 48px 20px 64px; }
+      .runway-grid { grid-template-columns: repeat(2, 1fr); gap: 4px; }
+      .kv-content { font-size: 0.9rem; }
+      .kv-scroll { right: 20px; }
+      .lb-img { width: 75vw; max-width: none; }
+      .lb-inner { gap: 16px; }
+      .lb-arrow { width: 40px; height: 40px; }
+    }
+
+    @media (max-width: 520px) {
+      .runway-grid { grid-template-columns: repeat(2, 1fr); }
+      .lb-img { width: 90vw; }
+      .lb-inner { gap: 10px; }
+    }
+    /* ========== GOTHIC FONT OVERRIDE ==========  */
+    /* ブランドロゴ・KVテキスト以外はゴシック体に統一 */
+    *:not(.nav-logo):not(.footer-logo):not(.logo-mark):not(.nav-logo img):not(.kv-season):not(.kv-title) {
+      font-family: 'Lato', 'Hiragino Sans', sans-serif !important;
+    }
+    .nav-logo, .footer-logo, .logo-mark { font-family: 'Cormorant Garamond', serif !important; }
+    :root { --kv-season-font: 'Noto Serif JP', serif; --kv-title-font: 'Shippori Mincho', serif; }
+    .kv-season { font-family: var(--kv-season-font) !important; }
+    .kv-title  { font-family: var(--kv-title-font) !important; }
+
+    @media (max-width: 480px) {
+      .footer-top { flex-direction: column; gap: 20px; }
+      .footer-cols { flex-direction: column; gap: 16px; }
+      .footer-bottom { flex-direction: column; gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========== NAV ========== -->
+  <nav id="nav">
+    <a class="nav-logo" href="index.html">
+      <img class="nav-logo-img" src="logo.png" alt="" onerror="this.style.display='none'" />
+      NOREM
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li id="collNavItem" onmouseenter="openNavOverlay('coll')" onmouseleave="scheduleCloseNavOverlay()"><a href="collection.html?season=2026-27AW">Collection</a></li>
+      <li id="shopNavItem" onmouseenter="openNavOverlay('shop')" onmouseleave="scheduleCloseNavOverlay()"><a href="shop.html" id="navShopLink">Shop</a></li>
+      <li><a href="about.html">About</a></li>
+    <li><a href="contact.html">Contact</a></li>
+    </ul>
+    <div class="nav-right">
+      <a href="cart.html" class="nav-icon nav-cart" aria-label="Cart" style="position:relative;text-decoration:none">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        <span class="cart-badge" id="cartBadge" style="display:none;position:absolute;top:-6px;right:-6px;background:#0d0d0d;color:#fff;font-size:9px;min-width:16px;height:16px;border-radius:8px;text-align:center;line-height:16px;padding:0 3px">0</span>
+      </a>
+      <button class="nav-icon" aria-label="Search">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
+      </button>
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="index.html" class="mobile-nav-link">Home</a>
+    <a href="about.html" class="mobile-nav-link">About</a>
+    <div class="mobile-coll-wrap">
+      <button class="mobile-coll-toggle" onclick="toggleMobileColl(event)">Collection <span class="mobile-coll-arrow" id="mobileCollArrow">▼</span></button>
+      <div class="mobile-coll-seasons" id="mobileCollSeasons"></div>
+    </div>
+    <a href="shop.html" class="mobile-nav-link">Shop</a>
+    <a href="contact.html" class="mobile-nav-link">Contact</a>
+  </div>
+
+  <!-- ========== NAV OVERLAY ========== -->
+  <div class="coll-overlay" id="collOverlay">
+    <div class="coll-overlay-inner" id="collOverlayInner"></div>
+  </div>
+
+  <!-- ========== KEY VISUAL ========== -->
+  <section class="kv" id="kvSection">
+    <div class="kv-bg" id="kvBg"></div>
+    <div class="kv-overlay"></div>
+    <div class="kv-content">
+      <p class="kv-season" id="kvSeason"></p>
+    </div>
+    <div class="kv-scroll" id="kvScroll">
+      <div class="kv-scroll-line"></div>
+      <span class="kv-scroll-label">Scroll</span>
+    </div>
+  </section>
+
+  <!-- ========== RUNWAY ========== -->
+  <section class="runway" id="runway">
+    <div class="runway-grid" id="runwayGrid">
+      <!-- JS で動的生成 -->
+    </div>
+  </section>
+
+  <!-- ========== FOOTER ========== -->
+  <footer>
+    <div class="footer-top">
+      <a class="footer-logo" href="index.html">NOREM</a>
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h4>Account / Contact</h4>
+          <ul>
+            <li><a href="signup.html">Create Account</a></li>
+            <li><a href="login.html">Login</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+                <div class="footer-col">
+          <h4>Policy</h4>
+          <ul>
+            <li><a href="shipping.html">Shipping</a></li>
+            <li><a href="privacy-policy.html">Privacy Policy</a></li>
+            <li><a href="terms.html">Terms &amp; Conditions</a></li>
+            <li><a href="returns.html">Returns &amp; Refunds</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p class="footer-copy">© 2025 NOREM. All rights reserved.</p>
+      <a href="https://www.instagram.com/norem___official/?hl=ja" target="_blank" rel="noopener noreferrer" class="footer-ig" aria-label="Instagram">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none"/></svg>
+      </a>
+    </div>
+  </footer>
+
+  <!-- ========== LIGHTBOX ========== -->
+  <div class="lightbox" id="lightbox" aria-hidden="true" role="dialog">
+    <div class="lb-backdrop" id="lbBackdrop"></div>
+    <div class="lb-inner">
+      <button class="lb-arrow lb-prev" id="lbPrev" aria-label="前の写真">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div class="lb-img-wrap">
+        <div class="lb-img" id="lbImg"></div>
+      </div>
+      <button class="lb-arrow lb-next" id="lbNext" aria-label="次の写真">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+    </div>
+    <p class="lb-counter" id="lbCounter">01 / 09</p>
+    <button class="lb-close" id="lbClose" aria-label="閉じる">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      Close
+    </button>
+  </div>
+
+  <script src="img-fallback.js"></script>
+  <script src="collections-data.js"></script>
+  <script>
+    const _isPreview = new URLSearchParams(location.search).get('preview') === '1';
+    // previewモードでは非公開シーズンも含める
+    const PUBLISHED_COLLECTIONS = (typeof COLLECTIONS_DATA !== 'undefined')
+      ? COLLECTIONS_DATA.filter(c => _isPreview || c.published !== false)
+      : [];
+
+    if (!new URLSearchParams(location.search).get('season')) {
+      if (PUBLISHED_COLLECTIONS.length) {
+        window.location.replace('collection.html?season=' + encodeURIComponent(PUBLISHED_COLLECTIONS[0].season) + (_isPreview ? '&preview=1' : ''));
+      }
+    }
+  </script>
+  <script>
+
+    // ── シーズン選択 ────────────────────────────────────
+    const params = new URLSearchParams(location.search);
+    const targetSeason = params.get('season');
+    const coll = (targetSeason
+      ? PUBLISHED_COLLECTIONS.find(c => c.season === targetSeason)
+      : null) || PUBLISHED_COLLECTIONS[0];
+
+    if (!coll) {
+      document.getElementById('runway').innerHTML = '<p style="text-align:center;padding:80px;color:#999;">コレクションデータがありません</p>';
+    } else {
+      // ── KV ──
+      document.getElementById('kvSeason').textContent = coll.label || coll.season;
+      if (coll.kvSeasonFont) document.documentElement.style.setProperty('--kv-season-font', coll.kvSeasonFont);
+      if (coll.keyVisual) {
+        document.getElementById('kvBg').style.backgroundImage = `url('${coll.folder}/${coll.keyVisual}')`;
+      } else {
+        document.getElementById('kvSection').classList.add('kv--no-image');
+      }
+
+      // ── スクロール解除（KV画像あるときのみ） ──
+      if (coll.keyVisual) {
+        document.body.style.overflow = 'hidden';
+        const kvScroll = document.getElementById('kvScroll');
+        setTimeout(() => {
+          document.body.style.overflow = '';
+          kvScroll.classList.add('visible');
+        }, 1500);
+      }
+
+      // ── ルックグリッド動的生成 ──
+      const lookSrcs = (coll.looks || []).map(f => `${coll.folder}/${f}`);
+
+      if (lookSrcs.length === 0) {
+        document.getElementById('runway').classList.add('runway--empty');
+      } else {
+        const zoomSVG = `<svg class="look-zoom" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>`;
+        const grid = document.getElementById('runwayGrid');
+        grid.innerHTML = lookSrcs.map((src, i) => `
+          <div class="look-card" data-index="${i}">
+            <div class="look-img" style="background-image:url('${src}');background-size:cover;background-position:center;background-color:#d4d4d4;" data-img-collapse=".look-card">
+              <div class="look-inner">${zoomSVG}</div>
+            </div>
+            <div class="look-meta"><span class="look-num">Look ${String(i+1).padStart(2,'0')}</span></div>
+          </div>`).join('');
+        initImgCollapse();
+      }
+
+      // ── スクロールリビール ──
+      const lookObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const idx = parseInt(entry.target.dataset.index);
+            setTimeout(() => entry.target.classList.add('visible'), (idx % 6) * 55);
+            lookObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.08 });
+      document.querySelectorAll('.look-card').forEach(card => lookObserver.observe(card));
+
+      // ── LIGHTBOX ──────────────────────────────────────
+      const lightbox   = document.getElementById('lightbox');
+      const lbImg      = document.getElementById('lbImg');
+      const lbCounter  = document.getElementById('lbCounter');
+      const lbPrev     = document.getElementById('lbPrev');
+      const lbNext     = document.getElementById('lbNext');
+      const lbBackdrop = document.getElementById('lbBackdrop');
+      const lbClose    = document.getElementById('lbClose');
+      let currentIdx = 0;
+
+      function updateLightbox() {
+        lbImg.style.backgroundImage = `url('${lookSrcs[currentIdx]}')`;
+        lbImg.style.backgroundSize = 'cover';
+        lbImg.style.backgroundPosition = 'center';
+        lbCounter.textContent =
+          String(currentIdx + 1).padStart(2,'0') + ' / ' + String(lookSrcs.length).padStart(2,'0');
+      }
+
+      function openLightbox(idx) {
+        currentIdx = idx;
+        updateLightbox();
+        lightbox.removeAttribute('aria-hidden');
+        lightbox.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeLightbox() {
+        lightbox.setAttribute('aria-hidden', 'true');
+        lightbox.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+
+      function prev() { currentIdx = (currentIdx - 1 + lookSrcs.length) % lookSrcs.length; updateLightbox(); }
+      function next() { currentIdx = (currentIdx + 1) % lookSrcs.length; updateLightbox(); }
+
+      document.querySelectorAll('.look-card').forEach(card => {
+        card.addEventListener('click', () => openLightbox(parseInt(card.dataset.index)));
+      });
+
+      lbPrev.addEventListener('click', e => { e.stopPropagation(); prev(); });
+      lbNext.addEventListener('click', e => { e.stopPropagation(); next(); });
+      lbBackdrop.addEventListener('click', closeLightbox);
+      lbClose.addEventListener('click', closeLightbox);
+      document.addEventListener('keydown', e => {
+        if (!lightbox.classList.contains('active')) return;
+        if (e.key === 'ArrowLeft')  prev();
+        if (e.key === 'ArrowRight') next();
+        if (e.key === 'Escape')     closeLightbox();
+      });
+    }
+  </script>
+
+  <script>
+    const SHOP_CATEGORIES = [
+      { label: 'New Arrivals', slug: 'new-arrivals' },
+      { label: 'Tops', slug: 'tops', sub: [
+        { label: 'Shirts', slug: 'shirts' },
+        { label: 'Knit', slug: 'knit' },
+        { label: 'Cut &amp; Sew / Sweat', slug: 'cut-sew-sweat' },
+      ]},
+      { label: 'Bottoms', slug: 'bottoms', sub: [
+        { label: 'Pants', slug: 'pants' },
+        { label: 'Skirts', slug: 'skirts' },
+      ]},
+      { label: 'Outerwear', slug: 'outerwear', sub: [
+        { label: 'Jackets', slug: 'jackets' },
+        { label: 'Coats', slug: 'coats' },
+      ]},
+      { label: 'Dresses / Setup', slug: 'dresses-setup' },
+      { label: 'Bags', slug: 'bags' },
+      { label: 'Shoes', slug: 'shoes' },
+      { label: 'Accessories', slug: 'accessories' },
+      { label: 'Sale', slug: 'sale' },
+    ];
+
+    let _navCloseTimer = null;
+    let _navCurrentType = null;
+    const _nav = document.getElementById('nav');
+
+    function openNavOverlay(type) {
+      clearTimeout(_navCloseTimer);
+      const overlay = document.getElementById('collOverlay');
+      const inner   = document.getElementById('collOverlayInner');
+      if (_navCurrentType !== type) {
+        _navCurrentType = type;
+        let seasonLinks = '';
+        if (type === 'coll') {
+          const items = typeof COLLECTIONS_DATA !== 'undefined' ? COLLECTIONS_DATA.filter(c => c.published) : [];
+          seasonLinks = items.map(c => `<a href="collection.html?season=${encodeURIComponent(c.season)}">${c.season}</a>`).join('');
+        } else {
+          const seasons = typeof PRODUCTS_DATA !== 'undefined'
+            ? [...new Set(PRODUCTS_DATA.filter(p => p.published !== false).map(p => p.season))].sort().reverse()
+            : [];
+          seasonLinks = seasons.map(s => `<a href="shop.html?season=${encodeURIComponent(s)}">${s}</a>`).join('');
+        }
+        if (type === 'coll') {
+          inner.innerHTML = `<div class="nav-overlay-col"><p class="nav-overlay-heading">Season Look</p>${seasonLinks}</div>`;
+        } else {
+          const catLinks = SHOP_CATEGORIES.map(cat => {
+            let html = `<a href="shop.html?category=${cat.slug}">${cat.label}</a>`;
+            if (cat.sub) cat.sub.forEach(sub => { html += `<a href="shop.html?category=${sub.slug}" class="nav-overlay-sub">${sub.label}</a>`; });
+            return html;
+          }).join('');
+          inner.innerHTML = `<div class="nav-overlay-col"><p class="nav-overlay-heading">Season Look</p>${seasonLinks}</div><div class="nav-overlay-col"><p class="nav-overlay-heading">Category</p>${catLinks}</div>`;
+        }
+      }
+      overlay.classList.add('open');
+      _nav.classList.add('overlay-open');
+    }
+
+    function scheduleCloseNavOverlay() {
+      _navCloseTimer = setTimeout(() => {
+        document.getElementById('collOverlay').classList.remove('open');
+        _nav.classList.remove('overlay-open');
+        _navCurrentType = null;
+      }, 120);
+    }
+
+    document.getElementById('collOverlay').addEventListener('mouseenter', () => clearTimeout(_navCloseTimer));
+    document.getElementById('collOverlay').addEventListener('mouseleave', scheduleCloseNavOverlay);
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        document.getElementById('collOverlay').classList.remove('open');
+        _nav.classList.remove('overlay-open');
+        _navCurrentType = null;
+      }
+    });
+
+    let _lastScrollY = window.scrollY;
+    let _lastScrollTime = Date.now();
+    window.addEventListener('scroll', () => {
+      const scrollY = window.scrollY;
+      const now = Date.now();
+      const dt = now - _lastScrollTime || 1;
+      const velocity = (scrollY - _lastScrollY) / dt;
+      _nav.classList.toggle('scrolled', scrollY > 40);
+      if (scrollY <= 0) {
+        _nav.classList.remove('nav-hidden');
+      } else if (scrollY > _lastScrollY && scrollY > 80 && velocity > 0.8) {
+        _nav.classList.add('nav-hidden');
+        document.getElementById('collOverlay').classList.remove('open');
+        _nav.classList.remove('overlay-open');
+        _navCurrentType = null;
+      } else if (scrollY < _lastScrollY && velocity < -2.4) {
+        _nav.classList.remove('nav-hidden');
+      }
+      _lastScrollY = scrollY;
+      _lastScrollTime = now;
+    });
+
+    function toggleMobileColl(e) {
+      e.stopPropagation();
+      const seasons = document.getElementById('mobileCollSeasons');
+      const arrow   = document.getElementById('mobileCollArrow');
+      const isOpen  = seasons.classList.contains('open');
+      seasons.classList.toggle('open', !isOpen);
+      arrow.classList.toggle('open', !isOpen);
+      if (!isOpen && seasons.innerHTML === '' && typeof COLLECTIONS_DATA !== 'undefined') {
+        seasons.innerHTML = COLLECTIONS_DATA.filter(c => c.published).map(c =>
+          '<a href="collection.html?season=' + encodeURIComponent(c.season) + '">' + c.season + '</a>'
+        ).join('');
+      }
+    }
+
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      mobileMenu.classList.toggle('open');
+      document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
+    });
+    document.querySelectorAll('.mobile-nav-link').forEach(link => {
+      link.addEventListener('click', () => {
+        hamburger.classList.remove('open');
+        mobileMenu.classList.remove('open');
+        document.body.style.overflow = '';
+      });
+    });
+  </script>
+
+  <script src="cookie-consent.js"></script>
+  <script src="products-data.js"></script>
+  <script src="search.js"></script>
+</body>
+</html>

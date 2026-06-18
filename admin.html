@@ -1,0 +1,2654 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>NOREM Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@200;300;400&family=Shippori+Mincho:wght@400;500&family=Cormorant+Garamond:wght@300;400&family=Playfair+Display:ital,wght@0,400;1,400&family=DM+Serif+Display:ital@0;1&family=EB+Garamond:wght@400&family=Cinzel:wght@400;600&family=Josefin+Sans:wght@300;400&family=Lato:wght@300;400&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f7f7f5;--surface:#fff;--surface2:#f2f2f0;--border:#e4e0da;
+  --text:#2a2a2a;--mid:#9a9690;--accent:#8a7a68;--danger:#c0392b;--ok:#27ae60;
+}
+body{font-family:'Helvetica Neue',sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.6}
+a{color:var(--accent);text-decoration:none}
+
+/* ── LAYOUT ── */
+.layout{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.sidebar{width:260px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.main{flex:1;overflow-y:auto;padding:32px 40px;background:var(--bg)}
+#tab-products{flex:1;overflow:hidden}
+#tab-collections .split-layout,#tab-news .split-layout{flex:1;min-height:0}
+
+/* ── SIDEBAR ── */
+.sidebar-head{padding:20px 16px 14px;border-bottom:1px solid var(--border)}
+.sidebar-logo{font-size:15px;letter-spacing:0.22em;color:var(--text);font-weight:400}
+.sidebar-sub{font-size:10px;letter-spacing:0.1em;color:var(--mid);margin-top:2px}
+.btn-publish{margin-top:10px;width:100%;padding:8px;background:var(--accent);color:#fff;border:none;font-size:11px;letter-spacing:0.1em;cursor:pointer;transition:opacity 0.2s}
+.btn-publish:hover{opacity:0.85}
+.btn-publish.done{background:var(--ok)}
+.sidebar-list{flex:1;overflow-y:auto;padding:0}
+.season-group{border-bottom:1px solid var(--border)}
+.season-header{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--surface2);cursor:pointer;user-select:none}
+.season-header:hover{background:#eae8e4}
+.season-header input[type=checkbox]{accent-color:var(--accent);width:14px;height:14px;flex-shrink:0}
+.season-header label{font-size:11px;letter-spacing:0.1em;text-transform:uppercase;font-weight:600;color:var(--text);cursor:pointer;flex:1}
+.season-header .season-count{font-size:10px;color:var(--mid)}
+.season-arrow{font-size:10px;color:var(--mid);transition:transform 0.2s;flex-shrink:0}
+.season-arrow.open{transform:rotate(180deg)}
+.season-items{display:none}
+.season-items.open{display:block}
+.sidebar-item{padding:8px 12px 8px 14px;border-left:2px solid transparent;transition:all 0.15s;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border)}
+.sidebar-item:hover{background:var(--surface2)}
+.sidebar-item.active{border-left-color:var(--accent);background:var(--surface2)}
+.sidebar-item .pub-check{accent-color:var(--accent);width:14px;height:14px;flex-shrink:0;cursor:pointer}
+.sidebar-item.unpublished{opacity:0.45}
+.sidebar-thumb{width:44px;height:56px;object-fit:cover;background:#e8e8e8;flex-shrink:0;border-radius:2px}
+.sidebar-item-name{flex:1;font-size:11px;letter-spacing:0.04em;color:var(--text);line-height:1.4}
+.status-badge{font-size:9px;letter-spacing:0.06em;padding:2px 5px;border-radius:2px;flex-shrink:0;text-transform:uppercase}
+.badge-available{background:rgba(39,174,96,0.12);color:var(--ok)}
+.badge-soldout{background:rgba(192,57,43,0.12);color:var(--danger)}
+.badge-comingsoon{background:rgba(138,122,104,0.15);color:var(--accent)}
+.badge-bespoke{background:rgba(80,80,200,0.1);color:#5555cc}
+
+/* ── MAIN ── */
+.page-title{font-size:10px;letter-spacing:0.3em;text-transform:uppercase;color:var(--mid);margin-bottom:24px}
+.empty-state{color:var(--mid);padding:80px 0;text-align:center;font-size:12px}
+
+/* ── PRODUCT HEAD ── */
+.prod-head{margin-bottom:28px;padding:20px;background:var(--surface);border:1px solid var(--border)}
+.prod-name{font-size:16px;letter-spacing:0.04em;color:var(--text);font-weight:400;margin-bottom:4px}
+.prod-folder{font-size:10px;color:var(--mid);margin-bottom:14px}
+.prod-imgs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.prod-img-thumb{width:70px;height:90px;object-fit:cover;background:#e8e8e8;border-radius:2px;cursor:pointer;border:2px solid transparent;transition:border-color 0.15s}
+.prod-img-thumb.active{border-color:var(--accent)}
+.prod-img-thumb:hover{border-color:var(--mid)}
+.prod-img-large{width:100%;max-height:280px;object-fit:contain;background:#f5f5f3;border-radius:2px;margin-bottom:10px}
+
+/* 注記チェックボックス */
+.notes-checks{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.notes-check-item{display:flex;align-items:flex-start;gap:8px;font-size:11px;color:var(--text);line-height:1.5;cursor:pointer}
+.notes-check-item input{margin-top:2px;accent-color:var(--accent);flex-shrink:0}
+
+/* 洗濯表示アイコン */
+.care-group{margin-bottom:18px}
+.care-group-title{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--mid);margin-bottom:8px;font-weight:400}
+.care-icons{display:flex;flex-wrap:wrap;gap:6px}
+.care-icon{width:48px;height:48px;object-fit:contain;cursor:pointer;border:2px solid transparent;border-radius:4px;padding:3px;background:var(--surface2);transition:border-color 0.15s,background 0.15s}
+.care-icon.selected{border-color:var(--accent);background:rgba(138,122,104,0.12)}
+.care-icon:hover{border-color:var(--mid)}
+
+/* ── FORM ── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-full{grid-column:1/-1}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--mid)}
+.field input,.field select,.field textarea{
+  background:var(--surface);border:1px solid var(--border);color:var(--text);
+  padding:8px 10px;font-size:12px;border-radius:0;font-family:inherit;
+  transition:border-color 0.15s;
+}
+.field input:focus,.field textarea:focus{outline:none;border-color:var(--accent)}
+.field textarea{resize:vertical;min-height:90px}
+
+/* ── SIZES ── */
+.sizes-wrap{display:flex;flex-direction:column;gap:7px}
+.size-row{display:grid;grid-template-columns:80px 1fr 90px 24px;gap:8px;align-items:center}
+.btn-add-size{margin-top:8px;background:transparent;border:1px solid var(--border);color:var(--mid);padding:5px 12px;cursor:pointer;font-size:11px;letter-spacing:0.08em;transition:all 0.15s}
+.btn-add-size:hover{border-color:var(--accent);color:var(--accent)}
+.btn-remove-size{background:none;border:none;color:var(--danger);cursor:pointer;font-size:14px;line-height:1;padding:0}
+
+/* ── SIZE CHART ── */
+.chart-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--border)}
+.chart-table{border-collapse:collapse;font-size:11px;white-space:nowrap;min-width:100%;background:var(--surface)}
+.chart-table th,.chart-table td{border:1px solid var(--border);padding:6px 10px;text-align:left}
+.chart-table th{background:var(--surface2);color:var(--mid);font-weight:400;letter-spacing:0.08em}
+.chart-table td input{background:transparent;border:none;color:var(--text);width:80px;font-size:11px;font-family:inherit;padding:0}
+.chart-table td input:focus{outline:none}
+.chart-add-row,.chart-add-col{background:transparent;border:1px solid var(--border);color:var(--mid);padding:5px 10px;cursor:pointer;font-size:10px;letter-spacing:0.08em;margin-top:8px;margin-right:6px}
+.chart-add-row:hover,.chart-add-col:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ── SECTION ── */
+.section{margin-bottom:28px;background:var(--surface);border:1px solid var(--border);padding:20px}
+.section-title{font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+
+/* ── BUTTONS ── */
+.actions{display:flex;gap:10px;margin-top:24px;padding-top:20px;border-top:1px solid var(--border)}
+.btn{padding:9px 24px;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;border:none;transition:all 0.15s}
+.btn-primary{background:var(--text);color:#fff}
+.btn-primary:hover{background:var(--accent)}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-danger:hover{background:#a93226}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--mid)}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--ok);color:#fff;padding:10px 20px;font-size:11px;letter-spacing:0.1em;opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:9999}
+.toast.show{opacity:1}
+.toast.error{background:var(--danger)}
+
+/* ── CHECKBOX ROW ── */
+.checkbox-row{display:flex;align-items:center;gap:8px}
+.checkbox-row input[type=checkbox]{width:14px;height:14px;accent-color:var(--accent)}
+.checkbox-row label{font-size:12px;color:var(--text)}
+
+/* ── TAB NAV ── */
+.tab-nav{display:flex;border-bottom:1px solid var(--border);background:var(--surface);padding:0 40px;gap:0;flex-shrink:0}
+.tab-btn{padding:13px 20px;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:var(--mid);transition:all 0.15s;font-family:inherit;white-space:nowrap}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{color:var(--text);border-bottom-color:var(--accent)}
+
+/* ── TAB PANELS ── */
+.tab-panel{display:none}
+.tab-panel.active{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}
+#tab-products.active{flex-direction:row}
+
+/* ── SPLIT LAYOUT (news/collections) ── */
+.split-layout{display:flex;flex:1;overflow:hidden}
+.split-left{width:280px;flex-shrink:0;border-right:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;overflow:hidden}
+.split-left-head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.split-left-title{font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--mid)}
+.split-list{flex:1;overflow-y:auto}
+.split-right{flex:1;overflow-y:auto;padding:28px 32px;background:var(--bg)}
+
+/* ── NEWS LIST ITEMS ── */
+.news-list-item{padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.1s;display:flex;flex-direction:column;gap:4px;position:relative}
+.news-list-item:hover{background:var(--surface2)}
+.news-list-item.active{background:var(--surface2);border-left:2px solid var(--accent)}
+.news-list-item.unpub{opacity:0.5}
+.news-list-meta{display:flex;align-items:center;gap:8px}
+.news-list-date{font-size:10px;color:var(--mid)}
+.news-list-cat{font-size:9px;letter-spacing:0.1em;padding:1px 6px;border:1px solid var(--border);color:var(--mid);text-transform:uppercase}
+.news-list-title{font-size:11px;color:var(--text);line-height:1.4}
+.news-list-badges{display:flex;gap:6px;align-items:center}
+.badge-pub{font-size:9px;background:rgba(39,174,96,0.12);color:var(--ok);padding:1px 6px;border-radius:2px}
+.badge-draft{font-size:9px;background:rgba(154,150,144,0.15);color:var(--mid);padding:1px 6px;border-radius:2px}
+.badge-new{font-size:9px;background:rgba(80,80,200,0.1);color:#5555cc;padding:1px 6px;border-radius:2px}
+.news-list-del{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--mid);cursor:pointer;font-size:14px;opacity:0;transition:opacity 0.15s;padding:4px}
+.news-list-item:hover .news-list-del{opacity:1}
+.news-list-del:hover{color:var(--danger)}
+
+/* ── NEWS EDITOR ── */
+.news-editor-empty{padding:80px 0;text-align:center;color:var(--mid);font-size:12px}
+.news-editor-wrap{}
+
+/* ── IMAGE UPLOAD ── */
+.img-upload-zone{border:1px dashed var(--border);padding:16px;background:var(--surface);text-align:center;cursor:pointer;transition:border-color 0.15s;position:relative}
+.img-upload-zone:hover,.img-upload-zone.drag{border-color:var(--accent);background:rgba(138,122,104,0.04)}
+.img-upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.img-upload-label{font-size:11px;color:var(--mid);letter-spacing:0.08em;pointer-events:none}
+.img-upload-sub{font-size:10px;color:var(--border);margin-top:4px;pointer-events:none}
+.img-thumb-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.img-thumb-wrap{position:relative;width:80px;height:80px}
+.img-thumb{width:80px;height:80px;object-fit:cover;background:#e8e8e8;border:1px solid var(--border)}
+.img-thumb-del{position:absolute;top:-6px;right:-6px;background:var(--danger);color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+.img-thumb-insert{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.55);color:#fff;font-size:9px;letter-spacing:0.06em;text-align:center;padding:2px;cursor:pointer;opacity:0;transition:opacity 0.15s}
+.img-thumb-wrap:hover .img-thumb-insert{opacity:1}
+
+/* ── SINGLE IMG UPLOAD ── */
+.single-img-wrap{position:relative;width:100%}
+.single-img-preview{width:100%;height:160px;object-fit:cover;background:var(--surface2);border:1px solid var(--border);display:block}
+.single-img-empty{width:100%;height:160px;background:var(--surface2);border:1px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--mid);cursor:pointer}
+.single-img-replace{margin-top:6px;font-size:10px;color:var(--accent);cursor:pointer;letter-spacing:0.08em}
+
+/* ── PREVIEW IFRAME ── */
+.preview-bar{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--border);margin-top:16px}
+.preview-label{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--mid)}
+.preview-iframe-wrap{border:1px solid var(--border);background:#fff;margin-top:8px;position:relative}
+.preview-iframe{width:100%;height:700px;border:none;display:block}
+.preview-hint{font-size:10px;color:var(--mid);padding:32px;text-align:center}
+.season-panel-header{font-size:18px;font-weight:500;letter-spacing:0.08em;margin-bottom:24px;color:var(--text)}
+.season-active .season-header{background:#eae8e4;border-left:2px solid var(--accent)}
+
+/* ── COLLECTION LIST ITEMS ── */
+.coll-list-item{padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.1s;display:flex;align-items:center;gap:10px}
+.coll-list-item:hover{background:var(--surface2)}
+.coll-list-item.active{background:var(--surface2);border-left:2px solid var(--accent)}
+.coll-list-item.unpub{opacity:0.5}
+.coll-list-name{flex:1;font-size:12px;color:var(--text)}
+.coll-pub-toggle{accent-color:var(--accent);width:14px;height:14px;flex-shrink:0;cursor:pointer}
+
+/* ── ABOUT TAB ── */
+.about-split{display:flex;flex:1;overflow:hidden}
+.about-form-side{width:420px;flex-shrink:0;overflow-y:auto;padding:28px 32px;background:var(--bg);border-right:1px solid var(--border)}
+.about-preview-side{flex:1;overflow-y:auto;padding:28px 32px;background:var(--bg)}
+
+/* ── COLLECTION EDITOR ── */
+.img-grid-existing{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+
+/* ── ABOUT FORM ── */
+.about-form{max-width:680px}
+
+/* ── LAYOUT PREVIEW ── */
+.lp-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px}
+.lp-item{overflow:hidden;background:var(--surface2);aspect-ratio:2/3;display:flex;align-items:center;justify-content:center}
+.lp-item img{width:100%;height:100%;object-fit:contain;display:block;transition:transform 0.2s}
+.lp-scroll .lp-item{grid-column:1/-1}
+.lp-single .lp-item:not(:first-child){display:none}
+.lp-single .lp-item:first-child{grid-column:1/-1}
+.lp-layout1 .lp-item:nth-child(5n+1){grid-column:1/-1}
+.lp-layout2 .lp-item:nth-child(1),.lp-layout2 .lp-item:nth-child(2),.lp-layout2 .lp-item:nth-child(5){grid-column:1/-1}
+.lp-layout3 .lp-item:nth-child(1){grid-column:1/-1}
+
+/* ── RELATED LAYOUT SELECTOR ── */
+.rel-layout-option{display:flex;align-items:center;gap:16px;padding:14px 16px;border:1px solid var(--border);background:var(--surface);cursor:pointer;transition:border-color 0.15s,background 0.15s}
+.rel-layout-option:hover{border-color:var(--mid)}
+.rel-layout-option.active{border-color:var(--accent);background:rgba(138,122,104,0.06)}
+.rel-layout-preview{display:flex;flex-direction:column;gap:3px;flex-shrink:0;width:120px}
+.rl-row{display:flex;gap:3px}
+.rl-full{flex:1;height:12px;background:var(--border);border-radius:1px}
+.rl-full.dark{background:var(--mid)}
+.rl-half{flex:1;height:12px;background:var(--border);border-radius:1px}
+.rel-layout-option.active .rl-full,.rel-layout-option.active .rl-half{background:var(--accent);opacity:0.5}
+.rel-layout-option.active .rl-row:first-child .rl-full{opacity:1}
+.rel-layout-label{display:flex;flex-direction:column;gap:4px}
+.rel-layout-label strong{font-size:12px;color:var(--text)}
+.rel-layout-label span{font-size:11px;color:var(--mid)}
+
+/* ── LAYOUT / ROTATION BUTTONS ── */
+.layout-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.layout-btn{padding:7px 16px;font-size:11px;letter-spacing:0.08em;border:1px solid var(--border);background:var(--surface);color:var(--mid);cursor:pointer;transition:all 0.15s;font-family:inherit;border-radius:0}
+.layout-btn:hover{border-color:var(--mid);color:var(--text)}
+.layout-btn.active{border-color:var(--accent);background:rgba(138,122,104,0.1);color:var(--accent)}
+.rot-rows{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+.rot-row{display:flex;align-items:center;gap:12px}
+.rot-thumb{width:48px;height:48px;object-fit:cover;border:1px solid var(--border);flex-shrink:0}
+.rot-label{font-size:10px;color:var(--mid);width:90px;word-break:break-all;flex-shrink:0}
+.rot-btns{display:flex;gap:6px}
+.rot-btn{padding:5px 11px;font-size:11px;letter-spacing:0.06em;border:1px solid var(--border);background:var(--surface);color:var(--mid);cursor:pointer;transition:all 0.15s;font-family:inherit}
+.rot-btn:hover{border-color:var(--mid);color:var(--text)}
+.rot-btn.active{border-color:var(--accent);background:rgba(138,122,104,0.1);color:var(--accent);font-weight:600}
+.news-tpl-btn{background:var(--surface2);border:1px solid var(--border);padding:16px;text-align:left;cursor:pointer;transition:all 0.15s;font-family:inherit}
+.news-tpl-btn:hover{border-color:var(--accent);background:#faf9f7}
+.news-tpl-icon{font-size:20px;margin-bottom:8px}
+.news-tpl-name{font-size:11px;font-weight:600;color:var(--text);margin-bottom:4px;letter-spacing:0.04em}
+.news-tpl-desc{font-size:10px;color:var(--mid);line-height:1.5}
+</style>
+</head>
+<body>
+<div class="layout">
+  <!-- ── TOP TAB NAV ── -->
+  <nav class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('products')">商品管理</button>
+    <button class="tab-btn" onclick="switchTab('home')">HOME</button>
+    <button class="tab-btn" onclick="switchTab('about')">ABOUT</button>
+    <button class="tab-btn" onclick="switchTab('collections')">Collection</button>
+    <button class="tab-btn" onclick="switchTab('news')">NEWS</button>
+    <button class="tab-btn" onclick="switchTab('settings')">Settings</button>
+  </nav>
+
+  <!-- ── PRODUCTS TAB ── -->
+  <div class="tab-panel active" id="tab-products">
+    <aside class="sidebar">
+      <div class="sidebar-head">
+        <div class="sidebar-logo">NOREM</div>
+        <div class="sidebar-sub">Admin Panel</div>
+        <button class="btn btn-primary" style="width:100%;padding:6px 10px;font-size:10px;margin-bottom:6px" onclick="addProductSeason()">＋ 新シーズン</button>
+        <button class="btn-publish" id="btnPublish" onclick="publishAll()">反映する</button>
+      </div>
+      <div class="sidebar-list" id="sidebarList"></div>
+    </aside>
+    <main class="main">
+      <div class="page-title">Product Management</div>
+      <div id="mainContent"><p class="empty-state">← 左のリストから商品を選択</p></div>
+    </main>
+  </div>
+
+  <!-- ── HOME TAB ── -->
+  <div class="tab-panel" id="tab-home">
+    <div class="about-split">
+      <div class="about-form-side">
+        <div class="page-title">HOME スライダー管理</div>
+
+        <div class="section">
+          <div class="section-title">画像をアップロード</div>
+          <div class="img-upload-zone" id="home-upload-zone"
+            ondragover="event.preventDefault();this.classList.add('drag')"
+            ondragleave="this.classList.remove('drag')"
+            ondrop="handleHomeImgDrop(event)">
+            <input type="file" accept="image/*" multiple onchange="handleHomeImgFiles(event)"/>
+            <div class="img-upload-label">クリックまたはドラッグで画像をアップロード</div>
+            <div class="img-upload-sub">複数枚同時アップロード可（home/ フォルダに保存）</div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">現在のスライダー画像</div>
+          <div id="home-img-list" style="display:flex;flex-direction:column;gap:12px;margin-top:8px;"></div>
+          <button class="btn-save" style="margin-top:20px" onclick="saveHomeSlider()">保存・反映する</button>
+        </div>
+      </div>
+      <div class="about-preview-side">
+        <div class="preview-label" style="font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--mid);margin-bottom:12px">Preview</div>
+        <div style="margin-bottom:12px">
+          <button class="btn btn-ghost" onclick="document.getElementById('home-preview-iframe').src='http://localhost:8765/index.html?t='+Date.now()">プレビューを更新</button>
+        </div>
+        <div class="preview-iframe-wrap">
+          <iframe id="home-preview-iframe" class="preview-iframe" src="http://localhost:8765/index.html"></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ABOUT TAB ── -->
+  <div class="tab-panel" id="tab-about">
+    <div class="about-split">
+      <div class="about-form-side">
+        <div class="page-title">About Page Editor</div>
+
+        <div class="section">
+          <div class="section-title">トップ画像 (Hero)</div>
+          <div id="about-hero-wrap">
+            <div class="img-upload-zone" id="about-hero-zone" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleAboutImgDrop(event,'hero')">
+              <input type="file" accept="image/*" onchange="handleAboutImgFile(event,'hero')"/>
+              <div class="img-upload-label">クリックまたはドラッグで画像をアップロード</div>
+              <div class="img-upload-sub">about/hero.jpg に保存されます</div>
+            </div>
+            <div id="about-hero-preview"></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Designer</div>
+          <div class="form-grid">
+            <div class="field">
+              <label>デザイナー名</label>
+              <input type="text" id="ab-designerName"/>
+            </div>
+            <div class="field">
+              <label>Instagram URL</label>
+              <input type="url" id="ab-designerIg"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">サブ写真 1 (sp1)</div>
+          <div class="img-upload-zone" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleAboutImgDrop(event,'sp1')">
+            <input type="file" accept="image/*" onchange="handleAboutImgFile(event,'sp1')"/>
+            <div class="img-upload-label">sp1 画像をアップロード</div>
+            <div class="img-upload-sub">about/sp1.jpg に保存されます</div>
+          </div>
+          <div id="about-sp1-preview"></div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">サブ写真 2 (sp2)</div>
+          <div class="img-upload-zone" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleAboutImgDrop(event,'sp2')">
+            <input type="file" accept="image/*" onchange="handleAboutImgFile(event,'sp2')"/>
+            <div class="img-upload-label">sp2 画像をアップロード</div>
+            <div class="img-upload-sub">about/sp2.jpg に保存されます</div>
+          </div>
+          <div id="about-sp2-preview"></div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">サブ写真 3 (sp3)</div>
+          <div class="img-upload-zone" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleAboutImgDrop(event,'sp3')">
+            <input type="file" accept="image/*" onchange="handleAboutImgFile(event,'sp3')"/>
+            <div class="img-upload-label">sp3 画像をアップロード</div>
+            <div class="img-upload-sub">about/sp3.jpg に保存されます</div>
+          </div>
+          <div id="about-sp3-preview"></div>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-primary" onclick="saveAbout()">保存して反映</button>
+        </div>
+      </div>
+      <div class="about-preview-side">
+        <div class="preview-label" style="font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--mid);margin-bottom:12px">Preview</div>
+        <div style="display:flex;gap:10px;margin-bottom:12px">
+          <button class="btn btn-ghost" onclick="reloadAboutPreview()">プレビューを更新</button>
+        </div>
+        <div class="preview-iframe-wrap">
+          <iframe id="about-preview-iframe" class="preview-iframe" src="http://localhost:8765/about.html"></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── COLLECTIONS TAB ── -->
+  <div class="tab-panel" id="tab-collections">
+    <div class="split-layout">
+      <div class="split-left">
+        <div class="split-left-head">
+          <span class="split-left-title">シーズン</span>
+          <button class="btn btn-primary" style="padding:5px 12px;font-size:10px" onclick="addNewSeason()">＋ 新シーズン</button>
+        </div>
+        <div class="split-list" id="collSideList"></div>
+        <div style="padding:12px;border-top:1px solid var(--border);flex-shrink:0">
+          <button class="btn btn-primary" style="width:100%;padding:10px" onclick="applyCollPublishState()">確定してWEBに反映</button>
+        </div>
+      </div>
+      <div class="split-right" id="collEditor">
+        <p class="empty-state">← 左のリストからシーズンを選択</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── NEWS TAB ── -->
+  <div class="tab-panel" id="tab-news">
+    <div class="split-layout">
+      <div class="split-left">
+        <div class="split-left-head">
+          <span class="split-left-title">記事一覧</span>
+          <button class="btn btn-primary" style="padding:5px 12px;font-size:10px" onclick="showNewsTemplateModal()">＋ 新しい記事</button>
+        </div>
+        <div class="split-list" id="newsListSide"></div>
+        <div style="padding:12px;border-top:1px solid var(--border);flex-shrink:0">
+          <button class="btn btn-primary" id="newsApplyBtn" style="width:100%;padding:10px" onclick="applyNewsPublishState()">確定してWEBに反映</button>
+        </div>
+      </div>
+      <div class="split-right" id="newsEditor">
+        <p class="news-editor-empty">← 左のリストから記事を選択、または新規作成</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SETTINGS TAB ── -->
+  <div class="tab-panel" id="tab-settings">
+    <div class="main" style="max-width:680px">
+      <p class="page-title">Site Settings</p>
+
+      <div class="section">
+        <div class="section-title">関連商品 レイアウト</div>
+        <p style="font-size:11px;color:var(--mid);margin-bottom:20px">商品ページ下部の関連商品セクションの表示パターンを選択します。</p>
+        <div style="display:flex;flex-direction:column;gap:16px" id="relLayoutOptions">
+
+          <!-- 案1 -->
+          <label class="rel-layout-option" data-layout="1">
+            <input type="radio" name="relLayout" value="1" style="display:none">
+            <div class="rel-layout-preview">
+              <div class="rl-row"><div class="rl-full"></div></div>
+              <div class="rl-row"><div class="rl-half"></div><div class="rl-half"></div></div>
+              <div class="rl-row"><div class="rl-half"></div><div class="rl-half"></div></div>
+              <div class="rl-row"><div class="rl-full"></div></div>
+              <div class="rl-row"><div class="rl-half"></div><div class="rl-half"></div></div>
+            </div>
+            <div class="rel-layout-label">
+              <strong>案1</strong>
+              <span>全幅 → 2列 → 2列 → 全幅 → 以降2列</span>
+            </div>
+          </label>
+
+          <!-- 案2 -->
+          <label class="rel-layout-option" data-layout="2">
+            <input type="radio" name="relLayout" value="2" style="display:none">
+            <div class="rel-layout-preview">
+              <div class="rl-row"><div class="rl-full"></div></div>
+              <div class="rl-row"><div class="rl-full"></div></div>
+              <div class="rl-row"><div class="rl-half"></div><div class="rl-half"></div></div>
+              <div class="rl-row"><div class="rl-full"></div></div>
+              <div class="rl-row"><div class="rl-half"></div><div class="rl-half"></div></div>
+            </div>
+            <div class="rel-layout-label">
+              <strong>案2</strong>
+              <span>全幅 → 全幅 → 2列 → 全幅 → 以降2列</span>
+            </div>
+          </label>
+
+          <!-- 案3 -->
+          <label class="rel-layout-option" data-layout="3">
+            <input type="radio" name="relLayout" value="3" style="display:none">
+            <div class="rel-layout-preview">
+              <div class="rl-row"><div class="rl-full"></div></div>
+              <div class="rl-row"><div class="rl-half"></div><div class="rl-half"></div></div>
+              <div class="rl-row"><div class="rl-half"></div><div class="rl-half"></div></div>
+              <div class="rl-row"><div class="rl-half"></div><div class="rl-half"></div></div>
+              <div class="rl-row"><div class="rl-half"></div><div class="rl-half"></div></div>
+            </div>
+            <div class="rel-layout-label">
+              <strong>案3</strong>
+              <span>全幅 → 以降すべて2列</span>
+            </div>
+          </label>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── NEWSテンプレート選択モーダル ── -->
+<div id="newsTemplateModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;display:none;align-items:center;justify-content:center">
+  <div style="background:var(--surface);padding:32px;width:480px;max-width:90vw">
+    <div style="font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--mid);margin-bottom:20px">テンプレートを選択</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px">
+      <button class="news-tpl-btn" onclick="addNewsArticle('blank')">
+        <div class="news-tpl-icon">📄</div>
+        <div class="news-tpl-name">空白</div>
+        <div class="news-tpl-desc">白紙から作成</div>
+      </button>
+      <button class="news-tpl-btn" onclick="addNewsArticle('new')">
+        <div class="news-tpl-icon">🆕</div>
+        <div class="news-tpl-name">新着・コレクション</div>
+        <div class="news-tpl-desc">商品・コレクション発売のお知らせ</div>
+      </button>
+      <button class="news-tpl-btn" onclick="addNewsArticle('event')">
+        <div class="news-tpl-icon">📅</div>
+        <div class="news-tpl-name">イベント</div>
+        <div class="news-tpl-desc">ポップアップ・展示会告知</div>
+      </button>
+      <button class="news-tpl-btn" onclick="addNewsArticle('info')">
+        <div class="news-tpl-icon">ℹ️</div>
+        <div class="news-tpl-name">お知らせ</div>
+        <div class="news-tpl-desc">営業・配送・その他の情報</div>
+      </button>
+    </div>
+    <button class="btn btn-ghost" style="width:100%" onclick="closeNewsTemplateModal()">キャンセル</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let allProducts    = [];
+let adminData      = {};
+let currentId      = null;
+let _newsArticles  = [];   // base articles from news-data.js
+let _collSeasons   = [];   // from collections-data.js
+let _productSeasons = []; // all season dirs including empty ones
+let _currentTab    = 'products';
+let _currentNewsKey = null;
+let _currentCollSeason = null;
+let _newsEditorDraft = {}; // in-memory changes per key
+
+/* ── TAB SWITCHING ── */
+function switchTab(tab) {
+  _currentTab = tab;
+  document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+    const tabs = ['products','home','about','collections','news'];
+    btn.classList.toggle('active', tabs[i] === tab);
+  });
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  const panel = document.getElementById('tab-' + tab);
+  if (panel) panel.classList.add('active');
+
+  if (tab === 'home')        renderHomeSlider();
+  if (tab === 'about')       renderAbout();
+  if (tab === 'collections') renderCollectionsSplit();
+  if (tab === 'news')        renderNewsSplit();
+}
+
+/* ── 洗濯表示アイコン ── */
+const CARE_GROUPS = [
+  { name: '洗濯の仕方', files: Array.from({length:14}, (_,i) => `洗濯の仕方${i+1}.png`) },
+  { name: '漂白',       files: ['漂白1.png','漂白2.png','漂白3.png'] },
+  { name: 'タンブル乾燥', files: ['タンブル乾燥1.png','タンブル乾燥2.png','タンブル乾燥3.png'] },
+  { name: '自然乾燥',   files: Array.from({length:8}, (_,i) => `自然乾燥${i+1}.png`) },
+  { name: 'アイロン',   files: ['アイロン1.png','アイロン2.png','アイロン3.png','アイロン4.png'] },
+  { name: 'ドライクリーニング',   files: Array.from({length:5}, (_,i) => `ドライクリーニング${i+1}.png`) },
+  { name: 'ウェットクリーニング', files: Array.from({length:4}, (_,i) => `ウェットクリーニング${i+1}.png`) },
+];
+const ICON_BASE = 'http://localhost:8765/' + encodeURIComponent('洗濯表示アイコン') + '/';
+
+function renderCareIcons(selectedIcons) {
+  const selected = new Set(selectedIcons || []);
+  const wrap = document.getElementById('careIconsWrap');
+  if (!wrap) return;
+  wrap.innerHTML = CARE_GROUPS.map(g => {
+    const icons = g.files.map(fname =>
+      `<img class="care-icon${selected.has(fname) ? ' selected' : ''}"
+        src="${ICON_BASE}${encodeURIComponent(fname)}" alt="${fname}" title="${fname}"
+        onclick="toggleCareIcon(this)"
+        onerror="this.style.display='none'">`
+    ).join('');
+    return `<div class="care-group">
+      <div class="care-group-title">${g.name}</div>
+      <div class="care-icons">${icons}</div>
+    </div>`;
+  }).join('');
+}
+
+function toggleCareIcon(el) { el.classList.toggle('selected'); }
+function getSelectedCareIcons() {
+  return Array.from(document.querySelectorAll('.care-icon.selected')).map(el => el.alt);
+}
+
+// ── Related Layout Settings ──
+function initRelLayoutSettings() {
+  const saved = localStorage.getItem('norem_rel_layout') || '1';
+  document.querySelectorAll('.rel-layout-option').forEach(opt => {
+    const val = opt.dataset.layout;
+    if (val === saved) opt.classList.add('active');
+    opt.querySelector('input').checked = (val === saved);
+    opt.addEventListener('click', () => {
+      document.querySelectorAll('.rel-layout-option').forEach(o => o.classList.remove('active'));
+      opt.classList.add('active');
+      opt.querySelector('input').checked = true;
+      localStorage.setItem('norem_rel_layout', val);
+    });
+  });
+}
+initRelLayoutSettings();
+
+function setLayout(btn) {
+  document.querySelectorAll('.layout-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  updateLayoutPreview();
+}
+
+function setRot(btn) {
+  btn.closest('.rot-btns').querySelectorAll('.rot-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  updateLayoutPreview();
+}
+
+function updateLayoutPreview() {
+  const layout = document.querySelector('.layout-btn.active')?.dataset.layout || 'scroll';
+  const grid = document.getElementById('layoutPreviewGrid');
+  if (!grid) return;
+  grid.className = `lp-grid lp-${layout}`;
+  grid.querySelectorAll('.lp-item').forEach((item, i) => {
+    const active = document.querySelector(`.rot-row[data-img="${i}"] .rot-btn.active`);
+    const rot = active ? parseInt(active.dataset.rot) : 0;
+    const img = item.querySelector('img');
+    img.style.transform = rot ? `rotate(${rot}deg)` : '';
+    item.style.aspectRatio = (rot === 90 || rot === 270) ? '3/2' : '2/3';
+  });
+}
+
+function selectAdminImg(el, src) {
+  document.querySelectorAll('.prod-img-thumb').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  const large = document.getElementById('adminMainImg');
+  if (large) { large.src = src; large.style.display = ''; }
+}
+
+function syncNotesText() {
+  const checked = Array.from(document.querySelectorAll('#notesChecks input:checked')).map(i => i.value);
+  const custom  = document.getElementById('f-notes').value.trim();
+  document.getElementById('f-notes').dataset.combined = [...checked, ...(custom ? [custom] : [])].join('\n');
+}
+
+async function load() {
+  const res  = await fetch('/api/data');
+  // collections / news は /api/data から取得（fetch後に上書き）
+  const data = await res.json();
+  allProducts = data.products;
+  adminData   = data.adminData;
+
+  if (!adminData.about)        adminData.about       = {};
+  if (!adminData.news)         adminData.news        = {};
+  if (!adminData.newArticles)  adminData.newArticles = [];
+  if (!adminData.collections)  adminData.collections = {};
+
+  // /api/data から collections と news を直接取得
+  _collSeasons    = data.collections   || [];
+  _productSeasons = data.productSeasons || [];
+  _newsArticles   = []; // ソースはadminData.newArticlesのみ
+
+  renderSidebar();
+}
+
+function badgeClass(status) {
+  if (status === 'available')   return 'badge-available';
+  if (status === 'soldout')     return 'badge-soldout';
+  if (status === 'bespoke')     return 'badge-bespoke';
+  return 'badge-comingsoon';
+}
+function badgeLabel(status) {
+  if (status === 'available')   return 'Available';
+  if (status === 'soldout')     return 'Sold Out';
+  if (status === 'bespoke')     return '別注';
+  return 'Coming Soon';
+}
+
+function productKey(p) {
+  return p.folder + '/' + p.images[0];
+}
+
+function getMeta(p) {
+  const key = productKey(p);
+  const base = {
+    status: p.status || 'available',
+    price: p.price || 0,
+    taxIn: p.taxIn !== false,
+    showOnHome: p.showOnHome || false,
+    saleDate: '',
+    sizes: p.sizes || [],
+    description: p.description || '',
+    infoText: p.infoText || '',
+    sizeText: p.sizeText || '',
+    sizeChart: null,
+    notes: '',
+    careIcons: [],
+    published: true,
+    imageLayout: p.imageLayout || 'scroll',
+    imageRotations: p.imageRotations || [],
+  };
+  // fallback to legacy key (filename only) for old data
+  return Object.assign({}, base, adminData[p.images[0]] || {}, adminData[key] || {});
+}
+
+const _openSeasons = new Set();
+
+function toggleSeasonOpen(season) {
+  if (_openSeasons.has(season)) _openSeasons.delete(season);
+  else _openSeasons.add(season);
+  renderSidebar();
+}
+
+function publishAll() {
+  const btn = document.getElementById('btnPublish');
+  btn.textContent = '反映中...';
+  btn.disabled = true;
+  fetch('/api/save', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(adminData) })
+    .then(r => r.json())
+    .then(d => {
+      if (d.ok) {
+        btn.textContent = '反映しました ✓';
+        btn.classList.add('done');
+        setTimeout(() => { btn.textContent = '反映する'; btn.classList.remove('done'); btn.disabled = false; }, 2000);
+      } else {
+        btn.textContent = 'エラー';
+        setTimeout(() => { btn.textContent = '反映する'; btn.disabled = false; }, 2000);
+      }
+    })
+    .catch(() => { btn.textContent = '反映する'; btn.disabled = false; });
+}
+
+function togglePublish(id, pub) {
+  const p = allProducts.find(x => x.id === id);
+  if (!p) return;
+  const key = productKey(p);
+  if (!adminData[key]) adminData[key] = {};
+  adminData[key].published = pub;
+  fetch('/api/save', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(adminData) })
+    .then(r => r.json()).then(d => { if(d.ok) renderSidebar(); });
+}
+
+function toggleSeasonPublish(season, pub) {
+  allProducts.filter(p => p.season === season).forEach(p => {
+    const key = productKey(p);
+    if (!adminData[key]) adminData[key] = {};
+    adminData[key].published = pub;
+  });
+  fetch('/api/save', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(adminData) })
+    .then(r => r.json()).then(d => { if(d.ok) renderSidebar(); });
+}
+
+function renderSidebar() {
+  const list = document.getElementById('sidebarList');
+  const productSeasonsFromData = [...new Set(allProducts.map(p => p.season))];
+  const allSeasonDirs = _productSeasons.length > 0 ? _productSeasons : productSeasonsFromData;
+  const seasons = [...new Set([...allSeasonDirs, ...productSeasonsFromData])].sort().reverse();
+  list.innerHTML = seasons.map(season => {
+    const items = allProducts.filter(p => p.season === season);
+    const allPub = items.length > 0 && items.every(p => getMeta(p).published !== false);
+    const itemsHTML = items.length > 0
+      ? items.map(p => {
+          const meta = getMeta(p);
+          const pub  = meta.published !== false;
+          const name = p.images[0]?.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ');
+          const imgSrc = p.folder && p.images[0] ? `http://localhost:8765/${p.folder}/${p.images[0]}` : '';
+          return `<div class="sidebar-item${p.id === currentId ? ' active' : ''}${!pub ? ' unpublished' : ''}">
+            <input type="checkbox" class="pub-check" ${pub ? 'checked' : ''}
+              onchange="togglePublish(${p.id}, this.checked)" title="公開/非公開"
+              onclick="event.stopPropagation()"/>
+            <img class="sidebar-thumb" src="${imgSrc}" onerror="this.style.visibility='hidden'" alt=""
+              onclick="selectProduct(${p.id})" style="cursor:pointer"/>
+            <div class="sidebar-item-name" onclick="selectProduct(${p.id})" style="cursor:pointer">
+              ${name}
+            </div>
+            <span class="status-badge ${badgeClass(meta.status)}">${badgeLabel(meta.status)}</span>
+          </div>`;
+        }).join('')
+      : `<div style="padding:10px 14px;font-size:11px;color:var(--mid)">商品未登録</div>`;
+    const sid = 'season-' + season.replace(/[^a-zA-Z0-9]/g, '_');
+    const isOpen = _openSeasons.has(season);
+    return `<div class="season-group" id="sg-${sid}">
+      <div class="season-header" onclick="selectSeason('${season}');toggleSeasonOpen('${season}')">
+        <input type="checkbox" ${allPub ? 'checked' : ''}
+          onchange="toggleSeasonPublish('${season}', this.checked)"
+          onclick="event.stopPropagation()" title="シーズン一括公開/非公開"/>
+        <label onclick="event.stopPropagation();selectSeason('${season}');toggleSeasonOpen('${season}')">
+          ${season} <span class="season-count">${items.length}件</span>
+        </label>
+        <span class="season-arrow${isOpen ? ' open' : ''}">▼</span>
+      </div>
+      <div class="season-items${isOpen ? ' open' : ''}" id="${sid}">
+        ${itemsHTML}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function selectSeason(season) {
+  currentId = null;
+  document.querySelectorAll('.season-group').forEach(g => g.classList.remove('season-active'));
+  const sg = document.getElementById('sg-season-' + season.replace(/[^a-zA-Z0-9]/g, '_'));
+  if (sg) sg.classList.add('season-active');
+
+  document.getElementById('mainContent').innerHTML = `
+    <div class="season-panel-header">${escHtml(season)}</div>
+
+    <div class="section">
+      <div class="section-title">TOP画像（ショップページ上部に表示）</div>
+      <div class="img-upload-zone"
+        ondragover="event.preventDefault();this.classList.add('drag')"
+        ondragleave="this.classList.remove('drag')"
+        ondrop="handleSeasonTopDrop(event,'${escJs(season)}')">
+        <input type="file" accept="image/*" onchange="handleSeasonTopFile(event,'${escJs(season)}')"/>
+        <div class="img-upload-label">クリックまたはドラッグでTOP画像をアップロード</div>
+        <div class="img-upload-sub">collections/${escHtml(season)}/top.png に保存されます</div>
+      </div>
+      <div id="top-preview-${escJs(season)}" style="margin-top:10px">
+        <img src="http://localhost:8765/collections/${escHtml(season)}/top.png?t=${Date.now()}"
+          style="max-height:160px;max-width:100%;object-fit:contain;border:1px solid var(--border)"
+          onerror="this.style.display='none'" alt="現在のTOP画像"/>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">プレビュー（公開時のショップ表示）</div>
+      <div class="preview-bar">
+        <span class="preview-label">http://localhost:8765/shop.html?season=${escHtml(season)}</span>
+        <button class="btn btn-sm" onclick="refreshSeasonPreview('${escJs(season)}')">🔄 プレビュー更新</button>
+      </div>
+      <div class="preview-iframe-wrap">
+        <iframe class="preview-iframe" id="season-preview-frame" src="http://localhost:8765/shop.html?season=${escHtml(season)}&preview=1" loading="lazy"></iframe>
+      </div>
+    </div>
+  `;
+}
+
+function refreshSeasonPreview(season) {
+  const frame = document.getElementById('season-preview-frame');
+  if (frame) frame.src = 'http://localhost:8765/shop.html?season=' + encodeURIComponent(season) + '&t=' + Date.now();
+}
+
+function selectProduct(id) {
+  currentId = id;
+  renderSidebar();
+  const p = allProducts.find(x => x.id === id);
+  if (!p) return;
+  const meta = getMeta(p);
+  const name = p.images[0]?.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ');
+
+  const imgBase = p.folder ? `http://localhost:8765/${p.folder}/` : '';
+  const thumbsHTML = p.images.map((img, i) =>
+    `<img class="prod-img-thumb${i===0?' active':''}" src="${imgBase}${img}" alt="${img}"
+      onclick="selectAdminImg(this,'${imgBase}${img}')"
+      onerror="this.style.display='none'"/>`
+  ).join('');
+
+  document.getElementById('mainContent').innerHTML = `
+    <div class="prod-head">
+      <div class="prod-name">${name}</div>
+      <div class="prod-folder">${p.folder}</div>
+      <img class="prod-img-large" id="adminMainImg" src="${imgBase}${p.images[0]||''}" onerror="this.style.display='none'" alt=""/>
+      <div class="prod-imgs">${thumbsHTML}</div>
+    </div>
+
+    <!-- 画像レイアウト -->
+    <div class="section">
+      <div class="section-title">画像レイアウト</div>
+      <div style="display:grid;grid-template-columns:1fr 180px;gap:20px;align-items:start">
+        <!-- 左：コントロール -->
+        <div>
+          <div class="field">
+            <label>複数写真の表示パターン</label>
+            <div class="layout-btns">
+              ${[
+                {value:'scroll',  label:'縦スクロール'},
+                {value:'grid2',   label:'2列グリッド'},
+                {value:'single',  label:'1枚＋サムネ'},
+                {value:'layout1', label:'案1', sub:'全幅→2列→2列→全幅→…'},
+                {value:'layout2', label:'案2', sub:'全幅→全幅→2列→全幅→…'},
+                {value:'layout3', label:'案3', sub:'全幅→以降2列'},
+              ].map(opt => {
+                const isActive = (meta.imageLayout||'scroll') === opt.value;
+                const subHtml = opt.sub ? '<span style="font-size:9px;opacity:0.65;white-space:nowrap">' + opt.sub + '</span>' : '';
+                return '<button type="button" class="layout-btn' + (isActive?' active':'') + '" data-layout="' + opt.value + '" onclick="setLayout(this)" style="display:flex;flex-direction:column;align-items:flex-start;gap:2px">' + opt.label + subHtml + '</button>';
+              }).join('')}
+            </div>
+          </div>
+          <div>
+            <p style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--mid);margin:14px 0 6px">画像ごとの回転</p>
+            <div class="rot-rows">
+              ${p.images.map((img, i) => {
+                const cur = (meta.imageRotations||[])[i] || 0;
+                return `<div class="rot-row" data-img="${i}">
+                  <img src="${imgBase}${img}" class="rot-thumb" onerror="this.style.opacity=0.3" alt="">
+                  <span class="rot-label">${img}</span>
+                  <div class="rot-btns">
+                    ${[0,90,180,270].map(deg =>
+                      `<button type="button" class="rot-btn${cur===deg?' active':''}" data-rot="${deg}" onclick="setRot(this)">${deg}°</button>`
+                    ).join('')}
+                  </div>
+                </div>`;
+              }).join('')}
+            </div>
+          </div>
+        </div>
+        <!-- 右：プレビュー -->
+        <div>
+          <p style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--mid);margin-bottom:8px">Preview</p>
+          <div id="layoutPreviewGrid" class="lp-grid lp-${meta.imageLayout||'scroll'}">
+            ${p.images.map((img, i) => {
+              const rot = (meta.imageRotations||[])[i] || 0;
+              const rotStyle = rot ? 'rotate(' + rot + 'deg)' : '';
+              return '<div class="lp-item" style="aspect-ratio:' + ((rot===90||rot===270)?'3/2':'2/3') + '">'
+                + '<img src="' + imgBase + img + '" style="transform:' + rotStyle + '" onerror="this.parentElement.style.background=\'#ccc\'" alt="">'
+                + '</div>';
+            }).join('')}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 基本情報 -->
+    <div class="section">
+      <div class="section-title">基本情報</div>
+      <div class="form-grid">
+        <div class="field">
+          <label>ステータス</label>
+          <select id="f-status">
+            <option value="available" ${meta.status==='available'?'selected':''}>Available（販売中）</option>
+            <option value="soldout"   ${meta.status==='soldout'?'selected':''}>Sold Out（売り切れ）</option>
+            <option value="comingsoon"${meta.status==='comingsoon'?'selected':''}>Coming Soon（近日発売）</option>
+            <option value="bespoke"   ${meta.status==='bespoke'?'selected':''}>別注</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>販売開始日時（Coming Soon用）</label>
+          <input type="text" id="f-saleDate" value="${meta.saleDate||''}" placeholder="例: 2026/06/05 21:00"/>
+        </div>
+        <div class="field">
+          <label>価格（数字のみ）</label>
+          <input type="number" id="f-price" value="${meta.price||0}"/>
+        </div>
+        <div class="field" style="justify-content:flex-end;padding-bottom:4px">
+          <div class="checkbox-row">
+            <input type="checkbox" id="f-taxIn" ${meta.taxIn?'checked':''}>
+            <label for="f-taxIn">税込み価格（TAX IN）</label>
+          </div>
+          <div class="checkbox-row" style="margin-top:12px">
+            <input type="checkbox" id="f-showOnHome" ${meta.showOnHome?'checked':''}>
+            <label for="f-showOnHome">HOME に表示</label>
+          </div>
+        </div>
+        <div class="field form-full">
+          <label>カテゴリー（最大4つ）</label>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px" id="categoryChecks">
+            ${[
+              {label:'New Arrivals',  slug:'new-arrivals'},
+              {label:'Tops',          slug:'tops'},
+              {label:'Shirts',        slug:'shirts'},
+              {label:'Knit',          slug:'knit'},
+              {label:'Cut & Sew / Sweat', slug:'cut-sew-sweat'},
+              {label:'Bottoms',       slug:'bottoms'},
+              {label:'Pants',         slug:'pants'},
+              {label:'Skirts',        slug:'skirts'},
+              {label:'Outerwear',     slug:'outerwear'},
+              {label:'Jackets',       slug:'jackets'},
+              {label:'Coats',         slug:'coats'},
+              {label:'Dresses / Setup', slug:'dresses-setup'},
+              {label:'Bags',          slug:'bags'},
+              {label:'Shoes',         slug:'shoes'},
+              {label:'Accessories',   slug:'accessories'},
+              {label:'Sale',          slug:'sale'},
+            ].map(cat => {
+              const checked = (meta.categories||[]).includes(cat.slug);
+              return '<label style="display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:4px 10px;border:1px solid var(--border);cursor:pointer;background:' + (checked?'rgba(138,122,104,0.1)':'var(--surface)') + '">'
+                + '<input type="checkbox" class="f-category" value="' + cat.slug + '" ' + (checked?'checked':'') + ' onchange="updateCategoryLimit(this)" style="accent-color:var(--accent)">'
+                + cat.label + '</label>';
+            }).join('')}
+          </div>
+          <p style="font-size:10px;color:var(--mid);margin-top:4px">選択中: <span id="catCount">${(meta.categories||[]).length}</span> / 4</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 商品画像アップロード -->
+    <div class="section">
+      <div class="section-title">商品画像</div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px" id="prodImgList">
+        ${p.images.map((img, i) => `
+          <div style="position:relative;width:80px">
+            <img src="${imgBase}${img}" style="width:80px;height:80px;object-fit:cover;border:1px solid var(--border)" onerror="this.style.opacity=0.3" alt="">
+            <button onclick="deleteProductImg('${escJs(p.folder)}','${escJs(img)}',${p.id})" title="削除" style="position:absolute;top:-6px;right:-6px;background:var(--danger);color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:12px;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center">×</button>
+            <div style="font-size:9px;color:var(--mid);word-break:break-all;margin-top:3px">${img}</div>
+          </div>`).join('')}
+      </div>
+      <div class="img-upload-zone" id="prod-upload-zone"
+        ondragover="event.preventDefault();this.classList.add('drag')"
+        ondragleave="this.classList.remove('drag')"
+        ondrop="handleProdImgDrop(event,'${escJs(p.folder)}','${p.id}')">
+        <input type="file" accept="image/*" multiple onchange="handleProdImgFile(event,'${escJs(p.folder)}','${p.id}')"/>
+        <div class="img-upload-label">商品画像をアップロード</div>
+        <div class="img-upload-sub">${escHtml(p.folder)} に保存されます</div>
+      </div>
+    </div>
+
+    <!-- サイズ / 在庫 -->
+    <div class="section">
+      <div class="section-title">サイズ・在庫管理</div>
+      <div class="sizes-wrap" id="sizesWrap"></div>
+      <button class="btn-add-size" onclick="addSizeRow()">＋ サイズを追加</button>
+      <button class="btn-add-size" onclick="addNumberSizes()" style="margin-left:8px">1・2・3で追加</button>
+    </div>
+
+    <!-- 商品説明 -->
+    <div class="section">
+      <div class="section-title">商品説明</div>
+      <div class="form-grid">
+        <div class="field form-full">
+          <label>キャッチコピー / 説明文</label>
+          <textarea id="f-description" rows="6">${meta.description||''}</textarea>
+        </div>
+        <div class="field form-full">
+          <label>商品情報（素材・注意事項など）</label>
+          <textarea id="f-infoText" rows="5">${meta.infoText||''}</textarea>
+        </div>
+        <div class="field form-full">
+          <label>注記 — よく使う項目を選択（複数可）</label>
+          <div class="notes-checks" id="notesChecks">
+            ${[
+              '※本商品はヴィンテージ加工をしているため、1点ずつ風合いが異なります。',
+              '※製品洗い加工を施しているため、風合いや色味に個体差がございます。',
+              '※サイズは数cm程度のズレが発生する場合があります。予めご了承ください。',
+              '※商品写真はできる限り実物の色に近づけるよう徹底しておりますが、お使いのモニター設定、お部屋の照明等により実際の商品と色味が異なる場合がございます。',
+              '※保管/配送状況によりシワや紐のよれが生じる場合がございます。予めご了承ください。',
+              '※畳みでの配送のため、保管/配送状況によりシワや紐のよれが生じる場合がございます。予めご了承ください。',
+              '※商品の仕様、デザインが写真と現物に差異がある場合、現物を優先いたします。',
+              '※裏面は無地になります。',
+              '※blackは摩擦(特に湿った状態)や汗、雨などで他の衣類等に色移りすることがあります。ご使用の際は十分にご注意ください。',
+              '※この素材は強い日光（又は照明）を長時間受けますと変色の恐れがあります。',
+            ].map((t,i) => {
+              const checked = (meta.notes||'').includes(t) ? 'checked' : '';
+              return `<label class="notes-check-item"><input type="checkbox" value="${t}" ${checked} onchange="syncNotesText()">${t}</label>`;
+            }).join('')}
+          </div>
+          <label style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--mid);display:block;margin:8px 0 4px">追加テキスト（自由記入）</label>
+          <textarea id="f-notes" rows="3" oninput="syncNotesText()" placeholder="上記以外の注記を入力">${(meta.notes||'').split('\n').filter(l => ![
+            '※本商品はヴィンテージ加工をしているため、1点ずつ風合いが異なります。',
+            '※製品洗い加工を施しているため、風合いや色味に個体差がございます。',
+            '※サイズは数cm程度のズレが発生する場合があります。予めご了承ください。',
+            '※商品写真はできる限り実物の色に近づけるよう徹底しておりますが、お使いのモニター設定、お部屋の照明等により実際の商品と色味が異なる場合がございます。',
+            '※保管/配送状況によりシワや紐のよれが生じる場合がございます。予めご了承ください。',
+            '※畳みでの配送のため、保管/配送状況によりシワや紐のよれが生じる場合がございます。予めご了承ください。',
+            '※商品の仕様、デザインが写真と現物に差異がある場合、現物を優先いたします。',
+            '※裏面は無地になります。',
+            '※blackは摩擦(特に湿った状態)や汗、雨などで他の衣類等に色移りすることがあります。ご使用の際は十分にご注意ください。',
+            '※この素材は強い日光（又は照明）を長時間受けますと変色の恐れがあります。',
+          ].includes(l.trim())).join('\n').trim()}</textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- サイズ表 -->
+    <div class="section">
+      <div class="section-title">サイズ表 <span style="color:var(--mid);font-size:9px;margin-left:8px">※行はサイズ管理と連動</span></div>
+
+      <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center">
+        <span style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--mid)">デフォルト：</span>
+        <button onclick="applyItemType('tops')"
+          style="padding:5px 14px;border:1px solid var(--border);background:transparent;font-size:11px;cursor:pointer;transition:all 0.15s"
+          onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+          トップス
+        </button>
+        <button onclick="applyItemType('bottoms')"
+          style="padding:5px 14px;border:1px solid var(--border);background:transparent;font-size:11px;cursor:pointer;transition:all 0.15s"
+          onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+          ボトムス
+        </button>
+      </div>
+
+      <div class="field form-full" style="margin-bottom:10px">
+        <label>注記</label>
+        <input type="text" id="f-chartNote" value="${(meta.sizeChart?.note)||'※全て平置きでの採寸となります。'}"/>
+      </div>
+      <div style="margin-bottom:16px;padding:14px;background:var(--surface2);border:1px solid var(--border)">
+        <label style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--mid);display:block;margin-bottom:8px">
+          データ貼り付けで一括入力（項目名＋スペース/タブ＋値）
+        </label>
+        <textarea id="pasteSizeData" rows="8"
+          style="width:100%;font-size:11px;font-family:monospace;padding:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);resize:vertical"
+          placeholder="着丈(NP〜)    83.0&#10;着丈CB&#10;胸巾    63.5&#10;肩巾    77.0&#10;..."></textarea>
+        <button onclick="applyPastedSizeData()"
+          style="margin-top:8px;padding:7px 18px;background:var(--text);color:#fff;border:none;font-size:11px;letter-spacing:0.1em;cursor:pointer">
+          表に反映
+        </button>
+        <button onclick="document.getElementById('pasteSizeData').value=''"
+          style="margin-top:8px;margin-left:8px;padding:7px 14px;background:transparent;border:1px solid var(--border);color:var(--mid);font-size:11px;cursor:pointer">
+          クリア
+        </button>
+      </div>
+
+      <div id="sizeChartWrap"></div>
+      <button class="chart-add-col" onclick="addChartCol()">＋ 項目を追加</button>
+      <button class="chart-add-col" onclick="compactEmptyColumns();rebuildChart()" style="border-color:var(--mid)">空欄を詰める</button>
+    </div>
+
+    <!-- 洗濯表示アイコン -->
+    <div class="section">
+      <div class="section-title">洗濯表示アイコン</div>
+      <div id="careIconsWrap"></div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" onclick="save()">保存して反映</button>
+    </div>
+  `;
+
+  _sizes = (meta.sizes || []).map(s => ({...s}));
+  initChart(meta.sizeChart, _sizes);
+  renderSizes();
+  rebuildChart();
+  renderCareIcons(meta.careIcons || []);
+}
+
+/* ── サイズ ── */
+let _sizes = [];
+let _chart = null;
+
+const ITEM_TYPES = {
+  tops:    ['サイズ（平置き）','総丈','バスト幅','肩幅','ウエスト','ヒップ','袖丈','袖ぐり','内(衿)天幅','裾幅'],
+  bottoms: ['サイズ（平置き）','ウエスト(調節可能)','ヒップ','総丈','股下','渡り','裾幅'],
+};
+
+function applyItemType(type) {
+  if (!ITEM_TYPES[type]) return;
+  _chart.headers = [...ITEM_TYPES[type]];
+  _chart.rows = _chart.rows.map(row => {
+    const newRow = [row[0]];
+    _chart.headers.slice(1).forEach(() => newRow.push(''));
+    return newRow;
+  });
+  rebuildChart();
+}
+
+function initChart(chart, sizes) {
+  const headers = (chart && chart.headers && chart.headers.length > 1)
+    ? chart.headers
+    : ['サイズ（平置き）','ウエスト','ヒップ','総丈','股下','渡り','バスト幅','肩幅','袖丈','袖ぐり','袖口幅','内(衿)天幅','裾幅'];
+  const existingRows = chart?.rows || [];
+  const rows = sizes.map(s => {
+    const ex = existingRows.find(r => r[0] === s.label);
+    return ex ? [...ex] : [s.label, ...Array(headers.length - 1).fill('')];
+  });
+  _chart = { headers, rows, note: chart?.note || '※全て平置きでの採寸となります。' };
+}
+
+function renderSizes() {
+  const wrap = document.getElementById('sizesWrap');
+  wrap.innerHTML = _sizes.map((s, i) => `
+    <div class="size-row">
+      <input type="text" value="${s.label||''}" placeholder="1 / 2 / 3 …"
+             oninput="updateSizeLabel(${i},this.value)"/>
+      <select onchange="updateSizeStatus(${i},this.value)">
+        <option value="available" ${s.status==='available'?'selected':''}>Available</option>
+        <option value="soldout"   ${s.status==='soldout'?'selected':''}>Sold Out</option>
+        <option value="bespoke"   ${s.status==='bespoke'?'selected':''}>別注</option>
+      </select>
+      <input type="number" min="0" value="${s.stock??''}" placeholder="在庫数"
+             oninput="updateSizeStock(${i},this.value)"/>
+      <button class="btn-remove-size" onclick="removeSizeRow(${i})">×</button>
+    </div>`).join('');
+}
+
+function addSizeRow() {
+  const next = _sizes.length + 1;
+  _sizes.push({ label: String(next), status:'available', stock:'' });
+  _chart.rows.push([String(next), ...Array(_chart.headers.length - 1).fill('')]);
+  renderSizes();
+  rebuildChart();
+}
+
+function addNumberSizes() {
+  const count = parseInt(prompt('追加するサイズ数（例: 3 → 1, 2, 3）', '3'));
+  if (!count || isNaN(count)) return;
+  const base = _sizes.length;
+  for (let i = 0; i < count; i++) {
+    const label = String(base + i + 1);
+    _sizes.push({ label, status:'available', stock:'' });
+    _chart.rows.push([label, ...Array(_chart.headers.length - 1).fill('')]);
+  }
+  renderSizes();
+  rebuildChart();
+}
+
+function removeSizeRow(i) {
+  _sizes.splice(i, 1);
+  _chart.rows.splice(i, 1);
+  renderSizes();
+  rebuildChart();
+}
+
+function updateSizeLabel(i, v) {
+  _sizes[i].label = v;
+  if (_chart.rows[i]) _chart.rows[i][0] = v;
+  const firstCells = document.querySelectorAll('.chart-size-label');
+  if (firstCells[i]) firstCells[i].textContent = v || '—';
+}
+function updateSizeStatus(i, v) { _sizes[i].status = v; }
+function updateSizeStock(i, v)  { _sizes[i].stock  = v === '' ? '' : parseInt(v); }
+
+/* ── サイズ表 ── */
+function rebuildChart() {
+  const wrap = document.getElementById('sizeChartWrap');
+  if (!wrap) return;
+
+  const thead = `<th style="color:var(--mid);font-size:11px;font-weight:400">${_chart.headers[0]||'サイズ（平置き）'}</th>` +
+    _chart.headers.slice(1).map((h, ci) =>
+      `<th><input value="${h}"
+        oninput="_chart.headers[${ci+1}]=this.value"
+        style="background:transparent;border:none;color:var(--mid);width:70px;font-family:inherit;font-size:11px"/>
+        <button class="btn-remove-size" onclick="removeChartCol(${ci+1})" title="削除">×</button>
+      </th>`
+    ).join('');
+
+  const n = _chart.rows.length;
+  const tbody = _chart.rows.map((row, ri) => {
+    const cells = row.slice(1).map((cell, ci) =>
+      `<td><input value="${cell}" oninput="_chart.rows[${ri}][${ci+1}]=this.value" style="width:70px"/></td>`
+    ).join('');
+    return `<tr>
+      <td>
+        <input value="${row[0]||''}" placeholder="S / M …"
+          oninput="_chart.rows[${ri}][0]=this.value;if(_sizes[${ri}])_sizes[${ri}].label=this.value;renderSizes()"
+          style="width:80px;color:var(--accent);font-weight:500"/>
+      </td>
+      ${cells}
+      <td style="white-space:nowrap;padding:4px 6px">
+        <button onclick="moveChartRow(${ri},-1)" ${ri===0?'disabled':''} title="上へ"
+          style="background:none;border:1px solid var(--border);cursor:pointer;padding:2px 6px;font-size:11px;line-height:1;${ri===0?'opacity:0.3':''}">↑</button>
+        <button onclick="moveChartRow(${ri},1)" ${ri===n-1?'disabled':''} title="下へ"
+          style="background:none;border:1px solid var(--border);cursor:pointer;padding:2px 6px;font-size:11px;line-height:1;margin-left:2px;${ri===n-1?'opacity:0.3':''}">↓</button>
+        <button onclick="deleteChartRow(${ri})" title="削除"
+          style="background:none;border:none;cursor:pointer;color:var(--danger);font-size:14px;margin-left:4px;line-height:1">×</button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  wrap.innerHTML = `
+    <div class="chart-scroll">
+      <table class="chart-table">
+        <thead><tr>${thead}<th style="width:90px"></th></tr></thead>
+        <tbody>${tbody}</tbody>
+      </table>
+    </div>`;
+}
+
+function moveChartRow(ri, dir) {
+  const ti = ri + dir;
+  if (ti < 0 || ti >= _chart.rows.length) return;
+  [_chart.rows[ri], _chart.rows[ti]] = [_chart.rows[ti], _chart.rows[ri]];
+  if (_sizes[ri] && _sizes[ti]) {
+    [_sizes[ri], _sizes[ti]] = [_sizes[ti], _sizes[ri]];
+  }
+  rebuildChart();
+  renderSizes();
+}
+
+function deleteChartRow(ri) {
+  _chart.rows.splice(ri, 1);
+  _sizes.splice(ri, 1);
+  rebuildChart();
+  renderSizes();
+}
+
+function applyPastedSizeData() {
+  const text = document.getElementById('pasteSizeData').value;
+  if (!text.trim()) return;
+
+  const NAME_MAP = {
+    '着丈': '総丈',
+    '着丈(NP〜)': '総丈', '着丈(NP～)': '総丈', '着丈ＮＰ〜': '総丈', '着丈NP〜': '総丈', '着丈NP～': '総丈',
+    '着丈（NP〜）': '総丈', '着丈（NP～）': '総丈',
+    '着丈CB': '総丈', '着丈ＣＢ': '総丈',
+    '裾巾': '裾幅',
+    'バスト': 'バスト幅',
+    '袖口': '袖ぐり',
+    '肩巾': '肩幅',
+    '袖丈NP～': '袖丈', '袖丈ＮＰ〜': '袖丈', '袖丈NP〜': '袖丈',
+  };
+  const SODATE = [];
+  const SKIP = new Set([
+    '前下り','前下がり','後下り','後下がり',
+    'ゆきたけ','裄丈','裄丈（ゆきたけ）',
+    '胸巾','袖巾',
+  ]);
+
+  const rawPairs = text.split('\n').map(line => {
+    const parts = line.split(/\t|  +/).map(s => s.trim());
+    return { name: parts[0] || '', value: parts[1] || '' };
+  }).filter(r => r.name);
+
+  let sodate = '';
+  for (const key of SODATE) {
+    const found = rawPairs.find(r => r.name === key);
+    if (found && found.value) { sodate = found.value; break; }
+  }
+  if (!sodate) {
+    for (const key of SODATE) {
+      const found = rawPairs.find(r => r.name === key);
+      if (found) { sodate = found.value; break; }
+    }
+  }
+
+  const seen = new Set();
+  const pairs = [];
+  for (const r of rawPairs) {
+    if (SKIP.has(r.name)) continue;
+    if (SODATE.includes(r.name)) {
+      if (!seen.has('総丈')) { seen.add('総丈'); pairs.push({ name: '総丈', value: sodate }); }
+      continue;
+    }
+    const mapped = NAME_MAP[r.name] || r.name;
+    if (!seen.has(mapped)) { seen.add(mapped); pairs.push({ name: mapped, value: r.value }); }
+  }
+
+  if (!pairs.length) return;
+
+  pairs.forEach(r => {
+    if (!_chart.headers.includes(r.name)) {
+      _chart.headers.push(r.name);
+      _chart.rows.forEach(row => row.push(''));
+    }
+  });
+
+  const newRow = [''];
+  _chart.headers.slice(1).forEach(h => {
+    const match = pairs.find(r => r.name === h);
+    newRow.push(match ? match.value : '');
+  });
+  _chart.rows.push(newRow);
+  _sizes.push({ label: '', status: 'available', stock: '' });
+
+  compactEmptyColumns();
+  rebuildChart();
+  renderSizes();
+}
+
+function compactEmptyColumns() {
+  for (let ci = _chart.headers.length - 1; ci >= 1; ci--) {
+    const allEmpty = _chart.rows.every(row => !row[ci] || row[ci].trim() === '');
+    if (allEmpty) {
+      _chart.headers.splice(ci, 1);
+      _chart.rows.forEach(row => row.splice(ci, 1));
+    }
+  }
+}
+
+function addChartCol() {
+  _chart.headers.push('');
+  _chart.rows.forEach(r => r.push(''));
+  rebuildChart();
+}
+
+function removeChartCol(ci) {
+  _chart.headers.splice(ci, 1);
+  _chart.rows.forEach(r => r.splice(ci, 1));
+  rebuildChart();
+}
+
+/* ══════════════════════════════════════════
+   ABOUT TAB
+══════════════════════════════════════════ */
+/* ══════════════════════════════════════════
+   HOME TAB
+══════════════════════════════════════════ */
+let _homeImgs = []; // { filename, src, link, active }
+
+
+async function renderHomeSlider() {
+  const listEl = document.getElementById('home-img-list');
+  listEl.innerHTML = '<div style="color:var(--mid);font-size:11px">読み込み中…</div>';
+  try {
+    // 全ファイル取得
+    const res  = await fetch('/api/files?dir=home');
+    const json = await res.json();
+    const files = (json.files || [])
+      .map(f => typeof f === 'object' ? f.filename : f)
+      .filter(f => /\.(png|jpg|jpeg|webp|gif)$/i.test(f)).sort();
+
+    // 保存済み設定を adminData から読む
+    const saved = adminData.homeImages || [];
+    const savedMap = {};
+    saved.forEach(s => { savedMap[s.src] = s; });
+
+    _homeImgs = files.map(f => {
+      const src = 'home/' + f;
+      const s   = savedMap[src] || {};
+      return { filename: f, src, link: s.link || 'collection.html', active: s.active !== false };
+    });
+
+    _renderHomeGrid();
+  } catch(e) {
+    listEl.innerHTML = '<div style="color:red;font-size:11px">エラー: ' + e.message + '</div>';
+  }
+}
+
+function _renderHomeGrid() {
+  const listEl = document.getElementById('home-img-list');
+  if (_homeImgs.length === 0) {
+    listEl.innerHTML = '<div style="color:var(--mid);font-size:11px">画像がありません。上のエリアからアップロードしてください。</div>';
+    return;
+  }
+  listEl.innerHTML = _homeImgs.map((img, i) => {
+    return `
+    <div style="border:1px solid var(--border);border-radius:4px;background:${img.active ? 'var(--bg)' : '#fafafa'};opacity:${img.active ? '1' : '0.55'};overflow:hidden" id="home-row-${i}">
+      <div style="display:grid;grid-template-columns:24px 1fr auto;gap:10px;align-items:center;padding:12px">
+        <input type="checkbox" ${img.active ? 'checked' : ''} onchange="toggleHomeActive(${i},this.checked)" style="cursor:pointer;width:16px;height:16px"/>
+        <img src="http://localhost:8765/${img.src}?t=${Date.now()}" style="width:100%;height:140px;object-fit:cover;display:block;border:1px solid var(--border)"/>
+        <button onclick="deleteHomeImg('${img.filename}',${i})" style="background:none;border:1px solid var(--border);border-radius:3px;cursor:pointer;color:var(--mid);font-size:11px;padding:5px 10px;white-space:nowrap;align-self:start" title="削除">削除</button>
+      </div>
+      <div style="padding:0 12px 12px">
+        <div style="font-size:10px;color:var(--mid);margin-bottom:4px">リンク先 URL</div>
+        <input type="text" value="${img.link}" placeholder="例: collection.html　または　https://..." oninput="updateHomeLink(${i},this.value)"
+          style="width:100%;font-size:11px;padding:6px 8px;border:1px solid var(--border);background:var(--bg);color:var(--text);box-sizing:border-box"/>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleHomeActive(i, checked) {
+  _homeImgs[i].active = checked;
+  const row = document.getElementById('home-row-' + i);
+  if (row) {
+    row.style.opacity = checked ? '1' : '0.55';
+    row.style.background = checked ? 'var(--bg)' : '#fafafa';
+  }
+}
+
+function updateHomeLink(i, value) {
+  _homeImgs[i].link = value;
+}
+
+async function handleHomeImgFiles(event) {
+  for (const file of Array.from(event.target.files)) await uploadHomeImg(file);
+  event.target.value = '';
+  renderHomeSlider();
+}
+
+async function handleHomeImgDrop(event) {
+  event.preventDefault();
+  event.currentTarget.classList.remove('drag');
+  for (const file of Array.from(event.dataTransfer.files)) await uploadHomeImg(file);
+  renderHomeSlider();
+}
+
+async function uploadHomeImg(file) {
+  const b64 = await fileToBase64(file);
+  const res  = await fetch('/api/upload', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ path: 'home', filename: file.name, base64: b64, mimeType: file.type }),
+  });
+  const json = await res.json();
+  if (json.ok) showToast(file.name + ' をアップロードしました ✓');
+  else showToast('アップロードエラー: ' + json.error, true);
+}
+
+async function deleteHomeImg(filename, idx) {
+  if (!confirm(filename + ' を削除しますか？')) return;
+  const res  = await fetch('/api/delete-home-image', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ filename }),
+  });
+  const json = await res.json();
+  if (json.ok) { showToast('削除しました ✓'); renderHomeSlider(); }
+  else showToast('削除エラー: ' + json.error, true);
+}
+
+async function saveHomeSlider() {
+  // adminData に設定を保存
+  adminData.homeImages = _homeImgs.map(img => ({ src: img.src, link: img.link, active: img.active }));
+  await fetch('/api/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(adminData) });
+
+  // チェック済みのみ home-data.js に反映
+  const active = _homeImgs.filter(img => img.active).map(img => ({ src: img.src, link: img.link }));
+  const res  = await fetch('/api/rebuild-home', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ images: active }),
+  });
+  const json = await res.json();
+  if (json.ok) {
+    showToast('反映しました ✓（表示中: ' + json.count + '枚）');
+    setTimeout(() => {
+      const iframe = document.getElementById('home-preview-iframe');
+      if (iframe) iframe.src = 'http://localhost:8765/index.html?t=' + Date.now();
+    }, 400);
+  } else showToast('エラー: ' + json.error, true);
+}
+
+/* ══════════════════════════════════════════
+   ABOUT TAB
+══════════════════════════════════════════ */
+function renderAbout() {
+  const ab = Object.assign({
+    designerName: 'Tatsuya',
+    designerIg:   'https://www.instagram.com/tatsuya_vfd/',
+  }, adminData.about || {});
+  document.getElementById('ab-designerName').value = ab.designerName;
+  document.getElementById('ab-designerIg').value   = ab.designerIg;
+
+  // Load existing images
+  ['hero','sp1','sp2','sp3'].forEach(key => {
+    const previewEl = document.getElementById('about-' + key + '-preview');
+    if (!previewEl) return;
+    const url = ab[key + 'Url'];
+    if (url) {
+      previewEl.innerHTML = `<div style="margin-top:8px;position:relative;display:inline-block">
+        <img src="http://localhost:8765/${url}?t=${Date.now()}" style="width:100%;max-height:140px;object-fit:cover;border:1px solid var(--border);display:block"/>
+        <div style="font-size:10px;color:var(--mid);margin-top:4px">${url}</div>
+      </div>`;
+    } else {
+      previewEl.innerHTML = '';
+    }
+  });
+}
+
+function reloadAboutPreview() {
+  const iframe = document.getElementById('about-preview-iframe');
+  if (iframe) iframe.src = 'http://localhost:8765/about.html?t=' + Date.now();
+}
+
+async function handleAboutImgFile(event, key) {
+  const file = event.target.files[0];
+  if (!file) return;
+  await uploadAboutImg(file, key);
+}
+
+async function handleAboutImgDrop(event, key) {
+  event.preventDefault();
+  event.currentTarget.classList.remove('drag');
+  const file = event.dataTransfer.files[0];
+  if (!file) return;
+  await uploadAboutImg(file, key);
+}
+
+async function uploadAboutImg(file, key) {
+  const ext = file.name.split('.').pop().toLowerCase();
+  const filename = key + '.' + ext;
+  const b64 = await fileToBase64(file);
+  const res = await fetch('/api/upload', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ path: 'about', filename, base64: b64, mimeType: file.type }),
+  });
+  const json = await res.json();
+  if (json.ok) {
+    // Update adminData.about with the new url
+    if (!adminData.about) adminData.about = {};
+    adminData.about[key + 'Url'] = 'about/' + filename;
+    // Show preview
+    const previewEl = document.getElementById('about-' + key + '-preview');
+    if (previewEl) {
+      previewEl.innerHTML = `<div style="margin-top:8px">
+        <img src="${json.url}?t=${Date.now()}" style="width:100%;max-height:140px;object-fit:cover;border:1px solid var(--border);display:block"/>
+        <div style="font-size:10px;color:var(--mid);margin-top:4px">about/${filename}</div>
+      </div>`;
+    }
+    showToast(key + ' 画像をアップロードしました ✓');
+  } else {
+    showToast('アップロードエラー: ' + json.error, true);
+  }
+}
+
+async function saveAbout() {
+  if (!adminData.about) adminData.about = {};
+  adminData.about.designerName = document.getElementById('ab-designerName').value;
+  adminData.about.designerIg   = document.getElementById('ab-designerIg').value;
+
+  const res  = await fetch('/api/save', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(adminData),
+  });
+  const json = await res.json();
+  showToast(json.ok ? 'ABOUT を保存しました ✓' : 'エラー: ' + json.error, !json.ok);
+  if (json.ok) {
+    setTimeout(() => reloadAboutPreview(), 500);
+  }
+}
+
+/* ══════════════════════════════════════════
+   COLLECTIONS TAB (Split Layout)
+══════════════════════════════════════════ */
+function renderCollectionsSplit() {
+  const list = document.getElementById('collSideList');
+  if (!_collSeasons.length) {
+    list.innerHTML = '<p style="padding:24px;font-size:11px;color:var(--mid);text-align:center">コレクションなし</p>';
+    return;
+  }
+  list.innerHTML = _collSeasons.map(c => {
+    const override = (adminData.collections || {})[c.season] || {};
+    const pub = override.published !== undefined ? override.published : (c.published !== false);
+    const label = override.label || c.label || c.season;
+    return `<div class="coll-list-item${_currentCollSeason === c.season ? ' active' : ''}${!pub ? ' unpub' : ''}"
+      onclick="selectCollSeason('${escJs(c.season)}')">
+      <input type="checkbox" class="coll-pub-toggle" ${pub ? 'checked' : ''}
+        onclick="event.stopPropagation()"
+        onchange="markCollPubDirty('${escJs(c.season)}', this.checked)"
+        title="公開/非公開"/>
+      <span class="coll-list-name">${escHtml(label)}</span>
+    </div>`;
+  }).join('');
+}
+
+async function selectCollSeason(season) {
+  _currentCollSeason = season;
+  renderCollectionsSplit(); // update active state in sidebar
+
+  const coll = _collSeasons.find(c => c.season === season);
+  if (!coll) return;
+  const override = (adminData.collections || {})[season] || {};
+  const pub = override.published !== undefined ? override.published : (coll.published !== false);
+  const label = override.label || coll.label || season;
+
+  // Load existing files
+  let existingFiles = [];
+  try {
+    const r = await fetch('/api/files?dir=' + encodeURIComponent('collections/' + season));
+    const j = await r.json();
+    if (j.ok) existingFiles = j.files || [];
+  } catch(e) {}
+
+  const kvFile = existingFiles.find(f => /^top\./i.test(f.filename));
+  const lookFiles = existingFiles.filter(f => !/^top\./i.test(f.filename));
+
+  const editor = document.getElementById('collEditor');
+  editor.innerHTML = `
+    <div class="page-title">コレクション編集: ${escHtml(season)}</div>
+
+    <div class="section">
+      <div class="section-title">基本設定</div>
+      <div class="form-grid">
+        <div class="field">
+          <label>シーズン表示名（ラベル）</label>
+          <input type="text" id="coll-label" value="${escHtml(label)}" placeholder="${escHtml(season)}"/>
+        </div>
+        <div class="field" style="justify-content:flex-end;padding-bottom:4px">
+          <div class="checkbox-row">
+            <input type="checkbox" id="coll-pub" ${pub ? 'checked' : ''}>
+            <label for="coll-pub">公開する</label>
+          </div>
+        </div>
+        <div class="field form-full">
+          <label>シーズンラベルのフォント</label>
+          <div style="display:flex;gap:12px;align-items:center">
+            <select id="coll-season-font" style="flex:1" onchange="updateFontPreview('coll-font-preview', this.value, '${escJs(label || season)}'); ">
+              ${[
+                ['','デフォルト (Noto Serif JP)'],
+                ["'Noto Serif JP', serif",'Noto Serif JP'],
+                ["'Shippori Mincho', serif",'Shippori Mincho'],
+                ["'Cormorant Garamond', serif",'Cormorant Garamond'],
+                ["'Playfair Display', serif",'Playfair Display'],
+                ["'DM Serif Display', serif",'DM Serif Display'],
+                ["'EB Garamond', serif",'EB Garamond'],
+                ["'Cinzel', serif",'Cinzel'],
+                ["'Josefin Sans', sans-serif",'Josefin Sans'],
+                ["'Lato', sans-serif",'Lato'],
+              ].map(([v,n])=>`<option value="${v}" ${(override.kvSeasonFont||'')=== v?'selected':''}>${n}</option>`).join('')}
+            </select>
+            <div id="coll-font-preview" style="flex:1;min-width:0;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);font-size:1.2rem;letter-spacing:0.2em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:${override.kvSeasonFont||"'Noto Serif JP', serif"}">${escHtml(label || season)}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">キービジュアル (top.png)</div>
+      <div class="img-upload-zone" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleCollKvDrop(event,'${escJs(season)}')">
+        <input type="file" accept="image/*" onchange="handleCollKvFile(event,'${escJs(season)}')"/>
+        <div class="img-upload-label">キービジュアルをアップロード</div>
+        <div class="img-upload-sub">collections/${escHtml(season)}/top.png に保存されます</div>
+      </div>
+      ${kvFile ? `<div style="margin-top:10px"><img src="http://localhost:8765${kvFile.url}?t=${Date.now()}" style="max-height:200px;max-width:100%;object-fit:contain;border:1px solid var(--border)"/><div style="font-size:10px;color:var(--mid);margin-top:4px">${kvFile.filename}</div></div>` : '<div style="font-size:11px;color:var(--mid);margin-top:8px">キービジュアルなし</div>'}
+      <div id="coll-kv-preview"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">コレクション写真 (複数可)</div>
+      <div class="img-upload-zone" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleCollLooksDrop(event,'${escJs(season)}')">
+        <input type="file" accept="image/*" multiple onchange="handleCollLooksFile(event,'${escJs(season)}')"/>
+        <div class="img-upload-label">複数の写真をアップロード（複数選択可）</div>
+        <div class="img-upload-sub">collections/${escHtml(season)}/itemNN.PNG として保存されます</div>
+      </div>
+      <div id="coll-looks-preview"></div>
+      ${lookFiles.length ? `<div class="section-title" style="margin-top:16px">現在の写真 (${lookFiles.length}枚)</div>
+      <div class="img-grid-existing">
+        ${lookFiles.map(f => `<div class="img-thumb-wrap">
+          <img class="img-thumb" src="http://localhost:8765${f.url}?t=${Date.now()}" title="${f.filename}"/>
+          <div style="font-size:8px;color:var(--mid);text-align:center;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:80px">${f.filename}</div>
+        </div>`).join('')}
+      </div>` : '<div style="font-size:11px;color:var(--mid);margin-top:8px">写真なし</div>'}
+    </div>
+
+    <div class="section">
+      <div class="section-title">プレビュー</div>
+      <div style="display:flex;gap:10px;margin-bottom:12px">
+        <button class="btn btn-ghost" onclick="reloadCollPreview('${escJs(season)}')">プレビューを更新</button>
+      </div>
+      <div class="preview-iframe-wrap">
+        <iframe id="coll-preview-iframe" class="preview-iframe" src="http://localhost:8765/collection.html?season=${encodeURIComponent(season)}&preview=1"></iframe>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" onclick="saveCollSeason('${escJs(season)}')">登録</button>
+    </div>
+  `;
+}
+
+function reloadCollPreview(season) {
+  const iframe = document.getElementById('coll-preview-iframe');
+  if (iframe) iframe.src = 'http://localhost:8765/collection.html?season=' + encodeURIComponent(season) + '&preview=1&t=' + Date.now();
+}
+
+// 商品詳細からシーズンTOP画像をアップロード
+async function handleSeasonTopFile(event, season) {
+  const file = event.target.files[0];
+  if (!file) return;
+  await uploadSeasonTop(file, season);
+}
+async function handleSeasonTopDrop(event, season) {
+  event.preventDefault();
+  event.currentTarget.classList.remove('drag');
+  const file = event.dataTransfer.files[0];
+  if (!file) return;
+  await uploadSeasonTop(file, season);
+}
+async function uploadSeasonTop(file, season) {
+  const b64 = await fileToBase64(file);
+  const res = await fetch('/api/upload', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ path: 'collections/' + season, filename: 'top.png', base64: b64, mimeType: file.type }),
+  });
+  const json = await res.json();
+  if (json.ok) {
+    const prev = document.getElementById('top-preview-' + season);
+    if (prev) prev.innerHTML = `<img src="${json.url}?t=${Date.now()}" style="max-height:160px;max-width:100%;object-fit:contain;border:1px solid var(--border);margin-top:10px" alt=""/>`;
+    showToast('TOP画像をアップロードしました ✓');
+  } else {
+    showToast('アップロードエラー: ' + json.error, true);
+  }
+}
+
+async function handleProdImgFile(event, folder, productId) {
+  const files = Array.from(event.target.files);
+  if (!files.length) return;
+  for (const file of files) await uploadProdImg(file, folder, productId);
+}
+async function handleProdImgDrop(event, folder, productId) {
+  event.preventDefault();
+  event.currentTarget.classList.remove('drag');
+  const files = Array.from(event.dataTransfer.files);
+  for (const file of files) await uploadProdImg(file, folder, productId);
+}
+async function uploadProdImg(file, folder, productId) {
+  const numId = parseInt(productId);
+  const prod  = allProducts.find(x => x.id === numId);
+
+  // メイン画像のbase名から連番ファイル名を生成 (例: item01-3.jpg)
+  let uploadFilename = file.name;
+  if (prod && prod.images.length > 0) {
+    const mainImg  = prod.images[0];
+    const base     = mainImg.replace(/\.[^.]+$/, '');
+    const ext      = mainImg.match(/\.[^.]+$/)?.[0] || ('.' + file.name.split('.').pop());
+    const nextNum  = prod.images.length; // images[0]=main, images[1]=variant1...
+    uploadFilename = `${base}-${nextNum}${ext}`;
+  }
+
+  const b64 = await fileToBase64(file);
+  const res = await fetch('/api/upload', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ path: folder, filename: uploadFilename, base64: b64, mimeType: file.type }),
+  });
+  const json = await res.json();
+  if (json.ok) {
+    showToast(`${uploadFilename} をアップロードしました ✓`);
+    // allProducts のimagesを更新
+    if (prod && !prod.images.includes(uploadFilename)) {
+      prod.images.push(uploadFilename);
+    }
+    // build.js を再実行して products-data.js を更新
+    await fetch('/api/save', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(adminData) });
+    // エディタ全体を再描画してプレビューに反映
+    selectProduct(parseInt(productId));
+  } else {
+    showToast('アップロードエラー: ' + json.error, true);
+  }
+}
+
+async function handleCollKvFile(event, season) {
+  const file = event.target.files[0];
+  if (!file) return;
+  await uploadCollKv(file, season);
+}
+async function handleCollKvDrop(event, season) {
+  event.preventDefault();
+  event.currentTarget.classList.remove('drag');
+  const file = event.dataTransfer.files[0];
+  if (!file) return;
+  await uploadCollKv(file, season);
+}
+async function uploadCollKv(file, season) {
+  const b64 = await fileToBase64(file);
+  const res = await fetch('/api/upload', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ path: 'collections/' + season, filename: 'top.png', base64: b64, mimeType: file.type }),
+  });
+  const json = await res.json();
+  if (json.ok) {
+    const prev = document.getElementById('coll-kv-preview');
+    if (prev) prev.innerHTML = `<img src="${json.url}?t=${Date.now()}" style="margin-top:10px;max-height:200px;max-width:100%;object-fit:contain;border:1px solid var(--border)"/>`;
+    showToast('キービジュアルをアップロード中...');
+    await triggerCollBuildAndPreview(season);
+  } else {
+    showToast('アップロードエラー: ' + json.error, true);
+  }
+}
+
+async function handleCollLooksFile(event, season) {
+  const files = Array.from(event.target.files);
+  if (!files.length) return;
+  await uploadCollLooks(files, season);
+}
+async function handleCollLooksDrop(event, season) {
+  event.preventDefault();
+  event.currentTarget.classList.remove('drag');
+  const files = Array.from(event.dataTransfer.files);
+  if (!files.length) return;
+  await uploadCollLooks(files, season);
+}
+async function uploadCollLooks(files, season) {
+  // Get existing item files to determine next number
+  let existingFiles = [];
+  try {
+    const r = await fetch('/api/files?dir=' + encodeURIComponent('collections/' + season));
+    const j = await r.json();
+    if (j.ok) existingFiles = (j.files || []).filter(f => !/^top\./i.test(f.filename));
+  } catch(e) {}
+
+  let nextNum = existingFiles.length + 1;
+  const previews = [];
+
+  for (const file of files) {
+    const numStr = String(nextNum).padStart(2, '0');
+    const filename = 'item' + numStr + '.PNG';
+    const b64 = await fileToBase64(file);
+    const res = await fetch('/api/upload', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ path: 'collections/' + season, filename, base64: b64, mimeType: file.type }),
+    });
+    const json = await res.json();
+    if (json.ok) {
+      previews.push(`<div class="img-thumb-wrap">
+        <img class="img-thumb" src="${json.url}?t=${Date.now()}" title="${filename}"/>
+        <div style="font-size:8px;color:var(--mid);text-align:center;margin-top:2px">${filename}</div>
+      </div>`);
+      nextNum++;
+    }
+  }
+
+  const prev = document.getElementById('coll-looks-preview');
+  if (prev && previews.length) {
+    prev.innerHTML = `<div style="margin-top:8px"><div style="font-size:10px;color:var(--mid);margin-bottom:6px">アップロード済み (${previews.length}枚)</div><div class="img-grid-existing">${previews.join('')}</div></div>`;
+  }
+  if (previews.length) {
+    showToast(previews.length + '枚アップロード中...');
+    await triggerCollBuildAndPreview(season);
+  }
+}
+
+function updateFontPreview(previewId, fontValue, sampleText) {
+  const el = document.getElementById(previewId);
+  if (!el) return;
+  el.style.fontFamily = fontValue || "'Noto Serif JP', serif";
+  el.textContent = sampleText;
+}
+
+async function triggerCollBuildAndPreview(season) {
+  // build.js を実行してcollections-data.jsを更新 → プレビュー更新
+  const res = await fetch('/api/save', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(adminData),
+  });
+  const json = await res.json();
+  if (json.ok) {
+    await reloadCollectionsData();
+    renderCollectionsSplit();
+    setTimeout(() => reloadCollPreview(season), 2000);
+    showToast('アップロード完了 ✓');
+  }
+}
+
+function markCollPubDirty(season, pub) {
+  // チェックだけ変更（保存はしない）。UIの見た目をdirtyに
+  if (!adminData.collections) adminData.collections = {};
+  if (!adminData.collections[season]) adminData.collections[season] = {};
+  adminData.collections[season].published = pub;
+  // リスト表示を更新（unpub クラスの付け外し）
+  renderCollectionsSplit();
+  // 確定ボタンを強調
+  const btn = document.querySelector('#tab-collections .btn-primary[onclick="applyCollPublishState()"]');
+  if (btn) btn.style.background = '#27ae60';
+}
+
+async function applyCollPublishState() {
+  const res = await fetch('/api/save', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(adminData),
+  });
+  const json = await res.json();
+  if (json.ok) {
+    await reloadCollectionsData();
+    renderCollectionsSplit();
+    // ボタンを元の色に
+    const btn = document.querySelector('#tab-collections .btn-primary[onclick="applyCollPublishState()"]');
+    if (btn) btn.style.background = '';
+    showToast('公開設定を反映しました ✓');
+  } else {
+    showToast('エラー: ' + json.error, true);
+  }
+}
+
+async function saveCollSeason(season) {
+  if (!adminData.collections) adminData.collections = {};
+  const labelEl      = document.getElementById('coll-label');
+  const pubEl        = document.getElementById('coll-pub');
+  const seasonFontEl = document.getElementById('coll-season-font');
+  adminData.collections[season] = {
+    published:    pubEl        ? pubEl.checked      : true,
+    label:        labelEl      ? labelEl.value      : season,
+    kvSeasonFont: seasonFontEl ? seasonFontEl.value : '',
+  };
+  const res = await fetch('/api/save', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(adminData),
+  });
+  const json = await res.json();
+  showToast(json.ok ? 'Collection を保存しました ✓' : 'エラー: ' + json.error, !json.ok);
+  if (json.ok) {
+    await reloadCollectionsData();
+    renderCollectionsSplit();
+    setTimeout(() => reloadCollPreview(season), 2000);
+  }
+}
+
+async function reloadCollectionsData() {
+  try {
+    const res = await fetch('/api/data');
+    const d = await res.json();
+    if (d.collections) _collSeasons = d.collections;
+  } catch(e) {}
+}
+
+async function addNewSeason() {
+  const name = prompt('新しいシーズン名を入力してください（例: 2027SS）');
+  if (!name || !name.trim()) return;
+  const trimmed = name.trim();
+  // Create the folder by uploading a placeholder (just ensure folder exists via server)
+  try {
+    // Upload a tiny placeholder to create directory (we'll just do a dummy call)
+    // Actually, just save adminData with the new season — build.js will pick it up
+    // But we need to create the folder; use api/upload with a temp file approach
+    // Instead: we'll rely on the fact that /api/upload creates dirs
+    // For now just add to collections overrides and trigger build
+    if (!adminData.collections) adminData.collections = {};
+    adminData.collections[trimmed] = { published: false, label: trimmed };
+    // Also create the folder by making a .gitkeep-like empty placeholder
+    // Actually we can't upload 0-byte files easily. Let's just save and let user upload images.
+    // Ensure the folder exists: we rely on admin-server to create it on first upload
+    const res = await fetch('/api/save', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(adminData),
+    });
+    const json = await res.json();
+    if (json.ok) {
+      // Also create the directory on disk by uploading a tiny transparent PNG
+      const tinyPng = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+      await fetch('/api/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path: 'collections/' + trimmed, filename: '.keep', base64: tinyPng, mimeType: 'image/png' }),
+      });
+      await reloadCollectionsData();
+      // If build didn't add this season (it's not in the fs), add it to _collSeasons temporarily
+      if (!_collSeasons.find(c => c.season === trimmed)) {
+        _collSeasons.push({ season: trimmed, folder: 'collections/' + trimmed, keyVisual: null, looks: [], published: false, label: trimmed });
+      }
+      renderCollectionsSplit();
+      showToast('シーズン「' + trimmed + '」を追加しました ✓');
+    }
+  } catch(e) {
+    showToast('エラー: ' + e.message, true);
+  }
+}
+
+async function addProductSeason() {
+  const name = prompt('新しいシーズン名を入力してください（例: 2027SS）\n※英数字・ハイフン・アンダースコア・ドットのみ使用可');
+  if (!name || !name.trim()) return;
+  const trimmed = name.trim();
+  if (!/^[a-zA-Z0-9\-\_\.]+$/.test(trimmed)) {
+    showToast('シーズン名に使えない文字が含まれています', true);
+    return;
+  }
+  try {
+    const res = await fetch('/api/create-season', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ season: trimmed }),
+    });
+    const json = await res.json();
+    if (json.ok) {
+      // reload data to pick up the new season directory
+      const dataRes = await fetch('/api/data');
+      const data = await dataRes.json();
+      allProducts     = data.products;
+      adminData       = data.adminData;
+      _productSeasons = data.productSeasons || [];
+      renderSidebar();
+      // open the new season
+      _openSeasons.add(trimmed);
+      selectSeason(trimmed);
+      renderSidebar();
+      showToast('シーズン「' + trimmed + '」を作成しました ✓');
+    } else {
+      showToast('エラー: ' + json.error, true);
+    }
+  } catch(e) {
+    showToast('エラー: ' + e.message, true);
+  }
+}
+
+/* ══════════════════════════════════════════
+   NEWS TAB (Split Layout)
+══════════════════════════════════════════ */
+function getAllNewsArticles() {
+  const newsOverrides = adminData.news || {};
+  const newArticles   = adminData.newArticles || [];
+  const merged = _newsArticles.map(a => {
+    const ov = newsOverrides[String(a.id)] || {};
+    return Object.assign({}, a, ov, { _isNew: false });
+  });
+  const extras = newArticles.map(a => Object.assign({}, a, { _isNew: true }));
+  return [...merged, ...extras];
+}
+
+function renderNewsSplit() {
+  const list = document.getElementById('newsListSide');
+  const all = getAllNewsArticles();
+
+  if (!all.length) {
+    list.innerHTML = '<p style="padding:24px;font-size:11px;color:var(--mid);text-align:center">記事がありません</p>';
+    return;
+  }
+
+  list.innerHTML = all.map(a => {
+    const key = String(a.id);
+    const pub = a.published !== false;
+    return `<div class="news-list-item${_currentNewsKey === key ? ' active' : ''}${!pub ? ' unpub' : ''}"
+      onclick="selectNewsArticle('${key}')">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+        <input type="checkbox" ${pub ? 'checked' : ''}
+          onclick="event.stopPropagation()"
+          onchange="markNewsPubDirty('${key}', this.checked)"
+          title="公開/非公開"
+          style="accent-color:var(--accent);width:13px;height:13px;flex-shrink:0;cursor:pointer"/>
+        <span style="font-size:9px;letter-spacing:0.08em;color:${pub?'var(--ok)':'var(--mid)'}">${pub?'公開中':'非公開'}</span>
+        <button class="news-list-del" onclick="event.stopPropagation();deleteNewsItem('${key}')" title="削除" style="margin-left:auto">×</button>
+      </div>
+      <div class="news-list-meta">
+        <span class="news-list-date">${escHtml(a.date||'')}</span>
+        <span class="news-list-cat">${escHtml(a.category||'')}</span>
+      </div>
+      <div class="news-list-title">${escHtml(a.title||'(タイトルなし)')}</div>
+    </div>`;
+  }).join('');
+}
+
+function selectNewsArticle(key) {
+  _currentNewsKey = key;
+  renderNewsSplit();
+  const all = getAllNewsArticles();
+  const a = all.find(x => String(x.id) === key);
+  if (!a) return;
+
+  const editor = document.getElementById('newsEditor');
+  const imgUrl = a.image ? `http://localhost:8765/${a.image}` : '';
+  const existingImgs = (a.images || []).map((url, i) =>
+    `<div class="img-thumb-wrap" id="newsimg-wrap-${i}">
+      <img class="img-thumb" src="http://localhost:8765/${url}" onerror="this.src=''"/>
+      <button class="img-thumb-del" onclick="removeNewsImage('${key}',${i})">×</button>
+      <div class="img-thumb-insert" onclick="insertNewsImgTag('${escJs(url.split('/').pop())}','${key}')">挿入</div>
+    </div>`
+  ).join('');
+
+  editor.innerHTML = `
+    <div class="news-editor-wrap">
+      <div class="section">
+        <div class="section-title">記事情報</div>
+        <div class="form-grid">
+          <div class="field form-full">
+            <label>タイトル</label>
+            <input type="text" id="nf-title-${key}" value="${escHtml(a.title||'')}"/>
+          </div>
+          <div class="field">
+            <label>日付</label>
+            <input type="text" id="nf-date-${key}" value="${escHtml(a.date||'')}" placeholder="2025.05.30"/>
+          </div>
+          <div class="field">
+            <label>カテゴリ</label>
+            <select id="nf-cat-${key}">
+              <option value="New"   ${(a.category||'')==='New'   ?'selected':''}>New</option>
+              <option value="Event" ${(a.category||'')==='Event' ?'selected':''}>Event</option>
+              <option value="Info"  ${(a.category||'')==='Info'  ?'selected':''}>Info</option>
+              <option value="Other" ${(a.category||'')==='Other' ?'selected':''}>Other</option>
+            </select>
+          </div>
+          <div class="field form-full">
+            <label>概要 (Excerpt)</label>
+            <input type="text" id="nf-excerpt-${key}" value="${escHtml(a.excerpt||'')}"/>
+          </div>
+        </div>
+        <div class="checkbox-row" style="margin-top:12px">
+          <input type="checkbox" id="nf-pub-${key}" ${a.published !== false ? 'checked' : ''}
+            style="accent-color:var(--accent);width:14px;height:14px">
+          <label for="nf-pub-${key}" style="font-size:12px">公開する</label>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">メイン画像</div>
+        <div class="img-upload-zone" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleNewsMainImgDrop(event,'${key}')">
+          <input type="file" accept="image/*" onchange="handleNewsMainImgFile(event,'${key}')"/>
+          <div class="img-upload-label">メイン画像をアップロード</div>
+          <div class="img-upload-sub">news/${escHtml(key)}/ に保存されます</div>
+        </div>
+        <div id="news-main-img-preview-${key}">
+          ${imgUrl ? `<img src="${imgUrl}?t=${Date.now()}" style="margin-top:8px;max-height:180px;max-width:100%;object-fit:contain;border:1px solid var(--border)"/>` : ''}
+        </div>
+        <input type="hidden" id="nf-image-${key}" value="${escHtml(a.image||'')}"/>
+      </div>
+
+      <div class="section">
+        <div class="section-title">記事内画像</div>
+        <div class="img-upload-zone" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleNewsImgsDrop(event,'${key}')">
+          <input type="file" accept="image/*" multiple onchange="handleNewsImgsFile(event,'${key}')"/>
+          <div class="img-upload-label">画像をアップロード（複数可）</div>
+          <div class="img-upload-sub">記事内に [img:ファイル名] で挿入できます</div>
+        </div>
+        <div class="img-thumb-grid" id="news-imgs-grid-${key}">
+          ${existingImgs}
+        </div>
+        <input type="hidden" id="nf-images-${key}" value="${escHtml(JSON.stringify(a.images||[]))}"/>
+      </div>
+
+      <div class="section">
+        <div class="section-title">本文</div>
+        <div style="margin-bottom:6px;font-size:10px;color:var(--mid)">
+          [img:ファイル名] で画像を挿入できます。上の画像サムネイルの「挿入」ボタンで自動入力されます。
+        </div>
+        <textarea id="nf-content-${key}" rows="12" style="width:100%;font-size:12px;font-family:monospace;padding:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);resize:vertical">${escHtml(a.content||'')}</textarea>
+      </div>
+
+      <div class="section">
+        <div class="section-title">プレビュー</div>
+        ${a._isNew ? `
+          <div id="news-preview-placeholder-${key}" style="background:var(--surface2);border:1px solid var(--border);padding:40px;text-align:center;color:var(--mid);font-size:11px">
+            まず「保存して反映」を押すとプレビューが表示されます
+          </div>
+          <div id="news-preview-wrap-${key}" style="display:none">
+            <div style="display:flex;gap:8px;margin-bottom:10px">
+              <button class="btn btn-ghost" style="font-size:10px;padding:5px 10px" onclick="setNewsPreview('${key}','list')">一覧ページ</button>
+              <button class="btn btn-ghost" style="font-size:10px;padding:5px 10px" onclick="setNewsPreview('${key}','detail')">記事詳細</button>
+              <button class="btn btn-ghost" style="font-size:10px;padding:5px 10px;margin-left:auto" onclick="reloadNewsPreview('${key}')">↺ 更新</button>
+            </div>
+            <div class="preview-iframe-wrap">
+              <iframe id="news-preview-iframe-${key}" class="preview-iframe" src=""></iframe>
+            </div>
+          </div>` : `
+          <div style="display:flex;gap:8px;margin-bottom:10px">
+            <button class="btn btn-ghost" style="font-size:10px;padding:5px 10px" onclick="setNewsPreview('${key}','list')">一覧ページ</button>
+            <button class="btn btn-ghost" style="font-size:10px;padding:5px 10px" onclick="setNewsPreview('${key}','detail')">記事詳細</button>
+            <button class="btn btn-ghost" style="font-size:10px;padding:5px 10px;margin-left:auto" onclick="reloadNewsPreview('${key}')">↺ 更新</button>
+          </div>
+          <div class="preview-iframe-wrap">
+            <iframe id="news-preview-iframe-${key}" class="preview-iframe" src="http://localhost:8765/news-article.html?id=${a.id}&preview=1"></iframe>
+          </div>`}
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" onclick="saveNewsItem('${key}',${a._isNew})">${a._isNew ? '登録' : '保存して反映'}</button>
+        ${a._isNew ? `<button class="btn btn-danger" onclick="deleteNewsItem('${key}')">削除</button>` : ''}
+      </div>
+    </div>
+  `;
+}
+
+function setNewsPreview(key, mode) {
+  const all = getAllNewsArticles();
+  const a = all.find(x => String(x.id) === key);
+  if (!a) return;
+  const iframe = document.getElementById('news-preview-iframe-' + key);
+  if (!iframe) return;
+  if (mode === 'list') {
+    iframe.src = 'http://localhost:8765/news.html?preview=1&t=' + Date.now();
+  } else {
+    iframe.src = 'http://localhost:8765/news-article.html?id=' + a.id + '&preview=1&t=' + Date.now();
+  }
+}
+
+function reloadNewsPreview(key) {
+  const all = getAllNewsArticles();
+  const a = all.find(x => String(x.id) === key);
+  if (!a) return;
+  const iframe = document.getElementById('news-preview-iframe-' + key);
+  if (iframe) iframe.src = 'http://localhost:8765/news-article.html?id=' + a.id + '&preview=1&t=' + Date.now();
+}
+
+async function handleNewsMainImgFile(event, key) {
+  const file = event.target.files[0];
+  if (!file) return;
+  await uploadNewsMainImg(file, key);
+}
+async function handleNewsMainImgDrop(event, key) {
+  event.preventDefault();
+  event.currentTarget.classList.remove('drag');
+  const file = event.dataTransfer.files[0];
+  if (!file) return;
+  await uploadNewsMainImg(file, key);
+}
+async function uploadNewsMainImg(file, key) {
+  const ext = file.name.split('.').pop().toLowerCase();
+  const filename = 'main.' + ext;
+  const b64 = await fileToBase64(file);
+  const res = await fetch('/api/upload', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ path: 'news/' + key, filename, base64: b64, mimeType: file.type }),
+  });
+  const json = await res.json();
+  if (json.ok) {
+    const imgInput = document.getElementById('nf-image-' + key);
+    if (imgInput) imgInput.value = 'news/' + key + '/' + filename;
+    const prev = document.getElementById('news-main-img-preview-' + key);
+    if (prev) prev.innerHTML = `<img src="${json.url}?t=${Date.now()}" style="margin-top:8px;max-height:180px;max-width:100%;object-fit:contain;border:1px solid var(--border)"/>`;
+    showToast('メイン画像をアップロードしました ✓');
+  } else {
+    showToast('アップロードエラー: ' + json.error, true);
+  }
+}
+
+async function handleNewsImgsFile(event, key) {
+  const files = Array.from(event.target.files);
+  if (!files.length) return;
+  await uploadNewsImgs(files, key);
+}
+async function handleNewsImgsDrop(event, key) {
+  event.preventDefault();
+  event.currentTarget.classList.remove('drag');
+  const files = Array.from(event.dataTransfer.files);
+  if (!files.length) return;
+  await uploadNewsImgs(files, key);
+}
+async function uploadNewsImgs(files, key) {
+  const imgsInput = document.getElementById('nf-images-' + key);
+  let currentImgs = [];
+  try { currentImgs = JSON.parse(imgsInput?.value || '[]'); } catch(e) {}
+
+  for (const file of files) {
+    const ext = file.name.split('.').pop().toLowerCase();
+    const idx = currentImgs.length + 1;
+    const filename = 'img' + String(idx).padStart(2,'0') + '.' + ext;
+    const b64 = await fileToBase64(file);
+    const res = await fetch('/api/upload', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ path: 'news/' + key, filename, base64: b64, mimeType: file.type }),
+    });
+    const json = await res.json();
+    if (json.ok) {
+      const imgPath = 'news/' + key + '/' + filename;
+      currentImgs.push(imgPath);
+      if (imgsInput) imgsInput.value = JSON.stringify(currentImgs);
+      // Add thumbnail
+      const grid = document.getElementById('news-imgs-grid-' + key);
+      if (grid) {
+        const wrapId = 'newsimg-wrap-' + (currentImgs.length - 1);
+        const div = document.createElement('div');
+        div.className = 'img-thumb-wrap';
+        div.id = wrapId;
+        div.innerHTML = `<img class="img-thumb" src="${json.url}?t=${Date.now()}"/>
+          <button class="img-thumb-del" onclick="removeNewsImage('${key}',${currentImgs.length - 1})">×</button>
+          <div class="img-thumb-insert" onclick="insertNewsImgTag('${filename}','${key}')">挿入</div>`;
+        grid.appendChild(div);
+      }
+    }
+  }
+  if (files.length) showToast(files.length + '枚の画像をアップロードしました ✓');
+}
+
+function removeNewsImage(key, idx) {
+  const imgsInput = document.getElementById('nf-images-' + key);
+  let imgs = [];
+  try { imgs = JSON.parse(imgsInput?.value || '[]'); } catch(e) {}
+  imgs.splice(idx, 1);
+  if (imgsInput) imgsInput.value = JSON.stringify(imgs);
+  const wrap = document.getElementById('newsimg-wrap-' + idx);
+  if (wrap) wrap.remove();
+}
+
+function insertNewsImgTag(filename, key) {
+  const ta = document.getElementById('nf-content-' + key);
+  if (!ta) return;
+  const tag = '[img:' + filename + ']';
+  const start = ta.selectionStart;
+  const end = ta.selectionEnd;
+  ta.value = ta.value.slice(0, start) + tag + ta.value.slice(end);
+  ta.selectionStart = ta.selectionEnd = start + tag.length;
+  ta.focus();
+}
+
+function saveNewsItem(key, isNew) {
+  const title   = document.getElementById('nf-title-'  + key)?.value || '';
+  const date    = document.getElementById('nf-date-'   + key)?.value || '';
+  const cat     = document.getElementById('nf-cat-'    + key)?.value || '';
+  const excerpt = document.getElementById('nf-excerpt-'+ key)?.value || '';
+  const content = document.getElementById('nf-content-'+ key)?.value || '';
+  const pub     = document.getElementById('nf-pub-'    + key)?.checked !== false;
+  const image   = document.getElementById('nf-image-'  + key)?.value || '';
+  let images = [];
+  try { images = JSON.parse(document.getElementById('nf-images-' + key)?.value || '[]'); } catch(e) {}
+
+  if (isNew) {
+    const na = (adminData.newArticles || []).find(a => String(a.id) === key);
+    if (na) Object.assign(na, { title, date, category: cat, excerpt, content, published: pub, image, images });
+  } else {
+    if (!adminData.news) adminData.news = {};
+    adminData.news[key] = Object.assign(adminData.news[key] || {}, { title, date, category: cat, excerpt, content, published: pub, image, images });
+  }
+
+  fetch('/api/save', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(adminData),
+  }).then(r => r.json()).then(json => {
+    showToast(json.ok ? '記事を保存しました ✓' : 'エラー: ' + json.error, !json.ok);
+    if (json.ok) {
+      renderNewsSplit();
+      // 新規記事の場合: プレースホルダーを消してiframeを表示
+      setTimeout(() => {
+        const placeholder = document.getElementById('news-preview-placeholder-' + key);
+        const wrap = document.getElementById('news-preview-wrap-' + key);
+        if (placeholder) placeholder.style.display = 'none';
+        if (wrap) {
+          wrap.style.display = 'block';
+          const iframe = document.getElementById('news-preview-iframe-' + key);
+          if (iframe) iframe.src = 'http://localhost:8765/news-article.html?id=' + key + '&preview=1&t=' + Date.now();
+        } else {
+          reloadNewsPreview(key);
+        }
+      }, 1500);
+    }
+  });
+}
+
+const NEWS_TEMPLATES = {
+  blank: { category: 'New', title: '', excerpt: '', content: '' },
+  new: {
+    category: 'New',
+    title: 'SS 2025 コレクション発売開始',
+    excerpt: '新コレクションの発売をお知らせいたします。',
+    content: `この度、NOREMより新コレクションの発売を開始いたしました。
+
+[img:1]
+
+今シーズンのテーマは「○○」。
+自然素材にこだわり、着る人の日常に寄り添うアイテムを揃えました。
+
+[img:2]
+
+▼ 詳細・ご購入はショップページから
+各アイテムの詳細については、ショップページをご覧ください。
+
+どうぞよろしくお願いいたします。`
+  },
+  event: {
+    category: 'Event',
+    title: 'ポップアップストア開催のお知らせ',
+    excerpt: 'ポップアップストアの開催をお知らせいたします。',
+    content: `NOREMのポップアップストアを開催いたします。
+
+[img:1]
+
+■ 開催概要
+日時：○○年○月○日（○）〜 ○月○日（○）
+時間：11:00 〜 19:00
+場所：○○（住所）
+
+[img:2]
+
+■ 内容
+最新コレクションの展示・販売を行います。
+スタッフも常駐しておりますので、お気軽にお立ち寄りください。
+
+皆様のご来場をお待ちしております。`
+  },
+  info: {
+    category: 'Info',
+    title: 'お知らせ',
+    excerpt: '重要なお知らせがございます。',
+    content: `平素よりNOREMをご愛顧いただき、誠にありがとうございます。
+
+この度、下記の通りお知らせいたします。
+
+■ 内容
+○○○○
+
+ご不明な点がございましたら、お気軽にお問い合わせください。
+
+引き続きよろしくお願いいたします。
+NOREM`
+  },
+};
+
+function showNewsTemplateModal() {
+  const modal = document.getElementById('newsTemplateModal');
+  modal.style.display = 'flex';
+}
+function closeNewsTemplateModal() {
+  document.getElementById('newsTemplateModal').style.display = 'none';
+}
+
+function addNewsArticle(templateKey = 'blank') {
+  closeNewsTemplateModal();
+  const tpl = NEWS_TEMPLATES[templateKey] || NEWS_TEMPLATES.blank;
+  if (!adminData.newArticles) adminData.newArticles = [];
+  const maxId = [..._newsArticles, ...adminData.newArticles]
+    .reduce((m, a) => Math.max(m, parseInt(a.id) || 0), 0);
+  const newId = maxId + 1;
+  const today = new Date().toISOString().slice(0,10).replace(/-/g,'.');
+  adminData.newArticles.push({
+    id: newId,
+    date: today,
+    category: tpl.category || 'New',
+    title: tpl.title || '',
+    excerpt: tpl.excerpt || '',
+    image: '',
+    images: [],
+    content: tpl.content || '',
+    url: 'news-article.html?id=' + newId,
+    published: false,
+    _isNew: true,
+  });
+  _currentNewsKey = String(newId);
+  renderNewsSplit();
+  selectNewsArticle(String(newId));
+}
+
+function markNewsPubDirty(key, pub) {
+  // 記事の公開状態をメモリ上で変更（まだ保存しない）
+  const na = (adminData.newArticles || []).find(a => String(a.id) === key);
+  if (na) {
+    na.published = pub;
+  } else {
+    if (!adminData.news) adminData.news = {};
+    if (!adminData.news[key]) adminData.news[key] = {};
+    adminData.news[key].published = pub;
+  }
+  renderNewsSplit();
+  const btn = document.getElementById('newsApplyBtn');
+  if (btn) btn.style.background = '#27ae60';
+}
+
+async function applyNewsPublishState() {
+  const res = await fetch('/api/save', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(adminData),
+  });
+  const json = await res.json();
+  if (json.ok) {
+    const btn = document.getElementById('newsApplyBtn');
+    if (btn) btn.style.background = '';
+    // ニュースデータを再読み込み
+    const d = await fetch('/api/data').then(r => r.json());
+    _newsArticles = d.newsSource || d.news || [];
+    renderNewsSplit();
+    // 現在選択中の記事のプレビューを更新
+    if (_currentNewsKey) {
+      const iframe = document.getElementById('news-preview-iframe-' + _currentNewsKey);
+      if (iframe) iframe.src = iframe.src.replace(/[&?]t=\d+/, '') + '&t=' + Date.now();
+    }
+    showToast('公開設定を反映しました ✓');
+  } else {
+    showToast('エラー: ' + json.error, true);
+  }
+}
+
+function deleteNewsItem(key) {
+  if (!confirm('この記事を削除しますか？')) return;
+  adminData.newArticles = (adminData.newArticles || []).filter(a => String(a.id) !== key);
+  if (_currentNewsKey === key) {
+    _currentNewsKey = null;
+    document.getElementById('newsEditor').innerHTML = '<p class="news-editor-empty">← 左のリストから記事を選択、または新規作成</p>';
+  }
+  renderNewsSplit();
+}
+
+/* ══════════════════════════════════════════
+   SHARED UTILITIES
+══════════════════════════════════════════ */
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      // e.target.result is "data:mime;base64,XXXX" — strip prefix
+      const b64 = e.target.result.split(',')[1];
+      resolve(b64);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// ── カテゴリー最大4つ制限 ──
+function updateCategoryLimit(changed) {
+  const all = document.querySelectorAll('.f-category');
+  const checked = Array.from(all).filter(c => c.checked);
+  if (checked.length > 4) {
+    changed.checked = false;
+    return;
+  }
+  document.getElementById('catCount').textContent = checked.length;
+  all.forEach(c => {
+    c.parentElement.style.background = c.checked ? 'rgba(138,122,104,0.1)' : 'var(--surface)';
+  });
+}
+
+// ── 画像削除 ──
+async function deleteProductImg(folder, filename, productId) {
+  if (!confirm(filename + ' を削除しますか？')) return;
+  const res = await fetch('/api/delete-file', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ filePath: folder + '/' + filename }),
+  });
+  const json = await res.json();
+  if (json.ok) {
+    showToast(filename + ' を削除しました');
+    const numId = parseInt(productId);
+    const prod = allProducts.find(x => x.id === numId);
+    if (prod) prod.images = prod.images.filter(img => img !== filename);
+    selectProduct(numId);
+  } else {
+    showToast('削除エラー: ' + json.error, true);
+  }
+}
+
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function escJs(s) {
+  return String(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+}
+
+/* ── 保存 ── */
+async function save() {
+  const p = allProducts.find(x => x.id === currentId);
+  if (!p) return;
+  const key = productKey(p);
+
+  adminData[key] = {
+    status:      document.getElementById('f-status').value,
+    price:       parseInt(document.getElementById('f-price').value) || 0,
+    taxIn:       document.getElementById('f-taxIn').checked,
+    showOnHome:  document.getElementById('f-showOnHome').checked,
+    saleDate:    document.getElementById('f-saleDate').value,
+    sizes:       (_sizes || []).map(s => ({
+      label:  s.label,
+      status: s.status,
+      stock:  s.stock === '' ? undefined : s.stock,
+    })),
+    description: document.getElementById('f-description').value,
+    infoText:    document.getElementById('f-infoText').value,
+    notes:       document.getElementById('f-notes').dataset.combined || (() => {
+      const checked = Array.from(document.querySelectorAll('#notesChecks input:checked')).map(i => i.value);
+      const custom  = document.getElementById('f-notes').value.trim();
+      return [...checked, ...(custom ? [custom] : [])].join('\n');
+    })(),
+    sizeChart: {
+      headers: _chart?.headers || [],
+      rows:    _chart?.rows    || [],
+      note:    document.getElementById('f-chartNote')?.value || '',
+    },
+    careIcons: getSelectedCareIcons(),
+    categories: Array.from(document.querySelectorAll('.f-category:checked')).map(c => c.value),
+    published: true,
+    imageLayout: document.querySelector('.layout-btn.active')?.dataset.layout || 'scroll',
+    imageRotations: p.images.map((_, i) => {
+      const active = document.querySelector(`.rot-row[data-img="${i}"] .rot-btn.active`);
+      return active ? parseInt(active.dataset.rot) : 0;
+    }),
+  };
+
+  const res = await fetch('/api/save', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(adminData),
+  });
+  const json = await res.json();
+  showToast(json.ok ? '保存しました ✓' : 'エラー: ' + json.error, !json.ok);
+  if (json.ok) renderSidebar();
+}
+
+function showToast(msg, isError) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (isError ? ' error' : '');
+  setTimeout(() => t.className = 'toast', 3000);
+}
+
+load();
+</script>
+  <script src="cookie-consent.js"></script>
+</body>
+</html>

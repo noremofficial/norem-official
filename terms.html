@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NOREM — Terms &amp; Conditions</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #878787;
+      --white: #ffffff;
+      --mid: #9a9690;
+      --border: #e4e0da;
+      --cream: #f4f2ee;
+    }
+
+    body {
+      font-family: 'Lato', 'Hiragino Sans', sans-serif;
+      background: var(--white);
+      color: #878787;
+      min-height: 100vh;
+    }
+
+    /* ========== NAV ========== */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 144px;
+      height: 60px;
+      background: transparent;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      border-bottom: 1px solid transparent;
+      transition: background 0.8s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    nav.nav-hidden { transform: translateY(-100%); }
+
+    nav.scrolled {
+      background: transparent;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+
+    .nav-logo {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.3rem; font-weight: 400; letter-spacing: 0.24em;
+      color: #878787; text-decoration: none; transition: color 0.8s ease;
+    }
+
+    nav.scrolled .nav-logo { color: var(--black); }
+
+    .nav-logo-img { height: 36px; width: auto; object-fit: contain; filter: brightness(0) invert(1) brightness(0.337); transition: filter 0.8s ease; }
+    nav.scrolled .nav-logo-img { filter: brightness(0) invert(1) brightness(0.337); }
+
+    .nav-links {
+      position: absolute; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 32px; list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 0.67rem; letter-spacing: 0.18em; text-transform: uppercase;
+      color: #878787; text-decoration: none; transition: color 0.8s ease;
+    }
+
+    nav.scrolled .nav-links a { color: var(--black); }
+    .nav-links a:hover { opacity: 0.6; }
+    .nav-label { font-size: 0.67rem; letter-spacing: 0.18em; text-transform: uppercase; color: inherit; cursor: pointer; }
+
+    .coll-overlay {
+      position: fixed; top: 0; left: 0; right: 0; height: auto;
+      background: rgba(255,255,255,0.85); backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px);
+      z-index: 90; display: flex; align-items: flex-start; justify-content: center;
+      padding: 88px 0 140px; opacity: 0; pointer-events: none;
+      transition: opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+      -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 110px), transparent 100%);
+      mask-image: linear-gradient(to bottom, black calc(100% - 110px), transparent 100%);
+    }
+    nav.overlay-open { background: transparent !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; border-color: transparent !important; }
+    .coll-overlay.open { opacity: 1; pointer-events: auto; }
+    .coll-overlay-inner { display: flex; flex-direction: row; align-items: flex-start; justify-content: center; gap: 72px; text-align: center; }
+    .nav-overlay-col { display: flex; flex-direction: column; align-items: center; gap: 1.1em; }
+    @keyframes navItemIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .nav-overlay-heading { font-size: 0.54rem; letter-spacing: 0.3em; text-transform: uppercase; color: #878787; padding-bottom: 0.8em; border-bottom: 1px solid var(--border); width: 100%; opacity: 0; }
+    .coll-overlay.open .nav-overlay-heading { animation: navItemIn 0.3s cubic-bezier(0.16,1,0.3,1) both; }
+    .nav-overlay-sub { font-size: clamp(0.52rem, 0.76vw, 0.6rem) !important; letter-spacing: 0.2em !important; color: #a0a0a0 !important; }
+    .coll-overlay-inner a { font-family: 'Cormorant Garamond', serif; font-size: clamp(0.62rem, 0.9vw, 0.72rem); font-weight: 300; letter-spacing: 0.32em; text-transform: uppercase; color: #878787; text-decoration: none; opacity: 0; transition: color 0.2s; }
+    .coll-overlay.open .coll-overlay-inner a { animation: navItemIn 0.3s cubic-bezier(0.16,1,0.3,1) both; }
+    .coll-overlay-inner a:hover { color: #888888; }
+
+    .nav-right { display: flex; align-items: center; gap: 18px; }
+    .nav-icon { background: none; border: none; cursor: pointer; color: #878787; display: flex; transition: color 0.8s ease; }
+    nav.scrolled .nav-icon { color: var(--black); }
+
+    .hamburger { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; }
+    .hamburger span { display: block; width: 22px; height: 1px; background: #878787; transition: transform 0.3s, opacity 0.3s, background 0.8s ease; }
+    nav.scrolled .hamburger span { background: var(--black); }
+    .hamburger.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+    .mobile-menu { display: none; position: fixed; inset: 60px 0 0; background: var(--white); z-index: 99; flex-direction: column; align-items: center; justify-content: center; gap: 36px; }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 300; letter-spacing: 0.12em; color: var(--black); text-decoration: none; -webkit-tap-highlight-color: transparent; }
+    .mobile-coll-wrap { width: 100%; text-align: center; }
+    .mobile-coll-toggle { display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; background: none; border: none; font-family: inherit; font-size: 1.1rem; font-weight: 300; letter-spacing: 0.12em; color: var(--black); text-decoration: none; width: 100%; -webkit-tap-highlight-color: transparent; }
+    .mobile-coll-arrow { font-size: 0.7rem; color: var(--mid); transition: transform 0.25s; }
+    .mobile-coll-arrow.open { transform: rotate(180deg); }
+    .mobile-coll-seasons { display: flex; flex-direction: column; gap: 14px; margin-top: 0; max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.35s ease, opacity 0.3s ease, margin-top 0.3s ease; }
+    .mobile-coll-seasons.open { max-height: 300px; opacity: 1; margin-top: 14px; }
+    .mobile-coll-seasons a { font-size: 0.78rem !important; letter-spacing: 0.14em; color: var(--mid) !important; }
+
+    /* ========== PAGE ========== */
+    .page-wrap {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 120px 48px 100px;
+    }
+
+    .page-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.8rem; font-weight: 300; letter-spacing: 0.12em;
+      color: var(--black);
+      margin-bottom: 56px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .lang-block + .lang-block {
+      margin-top: 64px;
+      padding-top: 64px;
+      border-top: 1px solid var(--border);
+    }
+
+    .policy-section {
+      margin-bottom: 40px;
+    }
+
+    .policy-heading {
+      font-size: 0.68rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--black);
+      margin-bottom: 14px;
+    }
+
+    .policy-text {
+      font-size: 0.82rem;
+      line-height: 2;
+      color: #888;
+      letter-spacing: 0.03em;
+    }
+
+    .policy-text + .policy-text {
+      margin-top: 10px;
+    }
+
+    .policy-list {
+      list-style: none;
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .policy-list li {
+      font-size: 0.78rem;
+      line-height: 1.85;
+      color: #888;
+      letter-spacing: 0.02em;
+      padding-left: 1em;
+      position: relative;
+    }
+
+    .policy-list li::before {
+      content: '–';
+      position: absolute;
+      left: 0;
+      color: var(--border);
+    }
+
+    .policy-subheading {
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      color: #aaa;
+      margin-top: 18px;
+      margin-bottom: 5px;
+      font-style: italic;
+    }
+
+    .policy-contact a {
+      color: var(--black);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      transition: opacity 0.2s;
+    }
+
+    .policy-contact a:hover { opacity: 0.6; }
+
+    /* ========== FOOTER ========== */
+    footer { background: var(--white); border-top: 1px solid var(--border); padding: 56px 48px 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+    .footer-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 48px; padding-bottom: 40px; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+    .footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 300; letter-spacing: 0.24em; color: var(--black); text-decoration: none; flex-shrink: 0; }
+    .footer-cols { display: flex; gap: 56px; flex-wrap: wrap; }
+    .footer-col h4 { font-size: 0.58rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--mid); margin-bottom: 16px; white-space: nowrap; }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 11px; }
+    .footer-col a { font-size: 0.75rem; color: var(--mid); text-decoration: none; transition: color 0.2s; }
+    .footer-col a:hover { color: var(--black); }
+    .footer-concept-title { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; font-weight: 300; letter-spacing: 0.06em; color: var(--black); margin-bottom: 8px; line-height: 1.4; }
+    .footer-concept-body { font-size: 0.72rem; color: var(--mid); line-height: 1.9; letter-spacing: 0.02em; }
+    .footer-bottom { display: flex; justify-content: space-between; align-items: center; }
+    .footer-copy { font-size: 0.58rem; letter-spacing: 0.1em; color: var(--mid); }
+    .footer-ig { color: var(--mid); transition: color 0.2s; display: flex; }
+    .footer-ig:hover { color: var(--black); }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 900px) {
+      nav { padding: 0 20px; }
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+      .page-wrap { padding: 100px 24px 80px; }
+      footer { padding: 40px 20px 24px; }
+      .footer-top { flex-direction: column; gap: 20px; }
+      .footer-cols { flex-direction: column; gap: 16px; }
+      .footer-bottom { flex-direction: column; gap: 8px; }
+    }
+
+    *:not(.nav-logo):not(.footer-logo):not(.nav-logo img) {
+      font-family: 'Lato', 'Hiragino Sans', sans-serif;
+    }
+    .nav-logo, .footer-logo {
+      font-family: 'Cormorant Garamond', serif !important;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ========== NAV ========== -->
+<nav id="nav">
+  <a class="nav-logo" href="index.html">
+    <img class="nav-logo-img" src="logo.png" alt="" onerror="this.style.display='none'" />
+    NOREM
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li id="collNavItem" onmouseenter="openNavOverlay('coll')" onmouseleave="scheduleCloseNavOverlay()"><a href="collection.html">Collection</a></li>
+    <li id="shopNavItem" onmouseenter="openNavOverlay('shop')" onmouseleave="scheduleCloseNavOverlay()"><a href="shop.html" id="navShopLink">Shop</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="contact.html">Contact</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="cart.html" class="nav-icon nav-cart" aria-label="Cart" style="position:relative;text-decoration:none">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+      <span class="cart-badge" id="cartBadge" style="display:none;position:absolute;top:-6px;right:-6px;background:#0d0d0d;color:#fff;font-size:9px;min-width:16px;height:16px;border-radius:8px;text-align:center;line-height:16px;padding:0 3px">0</span>
+    </a>
+    <button class="nav-icon" aria-label="Search">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
+    </button>
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html">Home</a>
+  <a href="about.html">About</a>
+  <div class="mobile-coll-wrap">
+    <button class="mobile-coll-toggle" onclick="toggleMobileColl(event)">Collection <span class="mobile-coll-arrow" id="mobileCollArrow">▼</span></button>
+    <div class="mobile-coll-seasons" id="mobileCollSeasons"></div>
+  </div>
+  <a href="shop.html">Shop</a>
+  <a href="contact.html">Contact</a>
+</div>
+
+<div class="coll-overlay" id="collOverlay">
+  <div class="coll-overlay-inner" id="collOverlayInner"></div>
+</div>
+
+<!-- ========== CONTENT ========== -->
+<div class="page-wrap">
+  <h1 class="page-title">Terms &amp; Conditions</h1>
+
+  <!-- ENGLISH -->
+  <div class="lang-block">
+
+    <div class="policy-section">
+      <p class="policy-heading">Payment</p>
+      <ul class="policy-list">
+        <li>The order total includes the product price and shipping fee.</li>
+        <li>All prices displayed on this site are shown in Japanese Yen (JPY) and include applicable taxes.</li>
+        <li>Payment methods are limited to those displayed at checkout. Payment is charged at the time of order placement.</li>
+      </ul>
+    </div>
+
+    <div class="policy-section">
+      <p class="policy-heading">Orders</p>
+      <ul class="policy-list">
+        <li>Orders cannot be cancelled, modified, or combined with other orders once confirmed.</li>
+        <li>NOREM reserves the right to cancel an order in the event of payment issues, suspected fraudulent activity, pricing errors, or product unavailability.</li>
+      </ul>
+    </div>
+
+    <div class="policy-section">
+      <p class="policy-heading">Products</p>
+      <ul class="policy-list">
+        <li>We strive to display product images and information as accurately as possible. However, actual colors, textures, and details may vary depending on your viewing environment.</li>
+        <li>Variations in texture, color, and measurements may occur between individual items.</li>
+      </ul>
+    </div>
+
+    <div class="policy-section">
+      <p class="policy-heading">Pre-Order Items</p>
+      <ul class="policy-list">
+        <li>Pre-order items are shipped according to the estimated delivery date stated on each product page.</li>
+        <li>Please note that production schedules may change and delivery dates may be adjusted without prior notice.</li>
+      </ul>
+    </div>
+
+    <div class="policy-section">
+      <p class="policy-heading">International Orders</p>
+      <ul class="policy-list">
+        <li>Customs duties, import taxes, and handling fees are not included in the order total and are the responsibility of the customer.</li>
+        <li>These charges are determined by the destination country and collected by the relevant customs authority or carrier.</li>
+      </ul>
+    </div>
+
+    <div class="policy-section">
+      <p class="policy-heading">Intellectual Property</p>
+      <ul class="policy-list">
+        <li>All content on this website, including but not limited to images, photographs, text, graphics, logos, and designs, is the property of NOREM or its licensors.</li>
+        <li>Any reproduction, distribution, modification, or commercial use without prior written permission is strictly prohibited.</li>
+      </ul>
+    </div>
+
+    <div class="policy-section">
+      <p class="policy-heading">Disclaimer</p>
+      <p class="policy-text">NOREM shall not be liable for damages arising from the use of this website or the purchase of products, except where liability cannot be excluded under applicable law.</p>
+    </div>
+
+    <div class="policy-section">
+      <p class="policy-heading">Changes to Terms</p>
+      <ul class="policy-list">
+        <li>NOREM reserves the right to modify these Terms &amp; Conditions at any time without prior notice.</li>
+        <li>Continued use of this website constitutes acceptance of any updated terms.</li>
+      </ul>
+    </div>
+
+    <div class="policy-section">
+      <p class="policy-heading">Governing Law</p>
+      <p class="policy-text">These Terms &amp; Conditions shall be governed by and construed in accordance with the laws of Japan.</p>
+    </div>
+
+  </div>
+
+  <!-- 日本語 -->
+  <div class="lang-block">
+
+    <div class="policy-section">
+      <p class="policy-heading">利用規約</p>
+    </div>
+
+    <div class="policy-section">
+      <p class="policy-heading">お支払いについて</p>
+      <ul class="policy-list">
+        <li>お支払い金額は商品代金および送料の合計金額となります。</li>
+        <li>当サイトの価格はすべて日本円（税込）で表示しております。</li>
+        <li>お支払い方法は決済画面に表示される方法に限ります。決済はご注文時に確定いたします。</li>
+      </ul>
+    </div>
+
+    <div class="policy-section">
+      <p class="policy-heading">ご注文について</p>
+      <ul class="policy-list">
+        <li>ご注文確定後のキャンセル・内容変更・他のご注文との同梱はお受けしておりません。</li>
+        <li>決済不備、不正利用の疑い、価格表示の誤り、在庫不足等の理由により、ご注文をキャンセルさせていただく場合がございます。</li>
+      </ul>
+    </div>
+
+    <div class="policy-section">
+      <p class="policy-heading">商品について</p>
+      <ul class="policy-list">
+        <li>商品画像および商品情報はできる限り正確に掲載しておりますが、ご利用環境により実際の商品と色味や質感が異なって見える場合があります。</li>
+        <li>素材の風合い・色味・サイズ表記は目安であり、商品ごとに若干の個体差が生じる場合がございます。</li>
+      </ul>
+    </div>
+
+    <div class="policy-section">
+      <p class="policy-heading">予約商品について</p>
+      <ul class="policy-list">
+        <li>予約商品は各商品ページに記載された発送予定日に準じて発送いたします。</li>
+        <li>生産状況等により発送時期が変更となる場合がございますので、予めご了承ください。</li>
+      </ul>
+    </div>
+
+    <div class="policy-section">
+      <p class="policy-heading">海外注文について</p>
+      <ul class="policy-list">
+        <li>関税・輸入税・通関手数料等は商品代金に含まれておらず、お受け取り国の規定に基づき購入者のご負担となります。</li>
+        <li>これらの費用は各国の税関または配送業者により徴収されます。</li>
+      </ul>
+    </div>
+
+    <div class="policy-section">
+      <p class="policy-heading">知的財産権</p>
+      <ul class="policy-list">
+        <li>当サイトに掲載される画像、写真、文章、グラフィック、ロゴ、デザイン等に関する著作権その他知的財産権は、NOREMまたは正当な権利者に帰属します。</li>
+        <li>事前の許可なく複製、転載、改変、商業利用することを禁止します。</li>
+      </ul>
+    </div>
+
+    <div class="policy-section">
+      <p class="policy-heading">免責事項</p>
+      <p class="policy-text">当サイトの利用または商品の購入に関連して発生した損害について、法令により免責が認められない場合を除き、当店は責任を負わないものとします。</p>
+    </div>
+
+    <div class="policy-section">
+      <p class="policy-heading">規約の変更</p>
+      <ul class="policy-list">
+        <li>当店は必要に応じて本規約を変更することがあります。</li>
+        <li>変更後も当サイトをご利用いただいた場合、変更後の規約に同意したものとみなします。</li>
+      </ul>
+    </div>
+
+    <div class="policy-section">
+      <p class="policy-heading">準拠法</p>
+      <p class="policy-text">本規約は日本法に準拠し、日本法に従って解釈されるものとします。</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- ========== FOOTER ========== -->
+<footer>
+  <div class="footer-top">
+    <a class="footer-logo" href="index.html">NOREM</a>
+    <div class="footer-cols">
+      <div class="footer-col">
+        <h4>Account / Contact</h4>
+        <ul>
+          <li><a href="signup.html">Create Account</a></li>
+          <li><a href="login.html">Login</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Policy</h4>
+        <ul>
+          <li><a href="shipping.html">Shipping</a></li>
+          <li><a href="privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="terms.html">Terms &amp; Conditions</a></li>
+          <li><a href="returns.html">Returns &amp; Refunds</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p class="footer-copy">© 2025 NOREM. All rights reserved.</p>
+    <a href="https://www.instagram.com/norem___official/?hl=ja" target="_blank" rel="noopener noreferrer" class="footer-ig" aria-label="Instagram">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none"/></svg>
+    </a>
+  </div>
+</footer>
+
+<script src="collections-data.js"></script>
+<script src="products-data.js"></script>
+  <script src="search.js"></script>
+<script>
+  // ── NAV scroll ──
+  const _nav = document.getElementById('nav');
+  let _lastScrollY = window.scrollY;
+  window.addEventListener('scroll', () => {
+    const scrollY = window.scrollY;
+    const dt = 16;
+    const velocity = (scrollY - _lastScrollY) / dt;
+    _nav.classList.toggle('scrolled', scrollY > 40);
+    if (scrollY <= 0) {
+      _nav.style.transform = '';
+    } else if (scrollY > _lastScrollY && scrollY > 80 && velocity > 0.8) {
+      _nav.classList.add('nav-hidden');
+    } else if (scrollY < _lastScrollY && velocity < -2.4) {
+      _nav.classList.remove('nav-hidden');
+    }
+    _lastScrollY = scrollY;
+  });
+
+  // ── Mobile menu ──
+  document.getElementById('hamburger').addEventListener('click', function() {
+    this.classList.toggle('open');
+    document.getElementById('mobileMenu').classList.toggle('open');
+  });
+
+  function toggleMobileColl(e) {
+    e.preventDefault();
+    document.getElementById('mobileCollSeasons').classList.toggle('open');
+    document.getElementById('mobileCollArrow').classList.toggle('open');
+  }
+
+  // ── Nav overlay ──
+  let _navCloseTimer = null;
+  let _navCurrentType = null;
+  const SHOP_CATEGORIES = [
+    { label: 'Tops', slug: 'tops', sub: [{ label: 'Shirts / Blouses', slug: 'shirts-blouses' }, { label: 'Cut & Sew / Sweat', slug: 'cut-sew-sweat' }]},
+    { label: 'Bottoms', slug: 'bottoms', sub: [{ label: 'Pants', slug: 'pants' }, { label: 'Skirts', slug: 'skirts' }]},
+    { label: 'Outerwear', slug: 'outerwear', sub: [{ label: 'Jackets', slug: 'jackets' }, { label: 'Coats', slug: 'coats' }]},
+    { label: 'Dresses / Setup', slug: 'dresses-setup' }, { label: 'Bags', slug: 'bags' },
+    { label: 'Shoes', slug: 'shoes' }, { label: 'Accessories', slug: 'accessories' }, { label: 'Sale', slug: 'sale' },
+  ];
+  function openNavOverlay(type) {
+    clearTimeout(_navCloseTimer);
+    const overlay = document.getElementById('collOverlay');
+    const inner   = document.getElementById('collOverlayInner');
+    if (_navCurrentType !== type) {
+      _navCurrentType = type;
+      let seasonLinks = '';
+      if (type === 'coll') {
+        const items = typeof COLLECTIONS_DATA !== 'undefined' ? COLLECTIONS_DATA.filter(c => c.published) : [];
+        seasonLinks = items.map(c => `<a href="collection.html?season=${encodeURIComponent(c.season)}">${c.season}</a>`).join('');
+      } else {
+        const seasons = typeof PRODUCTS_DATA !== 'undefined'
+          ? [...new Set(PRODUCTS_DATA.filter(p => p.published !== false).map(p => p.season))].sort().reverse()
+          : [];
+        seasonLinks = seasons.map(s => `<a href="shop.html?season=${encodeURIComponent(s)}">${s}</a>`).join('');
+      }
+      if (type === 'coll') {
+        inner.innerHTML = `<div class="nav-overlay-col"><p class="nav-overlay-heading">Season Look</p>${seasonLinks}</div>`;
+      } else {
+        const catLinks = SHOP_CATEGORIES.map(cat => {
+          let html = `<a href="shop.html?category=${cat.slug}">${cat.label}</a>`;
+          if (cat.sub) cat.sub.forEach(s => { html += `<a href="shop.html?category=${s.slug}" class="nav-overlay-sub">${s.label}</a>`; });
+          return html;
+        }).join('');
+        inner.innerHTML = `<div class="nav-overlay-col"><p class="nav-overlay-heading">Season Look</p>${seasonLinks}</div><div class="nav-overlay-col"><p class="nav-overlay-heading">Category</p>${catLinks}</div>`;
+      }
+    }
+    overlay.classList.add('open');
+    _nav.classList.add('overlay-open');
+  }
+  function scheduleCloseNavOverlay() {
+    _navCloseTimer = setTimeout(() => {
+      document.getElementById('collOverlay').classList.remove('open');
+      _nav.classList.remove('overlay-open');
+      _navCurrentType = null;
+    }, 120);
+  }
+  document.getElementById('collOverlay').addEventListener('mouseenter', () => clearTimeout(_navCloseTimer));
+  document.getElementById('collOverlay').addEventListener('mouseleave', scheduleCloseNavOverlay);
+
+  // ── Mobile seasons ──
+  if (typeof COLLECTIONS_DATA !== 'undefined') {
+    const ms = document.getElementById('mobileCollSeasons');
+    if (ms) ms.innerHTML = COLLECTIONS_DATA.filter(c => c.published).map(c =>
+      `<a href="collection.html?season=${encodeURIComponent(c.season)}">${c.season}</a>`
+    ).join('');
+  }
+</script>
+  <script src="cookie-consent.js"></script>
+</body>
+</html>

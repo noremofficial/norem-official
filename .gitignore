@@ -1,0 +1,4 @@
+.env
+node_modules/
+admin-data.json.bak
+.DS_Store

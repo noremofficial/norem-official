@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NOREM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #878787;
+      --white: #ffffff;
+      --off-white: #fafaf8;
+      --cream: #f4f2ee;
+      --mid: #9a9690;
+      --border: #e4e0da;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Lato', 'Hiragino Sans', sans-serif;
+      background: var(--white);
+      color: #878787;
+      overflow-x: hidden;
+    }
+
+    /* ========== NAV ========== */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 144px;
+      height: 60px;
+      background: transparent;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      border-bottom: 1px solid transparent;
+      transition: background 0.8s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    nav.nav-hidden {
+      transform: translateY(-100%);
+    }
+
+    nav.scrolled {
+      background: transparent;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+
+    .nav-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.3rem;
+      font-weight: 400;
+      letter-spacing: 0.24em;
+      color: #878787;
+      text-decoration: none;
+      transition: color 0.8s ease;
+    }
+
+    nav.scrolled .nav-logo { color: var(--black); }
+
+    .nav-logo-img {
+      height: 36px;
+      width: auto;
+      object-fit: contain;
+      filter: brightness(0) invert(1) brightness(0.337);
+      transition: filter 0.8s ease;
+    }
+
+    nav.scrolled .nav-logo-img { filter: brightness(0) invert(1) brightness(0.337); }
+
+    .nav-links {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 0.67rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #878787;
+      text-decoration: none;
+      transition: color 0.8s ease;
+    }
+
+    nav.scrolled .nav-links a { color: var(--black); }
+
+    .nav-links a:hover { opacity: 0.6; }
+
+    /* Collection オーバーレイ */
+    .nav-label { font-size: 0.67rem; letter-spacing: 0.18em; text-transform: uppercase; color: inherit; cursor: pointer; }
+
+    .coll-overlay {
+      position: fixed;
+      top: 0;
+      left: 0; right: 0;
+      height: auto;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      z-index: 90;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 88px 0 140px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+      -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 110px), transparent 100%);
+      mask-image: linear-gradient(to bottom, black calc(100% - 110px), transparent 100%);
+    }
+
+    nav.overlay-open {
+      background: transparent !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      border-color: transparent !important;
+      transition: background 0.2s, border-color 0.2s, transform 0.35s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+
+    .coll-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .coll-overlay-inner {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 72px;
+      text-align: center;
+    }
+
+    .nav-overlay-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.1em;
+    }
+
+    @keyframes navItemIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .nav-overlay-heading {
+      font-size: 0.54rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: #878787;
+      padding-bottom: 0.8em;
+      border-bottom: 1px solid var(--border);
+      width: 100%;
+      opacity: 0;
+    }
+
+    .coll-overlay.open .nav-overlay-heading {
+      animation: navItemIn 0.3s cubic-bezier(0.16,1,0.3,1) both;
+    }
+
+    .nav-overlay-sub {
+      font-size: clamp(0.52rem, 0.76vw, 0.6rem) !important;
+      letter-spacing: 0.2em !important;
+      color: #a0a0a0 !important;
+    }
+
+    .coll-overlay-inner a {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(0.62rem, 0.9vw, 0.72rem);
+      font-weight: 300;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: #878787;
+      text-decoration: none;
+      opacity: 0;
+      transition: color 0.2s;
+    }
+
+    .coll-overlay.open .coll-overlay-inner a {
+      animation: navItemIn 0.3s cubic-bezier(0.16,1,0.3,1) both;
+    }
+
+    .coll-overlay-inner a:hover { color: #888888; }
+
+    .nav-right { display: flex; align-items: center; gap: 18px; }
+
+    .nav-icon {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #878787;
+      display: flex;
+      transition: color 0.8s ease;
+    }
+
+    nav.scrolled .nav-icon { color: var(--black); }
+
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .hamburger span {
+      display: block;
+      width: 22px;
+      height: 1px;
+      background: #878787;
+      transition: transform 0.3s, opacity 0.3s, background 0.8s ease;
+    }
+
+    nav.scrolled .hamburger span { background: var(--black); }
+    .hamburger.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      inset: 60px 0 0;
+      background: var(--white);
+      z-index: 99;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 36px;
+    }
+
+    .mobile-menu.open { display: flex; }
+
+    .mobile-menu a {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.1rem;
+      font-weight: 300;
+      letter-spacing: 0.12em;
+      color: var(--black);
+      text-decoration: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .mobile-coll-wrap { width: 100%; text-align: center; }
+    .mobile-coll-toggle { display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; background: none; border: none; font-family: inherit; font-size: 1.1rem; font-weight: 300; letter-spacing: 0.12em; color: var(--black); text-decoration: none; width: 100%; -webkit-tap-highlight-color: transparent; }
+    .mobile-coll-arrow { font-size: 0.7rem; color: var(--mid); transition: transform 0.25s; }
+    .mobile-coll-arrow.open { transform: rotate(180deg); }
+    .mobile-coll-seasons { display: flex; flex-direction: column; gap: 14px; margin-top: 0; max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.35s ease, opacity 0.3s ease, margin-top 0.3s ease; }
+    .mobile-coll-seasons.open { max-height: 300px; opacity: 1; margin-top: 14px; }
+    .mobile-coll-seasons a { font-size: 0.78rem !important; letter-spacing: 0.14em; color: var(--mid) !important; }
+
+    /* ========== HERO SLIDER ========== */
+    .hero {
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+      background: #ffffff;
+    }
+
+    .hero-track-wrap {
+      height: calc(100% - 4px);
+      overflow: hidden;
+    }
+
+    .hero-track {
+      display: flex;
+      height: 100%;
+      gap: 16px;
+      will-change: transform;
+    }
+
+    .hero-slide {
+      flex-shrink: 0;
+      width: calc(100vw - 192px); /* 80px peek × 2 + 16px gap × 2 */
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      background-color: #ffffff;
+      position: relative;
+      user-select: none;
+      overflow: hidden;
+    }
+
+    /* 前後スライドへの矢印ゾーン */
+    .hero-nav {
+      position: absolute;
+      top: 0;
+      width: 80px;
+      height: calc(100% - 4px);
+      z-index: 20;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hero-nav-prev { left: 0; }
+    .hero-nav-next { right: 0; }
+
+
+    /* スライドインジケーター */
+    .hero-indicators {
+      position: absolute;
+      bottom: 24px;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      z-index: 10;
+    }
+
+    .hero-ind {
+      width: 36px;
+      height: 2px;
+      background: rgba(0,0,0,0.15);
+      transition: background 0.3s;
+    }
+
+    .hero-ind.active {
+      background: var(--black);
+    }
+
+    /* ========== NEWS / お知らせ ========== */
+    .news {
+      background: var(--white);
+      padding: 72px 48px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .news-inner {
+      max-width: 660px;
+      margin: 0 auto;
+    }
+
+    .news-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 32px;
+      margin-bottom: 32px;
+    }
+
+    .news-title {
+      font-size: 0.72rem;
+      font-weight: 400;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--mid);
+    }
+
+    .news-more {
+      font-size: 0.62rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--mid);
+      text-decoration: none;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 2px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    .news-more:hover { color: var(--black); border-color: var(--black); }
+
+    .news-list { list-style: none; }
+
+    .news-item {
+      display: flex;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 8px 32px;
+      padding: 18px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .news-item:last-child { border-bottom: 1px solid var(--border); }
+
+    .news-date {
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      color: var(--mid);
+      white-space: nowrap;
+      flex-shrink: 0;
+      width: 80px;
+    }
+
+    .news-tag {
+      font-size: 0.6rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--white);
+      background: var(--black);
+      padding: 3px 8px;
+      flex-shrink: 0;
+    }
+
+    .news-body {
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: var(--black);
+      flex-basis: 100%;
+    }
+
+    .news-body a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1px;
+      transition: border-color 0.2s;
+    }
+
+    .news-body a:hover { border-color: var(--black); }
+
+    /* ========== SHOP ========== */
+    .shop {
+      background: var(--white);
+      padding: 160px clamp(125px, 21.875vw, 344px) 100px;
+    }
+
+    .shop-inner {
+      margin: 0 auto;
+    }
+
+    .shop-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 44px;
+    }
+
+    .section-label {
+      font-size: 0.62rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--mid);
+      margin-bottom: 10px;
+    }
+
+    .section-title {
+      font-size: 0.72rem;
+      font-weight: 400;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--mid);
+    }
+
+    .view-all {
+      display: inline-block;
+      padding: 13px 48px;
+      border: 1px solid var(--black);
+      font-size: 0.68rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--black);
+      text-decoration: none;
+      transition: background 0.25s, color 0.25s;
+    }
+
+    .view-all:hover { background: var(--black); color: var(--white); }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      column-gap: 5px;
+      row-gap: 70px;
+    }
+
+    .product-card { cursor: pointer; }
+
+    .product-img {
+      width: 100%;
+      aspect-ratio: 2/3;
+      overflow: hidden;
+      position: relative;
+      margin-bottom: 10px;
+      background: #d8d8d8;
+    }
+
+    .product-img.p1 { background: #d8d8d8; }
+    .product-img.p2 { background: #e2e2e2; }
+    .product-img.p3 { background: #cccccc; }
+    .product-img.p4 { background: #dcdcdc; }
+    .product-img.p5 { background: #d0d0d0; }
+    .product-img.p6 { background: #e6e6e6; }
+    .product-img.p7 { background: #c8c8c8; }
+    .product-img.p8 { background: #dadada; }
+
+    /* 2枚目ホバー画像（item01-1.PNG 等）― 下から浮かび上がる */
+    .product-img-hover {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1), transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+      will-change: transform, opacity;
+      z-index: 1;
+    }
+
+    .product-card:hover .product-img-hover {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .product-img-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(13,13,13,0);
+      transition: background 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+    }
+
+    .product-card:hover .product-img-overlay { background: rgba(13,13,13,0.18); }
+
+    .product-img-btn {
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--white);
+      border: 1px solid rgba(255,255,255,0.6);
+      padding: 8px 18px;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 0.3s, transform 0.3s;
+      text-decoration: none;
+    }
+
+    .product-card:hover .product-img-btn { opacity: 1; transform: translateY(0); }
+
+    .product-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.825rem;
+      font-weight: 400;
+      letter-spacing: 0.02em;
+      text-align: center;
+      margin-bottom: 3px;
+      color: #878787;
+    }
+
+    .product-meta {
+      font-size: 0.65rem;
+      letter-spacing: 0.08em;
+      color: var(--mid);
+      text-align: center;
+      opacity: 0;
+      transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .product-card:hover .product-meta { opacity: 1; }
+
+    /* (site-nav section removed) */
+
+    /* ========== FOOTER ========== */
+    footer {
+      background: var(--white);
+      border-top: 1px solid var(--border);
+      padding: 56px 48px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .footer-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 48px;
+      padding-bottom: 40px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
+
+    .footer-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.6rem;
+      font-weight: 300;
+      letter-spacing: 0.24em;
+      color: var(--black);
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+
+    .footer-cols {
+      display: flex;
+      gap: 56px;
+      flex-wrap: wrap;
+    }
+
+    .footer-col h4 {
+      font-size: 0.58rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--mid);
+      margin-bottom: 16px;
+      white-space: nowrap;
+    }
+
+    .footer-col ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+    }
+
+    .footer-col a {
+      font-size: 0.75rem;
+      color: var(--mid);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-col a:hover { color: var(--black); }
+
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-copy {
+      font-size: 0.58rem;
+      letter-spacing: 0.1em;
+      color: var(--mid);
+    }
+
+    .footer-ig {
+      color: var(--mid);
+      transition: color 0.2s;
+      display: flex;
+    }
+
+    .footer-ig:hover { color: var(--black); }
+
+    /* ========== ANIMATIONS ========== */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: transform, opacity;
+    }
+
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 1100px) {
+      .product-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 900px) {
+      nav { padding: 0 20px; }
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+
+      /* モバイル：両端のピークを約1/3（24px）に縮小 */
+      .hero-slide { width: calc(100vw - 80px); } /* 24px peek + 16px gap × 2 */
+
+      .news { padding: 56px 20px; }
+      .shop { padding: 60px 20px 72px; }
+      footer { padding: 40px 20px 28px; }
+
+      .product-grid { grid-template-columns: repeat(2, 1fr); column-gap: 5px; row-gap: 5px; }
+      .shop-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+      footer { padding: 40px 20px 24px; }
+      .footer-top { flex-direction: column; gap: 32px; }
+      .footer-cols { gap: 28px; flex-direction: column; }
+      .footer-bottom { flex-direction: column; gap: 12px; align-items: flex-start; }
+      .news-item { flex-wrap: wrap; gap: 8px; }
+      .news-date { width: auto; }
+      .news-body { white-space: normal; word-break: break-word; }
+    }
+
+    @media (max-width: 520px) {
+      .product-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    /* ========== GOTHIC FONT OVERRIDE ==========  */
+    /* ブランドロゴ以外はゴシック体に統一 */
+    *:not(.nav-logo):not(.footer-logo):not(.logo-mark):not(.nav-logo img) {
+      font-family: 'Lato', 'Hiragino Sans', sans-serif !important;
+    }
+    .nav-logo, .footer-logo, .logo-mark {
+      font-family: 'Cormorant Garamond', serif !important;
+    }
+
+    @media (max-width: 480px) {
+      .footer-top { flex-direction: column; gap: 20px; }
+      .footer-cols { flex-direction: column; gap: 16px; }
+      .footer-bottom { flex-direction: column; gap: 8px; }
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- ========== NAV ========== -->
+  <nav id="nav">
+    <a class="nav-logo" href="#">
+      <img class="nav-logo-img" src="logo.png" alt="" onerror="this.style.display='none'" />
+      NOREM
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li id="collNavItem" onmouseenter="openNavOverlay('coll')" onmouseleave="scheduleCloseNavOverlay()"><a href="collection.html?season=2026-27AW">Collection</a></li>
+      <li id="shopNavItem" onmouseenter="openNavOverlay('shop')" onmouseleave="scheduleCloseNavOverlay()"><a href="shop.html" id="navShopLink">Shop</a></li>
+      
+      <li><a href="about.html">About</a></li>
+    <li><a href="contact.html">Contact</a></li>
+    </ul>
+    <div class="nav-right">
+      <a href="cart.html" class="nav-icon nav-cart" aria-label="Cart" style="position:relative;text-decoration:none">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        <span class="cart-badge" id="cartBadge" style="display:none;position:absolute;top:-6px;right:-6px;background:#0d0d0d;color:#fff;font-size:9px;min-width:16px;height:16px;border-radius:8px;text-align:center;line-height:16px;padding:0 3px">0</span>
+      </a>
+      <button class="nav-icon" aria-label="Search">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
+      </button>
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="index.html"      class="mobile-nav-link">Home</a>
+    <a href="about.html"      class="mobile-nav-link">About</a>
+    <div class="mobile-coll-wrap">
+      <button class="mobile-coll-toggle" onclick="toggleMobileColl(event)">Collection <span class="mobile-coll-arrow" id="mobileCollArrow">▼</span></button>
+      <div class="mobile-coll-seasons" id="mobileCollSeasons"></div>
+    </div>
+    <a href="shop.html"       class="mobile-nav-link">Shop</a>
+    
+    <a href="#"               class="mobile-nav-link">Contact</a>
+  </div>
+
+  <!-- ========== HERO SLIDER ========== -->
+  <section class="hero" id="heroSection">
+    <div class="hero-nav hero-nav-prev" id="heroPrev"></div>
+    <div class="hero-nav hero-nav-next" id="heroNext"></div>
+    <div class="hero-track-wrap">
+      <div class="hero-track" id="heroTrack"></div>
+    </div>
+    <div class="hero-indicators" id="heroIndicators"></div>
+  </section>
+
+  <!-- NEWS セクション非表示中 -->
+
+  <!-- ========== SHOP ========== -->
+  <section class="shop" id="shop">
+    <div class="shop-inner">
+      <div class="shop-header reveal">
+
+      </div>
+      <div class="product-grid" id="homeProductGrid"></div>
+      <div style="text-align:center; margin-top:70px;">
+        <a href="#" class="view-all" id="viewAllBtn">View All</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== NAV OVERLAY ========== -->
+  <div class="coll-overlay" id="collOverlay">
+    <div class="coll-overlay-inner" id="collOverlayInner"></div>
+  </div>
+
+  <!-- ========== FOOTER ========== -->
+  <footer>
+    <div class="footer-top">
+      <a class="footer-logo" href="#">NOREM</a>
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h4>Account / Contact</h4>
+          <ul>
+            <li><a href="signup.html">Create Account</a></li>
+            <li><a href="login.html">Login</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+                <div class="footer-col">
+          <h4>Policy</h4>
+          <ul>
+            <li><a href="shipping.html">Shipping</a></li>
+            <li><a href="privacy-policy.html">Privacy Policy</a></li>
+            <li><a href="terms.html">Terms &amp; Conditions</a></li>
+            <li><a href="returns.html">Returns &amp; Refunds</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p class="footer-copy">© 2025 NOREM. All rights reserved.</p>
+      <a href="https://www.instagram.com/norem___official/?hl=ja" target="_blank" rel="noopener noreferrer" class="footer-ig" aria-label="Instagram">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none"/></svg>
+      </a>
+    </div>
+  </footer>
+
+  <script src="img-fallback.js"></script>
+  <script src="home-data.js"></script>
+  <script src="products-data.js"></script>
+  <script src="collections-data.js"></script>
+  <script src="news-data.js"></script>
+  <script>
+    // 共通ナビオーバーレイ（Collection / Shop 兼用）
+    const SHOP_CATEGORIES = [
+      { label: 'New Arrivals', slug: 'new-arrivals' },
+      { label: 'Tops', slug: 'tops', sub: [
+        { label: 'Shirts', slug: 'shirts' },
+        { label: 'Knit', slug: 'knit' },
+        { label: 'Cut &amp; Sew / Sweat', slug: 'cut-sew-sweat' },
+      ]},
+      { label: 'Bottoms', slug: 'bottoms', sub: [
+        { label: 'Pants', slug: 'pants' },
+        { label: 'Skirts', slug: 'skirts' },
+      ]},
+      { label: 'Outerwear', slug: 'outerwear', sub: [
+        { label: 'Jackets', slug: 'jackets' },
+        { label: 'Coats', slug: 'coats' },
+      ]},
+      { label: 'Dresses / Setup', slug: 'dresses-setup' },
+      { label: 'Bags', slug: 'bags' },
+      { label: 'Shoes', slug: 'shoes' },
+      { label: 'Accessories', slug: 'accessories' },
+      { label: 'Sale', slug: 'sale' },
+    ];
+
+    let _navCloseTimer = null;
+    let _navCurrentType = null;
+
+    function openNavOverlay(type) {
+      clearTimeout(_navCloseTimer);
+      const overlay = document.getElementById('collOverlay');
+      const inner   = document.getElementById('collOverlayInner');
+      if (_navCurrentType !== type) {
+        _navCurrentType = type;
+        // coll → COLLECTIONS_DATA、shop → PRODUCTS_DATA のシーズンで独立管理
+        let seasonLinks = '';
+        if (type === 'coll') {
+          const items = typeof COLLECTIONS_DATA !== 'undefined'
+            ? COLLECTIONS_DATA.filter(c => c.published) : [];
+          seasonLinks = items.map(c =>
+            `<a href="collection.html?season=${encodeURIComponent(c.season)}">${c.season}</a>`
+          ).join('');
+        } else {
+          const seasons = typeof PRODUCTS_DATA !== 'undefined'
+            ? [...new Set(PRODUCTS_DATA.filter(p => p.published !== false).map(p => p.season))].sort().reverse()
+            : [];
+          seasonLinks = seasons.map(s =>
+            `<a href="shop.html?season=${encodeURIComponent(s)}">${s}</a>`
+          ).join('');
+        }
+
+        if (type === 'coll') {
+          inner.innerHTML = `
+            <div class="nav-overlay-col">
+              <p class="nav-overlay-heading">Season Look</p>
+              ${seasonLinks}
+            </div>`;
+        } else {
+          const catLinks = SHOP_CATEGORIES.map(cat => {
+            let html = `<a href="shop.html?category=${cat.slug}">${cat.label}</a>`;
+            if (cat.sub) cat.sub.forEach(sub => {
+              html += `<a href="shop.html?category=${sub.slug}" class="nav-overlay-sub">${sub.label}</a>`;
+            });
+            return html;
+          }).join('');
+
+          inner.innerHTML = `
+            <div class="nav-overlay-col">
+              <p class="nav-overlay-heading">Season Look</p>
+              ${seasonLinks}
+            </div>
+            <div class="nav-overlay-col">
+              <p class="nav-overlay-heading">Category</p>
+              ${catLinks}
+            </div>`;
+        }
+      }
+      overlay.classList.add('open');
+      _nav.classList.add('overlay-open');
+    }
+
+    function scheduleCloseNavOverlay() {
+      _navCloseTimer = setTimeout(() => {
+        document.getElementById('collOverlay').classList.remove('open');
+        _nav.classList.remove('overlay-open');
+        _navCurrentType = null;
+      }, 120);
+    }
+
+    document.getElementById('collOverlay').addEventListener('mouseenter', () => clearTimeout(_navCloseTimer));
+    document.getElementById('collOverlay').addEventListener('mouseleave', scheduleCloseNavOverlay);
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        document.getElementById('collOverlay').classList.remove('open');
+        _nav.classList.remove('overlay-open');
+        _navCurrentType = null;
+      }
+    });
+  </script>
+  <script>
+    // nav scroll
+    const _nav = document.getElementById('nav');
+    let _lastScrollY = window.scrollY;
+    let _lastScrollTime = Date.now();
+    window.addEventListener('scroll', () => {
+      const scrollY = window.scrollY;
+      const now = Date.now();
+      const dt = now - _lastScrollTime || 1;
+      const velocity = (scrollY - _lastScrollY) / dt; // px/ms
+      _nav.classList.toggle('scrolled', scrollY > 40);
+      if (scrollY <= 0) {
+        _nav.classList.remove('nav-hidden');
+      } else if (scrollY > _lastScrollY && scrollY > 80 && velocity > 0.8) {
+        _nav.classList.add('nav-hidden');
+        document.getElementById('collOverlay').classList.remove('open');
+        _nav.classList.remove('overlay-open');
+        _navCurrentType = null;
+      } else if (scrollY < _lastScrollY && velocity < -2.4) {
+        _nav.classList.remove('nav-hidden');
+      }
+      _lastScrollY = scrollY;
+      _lastScrollTime = now;
+    });
+
+    function toggleMobileColl(e) {
+      e.stopPropagation();
+      const seasons = document.getElementById('mobileCollSeasons');
+      const arrow   = document.getElementById('mobileCollArrow');
+      const isOpen  = seasons.classList.contains('open');
+      seasons.classList.toggle('open', !isOpen);
+      arrow.classList.toggle('open', !isOpen);
+      if (!isOpen && seasons.innerHTML === '' && typeof COLLECTIONS_DATA !== 'undefined') {
+        seasons.innerHTML = COLLECTIONS_DATA.filter(c => c.published).map(c =>
+          '<a href="collection.html?season=' + encodeURIComponent(c.season) + '">' + c.season + '</a>'
+        ).join('');
+      }
+    }
+    // hamburger
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      mobileMenu.classList.toggle('open');
+      document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
+    });
+    document.querySelectorAll('.mobile-nav-link').forEach(link => {
+      link.addEventListener('click', () => {
+        hamburger.classList.remove('open');
+        mobileMenu.classList.remove('open');
+        document.body.style.overflow = '';
+      });
+    });
+
+    // ========== HERO SLIDER ==========
+    (function () {
+      const INTERVAL  = 3000;
+      const PEEK      = 80;   // 両側の見え幅(px)
+      const GAP       = 16;   // スライド間の隙間(px)
+      const DURATION  = 2500; // スライドアニメーション(ms)
+
+      const track   = document.getElementById('heroTrack');
+      const indWrap = document.getElementById('heroIndicators');
+
+      let images = [];
+      let current = 1;
+      let looping = false;
+      let timer;
+
+      function peekNow() { return window.innerWidth <= 900 ? 24 : PEEK; }
+      function slideW() { return window.innerWidth - peekNow() * 2 - GAP * 2; }
+      function translateFor(idx) {
+        const sw = slideW();
+        const vw = window.innerWidth;
+        // アクティブスライドを画面中央に揃える
+        return Math.round((vw - sw) / 2 - idx * (sw + GAP));
+      }
+
+      function build(imgs) {
+        images = imgs;
+        // 先頭にlast-clone、末尾にfirst-cloneを追加してシームレスループ
+        // 先頭にlast、末尾にfirst+secondのクローンを追加してループ時のピークを補完
+        const all = [
+          imgs[imgs.length - 1],
+          ...imgs,
+          imgs[0],
+          imgs[1 % imgs.length],
+        ];
+        track.innerHTML = all.map(item => `
+          <div class="hero-slide" style="background-image:url('${item.src}'); cursor:pointer"
+               data-link="${item.link || ''}">
+          </div>`).join('');
+
+        track.querySelectorAll('.hero-slide').forEach(slide => {
+          slide.addEventListener('click', () => {
+            if (slide.dataset.link) window.location.href = slide.dataset.link;
+          });
+        });
+
+        // インジケーター生成（画像枚数分）
+        indWrap.innerHTML = imgs.map(() =>
+          `<div class="hero-ind"></div>`
+        ).join('');
+
+        goTo(1, false);
+        updateIndicator(1);
+        timer = setInterval(next, DURATION + INTERVAL);
+      }
+
+      function goTo(index, animate) {
+        current = index;
+        track.style.transition = animate
+          ? `transform ${DURATION}ms cubic-bezier(0.4, 0, 0.2, 1)`
+          : 'none';
+        track.style.transform = `translateX(${translateFor(index)}px)`;
+      }
+
+      function next() {
+        if (looping) return;
+        const nextIdx = current + 1;
+        const cloneIdx = images.length + 1;
+        if (nextIdx >= cloneIdx) {
+          looping = true;
+          goTo(cloneIdx, true);
+          updateIndicator(cloneIdx);
+          setTimeout(() => {
+            goTo(1, false);
+            updateIndicator(1);
+            looping = false;
+          }, DURATION + 50);
+        } else {
+          goTo(nextIdx, true);
+          updateIndicator(nextIdx);
+        }
+      }
+
+      function updateIndicator(idx) {
+        const realIdx = (idx - 1 + images.length) % images.length;
+        indWrap.querySelectorAll('.hero-ind').forEach((dot, i) => {
+          dot.classList.toggle('active', i === realIdx);
+        });
+      }
+
+      function prev() {
+        if (looping) return;
+        const prevIdx = current - 1;
+        if (prevIdx <= 0) {
+          looping = true;
+          goTo(0, true);
+          updateIndicator(0);
+          setTimeout(() => {
+            goTo(images.length, false);
+            updateIndicator(images.length);
+            looping = false;
+          }, DURATION + 50);
+        } else {
+          goTo(prevIdx, true);
+          updateIndicator(prevIdx);
+        }
+      }
+
+      function resetTimer() {
+        clearInterval(timer);
+        timer = setInterval(next, DURATION + INTERVAL);
+      }
+
+      document.getElementById('heroPrev').addEventListener('click', () => { prev(); resetTimer(); });
+      document.getElementById('heroNext').addEventListener('click', () => { next(); resetTimer(); });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft')  { prev(); resetTimer(); }
+        if (e.key === 'ArrowRight') { next(); resetTimer(); }
+      });
+
+      window.addEventListener('resize', () => goTo(current, false));
+
+      // HOME_IMAGES が定義されていればそれを使う、なければフォールバック
+      const rawImgs = (typeof HOME_IMAGES !== 'undefined' && HOME_IMAGES.length)
+        ? HOME_IMAGES
+        : [{ src: 'home/hero01.jpg', link: 'collection.html' }];
+      // 実際にロードできる画像だけでビルド
+      Promise.all(rawImgs.map(item => new Promise(resolve => {
+        if (!item.src) { resolve(null); return; }
+        const img = new Image();
+        img.onload = () => resolve(item);
+        img.onerror = () => resolve(null);
+        img.src = item.src;
+      }))).then(results => {
+        const imgs = results.filter(Boolean);
+        if (imgs.length) build(imgs);
+      });
+    })();
+
+    // products-data.js から HOME 用商品を描画
+    const homeGrid = document.getElementById('homeProductGrid');
+    const homeItems = PRODUCTS_DATA.filter(p => p.published !== false && p.status !== 'soldout').slice(0, 8);
+    homeGrid.innerHTML = homeItems.map(p => {
+      const main  = `${p.folder}/${p.images[0]}`;
+      const hover = p.images[1] ? `${p.folder}/${p.images[1]}` : '';
+      const priceStr = `¥${p.price.toLocaleString()}`;
+      const badge = p.status === 'bespoke'
+        ? `<span style="position:absolute;top:8px;left:8px;z-index:3;font-size:0.52rem;letter-spacing:0.1em;padding:2px 7px;background:rgba(180,148,110,0.88);color:#fff">別注</span>`
+        : p.status === 'comingsoon'
+        ? `<span style="position:absolute;top:8px;left:8px;z-index:3;font-size:0.52rem;letter-spacing:0.1em;padding:2px 7px;background:rgba(100,100,100,0.78);color:#fff">Coming Soon</span>`
+        : '';
+      return `
+        <div class="product-card reveal" style="cursor:pointer" onclick="window.location='product.html?id=${p.id}'">
+          <div class="product-img" style="position:relative;background-image:url('${main}');background-size:cover;background-position:center;background-color:#d8d8d8;" data-img-collapse>
+            <div class="product-img-hover" style="background-image:url('${hover}');background-size:cover;background-position:center;"></div>
+            <div class="product-img-overlay"></div>
+            ${badge}
+          </div>
+          <p class="product-name">${nameFromFile(p.images[0])}</p>
+          <p class="product-meta">${priceStr}</p>
+        </div>`;
+    }).join('');
+    initImgCollapse();
+
+    // VIEW ALL → PRODUCTS_DATAの最新シーズンのshopページへ
+    const viewAllBtn = document.getElementById('viewAllBtn');
+    if (viewAllBtn && typeof PRODUCTS_DATA !== 'undefined') {
+      const seasons = [...new Set(PRODUCTS_DATA.filter(p => p.published !== false).map(p => p.season))].sort().reverse();
+      const latestSeason = seasons[0] || '';
+      viewAllBtn.href = latestSeason ? `shop.html?season=${encodeURIComponent(latestSeason)}` : 'shop.html';
+    }
+
+    // scroll reveal
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('visible'); revealObserver.unobserve(e.target); }
+      });
+    }, { threshold: 0.08 });
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+  </script>
+  <script src="search.js"></script>
+
+  <script src="cookie-consent.js"></script>
+</body>
+</html>

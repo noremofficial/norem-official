@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NOREM — Product</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #878787;
+      --white: #ffffff;
+      --off-white: #fafaf8;
+      --mid: #9a9690;
+      --border: #e4e0da;
+      --cream: #f4f2ee;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Lato', 'Hiragino Sans', sans-serif;
+      background: var(--white);
+      color: #878787;
+    }
+
+    /* ========== NAV ========== */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 144px;
+      height: 60px;
+      background: transparent;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      border-bottom: 1px solid transparent;
+      transition: background 0.8s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    nav.nav-hidden { transform: translateY(-100%); }
+
+    nav.scrolled {
+      background: transparent;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+
+    .nav-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.3rem;
+      font-weight: 400;
+      letter-spacing: 0.24em;
+      color: #878787;
+      text-decoration: none;
+      transition: color 0.8s ease;
+    }
+
+    nav.scrolled .nav-logo { color: var(--black); }
+
+    .nav-logo-img {
+      height: 36px; width: auto; object-fit: contain;
+      filter: brightness(0) invert(1) brightness(0.337);
+      transition: filter 0.8s ease;
+    }
+
+    nav.scrolled .nav-logo-img { filter: brightness(0) invert(1) brightness(0.337); }
+
+    .nav-links {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 0.67rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #878787;
+      text-decoration: none;
+      transition: color 0.8s ease;
+    }
+
+    nav.scrolled .nav-links a { color: var(--black); }
+    .nav-links a:hover { opacity: 0.6; }
+
+    .nav-label { font-size: 0.67rem; letter-spacing: 0.18em; text-transform: uppercase; color: inherit; cursor: pointer; }
+
+    .coll-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: auto;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      z-index: 90;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 88px 0 140px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+      -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 110px), transparent 100%);
+      mask-image: linear-gradient(to bottom, black calc(100% - 110px), transparent 100%);
+    }
+
+    nav.overlay-open {
+      background: transparent !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      border-color: transparent !important;
+      transition: background 0.2s, border-color 0.2s, transform 0.35s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+
+    .coll-overlay.open { opacity: 1; pointer-events: auto; }
+
+    .coll-overlay-inner {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 72px;
+      text-align: center;
+    }
+
+    .nav-overlay-col { display: flex; flex-direction: column; align-items: center; gap: 1.1em; }
+
+    @keyframes navItemIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .nav-overlay-heading {
+      font-size: 0.54rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: #878787;
+      padding-bottom: 0.8em;
+      border-bottom: 1px solid var(--border);
+      width: 100%;
+      opacity: 0;
+    }
+
+    .coll-overlay.open .nav-overlay-heading { animation: navItemIn 0.3s cubic-bezier(0.16,1,0.3,1) both; }
+    .nav-overlay-sub { font-size: clamp(0.52rem, 0.76vw, 0.6rem) !important; letter-spacing: 0.2em !important; color: #a0a0a0 !important; }
+
+    .coll-overlay-inner a {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(0.62rem, 0.9vw, 0.72rem);
+      font-weight: 300;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: #878787;
+      text-decoration: none;
+      opacity: 0;
+      transition: color 0.2s;
+    }
+
+    .coll-overlay.open .coll-overlay-inner a { animation: navItemIn 0.3s cubic-bezier(0.16,1,0.3,1) both; }
+    .coll-overlay-inner a:hover { color: #888888; }
+
+    .nav-right { display: flex; align-items: center; gap: 18px; }
+
+    .nav-icon {
+      background: none; border: none; cursor: pointer;
+      color: #878787; display: flex;
+      transition: color 0.8s ease;
+    }
+
+    nav.scrolled .nav-icon { color: var(--black); }
+
+    .hamburger {
+      display: none;
+      flex-direction: column; gap: 5px;
+      background: none; border: none;
+      cursor: pointer; padding: 4px;
+    }
+
+    .hamburger span {
+      display: block; width: 22px; height: 1px;
+      background: #878787;
+      transition: transform 0.3s, opacity 0.3s, background 0.8s ease;
+    }
+
+    nav.scrolled .hamburger span { background: var(--black); }
+    .hamburger.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+    .mobile-menu {
+      display: none;
+      position: fixed; inset: 60px 0 0;
+      background: var(--white); z-index: 99;
+      flex-direction: column; align-items: center; justify-content: center; gap: 36px;
+    }
+
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.1rem; font-weight: 300;
+      letter-spacing: 0.12em; color: var(--black); text-decoration: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .mobile-coll-wrap { width: 100%; text-align: center; }
+    .mobile-coll-toggle { display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; background: none; border: none; font-family: inherit; font-size: 1.1rem; font-weight: 300; letter-spacing: 0.12em; color: var(--black); text-decoration: none; width: 100%; -webkit-tap-highlight-color: transparent; }
+    .mobile-coll-arrow { font-size: 0.7rem; color: var(--mid); transition: transform 0.25s; }
+    .mobile-coll-arrow.open { transform: rotate(180deg); }
+    .mobile-coll-seasons { display: flex; flex-direction: column; gap: 14px; margin-top: 0; max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.35s ease, opacity 0.3s ease, margin-top 0.3s ease; }
+    .mobile-coll-seasons.open { max-height: 300px; opacity: 1; margin-top: 14px; }
+    .mobile-coll-seasons a { font-size: 0.78rem !important; letter-spacing: 0.14em; color: var(--mid) !important; }
+
+    /* ========== BREADCRUMB ========== */
+    /* breadcrumb 非表示 */
+    .breadcrumb { display: none; }
+
+    /* ========== PRODUCT LAYOUT ========== */
+    .product-layout {
+      display: grid;
+      grid-template-columns: clamp(300px, 48.6vw, 700px) minmax(200px, 700px);
+      justify-content: center;
+      align-items: start;
+      margin-top: 60px;
+      padding: 0;
+      gap: 0 20px;
+    }
+
+    /* ========== TEXT COLUMN (right, sticky) ========== */
+    .product-left {
+      grid-column: 2;
+      grid-row: 1;
+      position: sticky;
+      top: 60px;
+      max-height: calc(100vh - 60px);
+      overflow-y: auto;
+      padding: 32px 48px 48px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+    }
+
+    /* ========== PRODUCT HEADER ========== */
+    .product-header {
+      margin-bottom: 20px;
+    }
+
+    .product-back {
+      font-size: 0.52rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--mid);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 16px;
+      transition: color 0.2s;
+    }
+    .product-back:hover { color: var(--black); }
+
+    .product-season-label {
+      font-size: 0.5rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--mid);
+      margin-bottom: 6px;
+    }
+
+    .product-name {
+      font-size: 0.72rem;
+      font-weight: 400;
+      letter-spacing: 0.05em;
+      line-height: 1.4;
+      color: var(--black);
+    }
+
+    /* ========== IMAGE GALLERY (left column) ========== */
+    .gallery {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    /* --- single: 1枚+サムネイル (sticky) --- */
+    .gallery-single {
+      position: sticky;
+      top: 60px;
+      height: calc(100vh - 60px);
+      display: flex;
+      flex-direction: column;
+    }
+    .gallery-single .gallery-main {
+      flex: 1;
+      min-height: 0;
+      background: var(--cream);
+      overflow: hidden;
+      position: relative;
+    }
+    .gallery-single .gallery-main img {
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: center;
+      display: block;
+    }
+    .gallery-single .gallery-thumbs {
+      display: flex; gap: 4px; padding-top: 4px;
+      overflow-x: auto; -webkit-overflow-scrolling: touch;
+    }
+    .gallery-single .gallery-thumb {
+      flex: 0 0 calc(25% - 3px); height: 80px;
+      background: var(--cream); cursor: pointer;
+      overflow: hidden; opacity: 0.4; transition: opacity 0.25s;
+    }
+    .gallery-single .gallery-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .gallery-single .gallery-thumb.active { opacity: 1; }
+    .gallery-single .gallery-thumb:hover  { opacity: 0.7; }
+
+    /* 共通: 横幅いっぱい、縦は画像の比率に従う */
+    .gallery .gallery-item img {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: contain;
+    }
+
+    /* --- scroll: 縦積み --- */
+    .gallery-scroll .gallery-item { margin-bottom: 4px; }
+    .gallery-scroll .gallery-item:last-child { margin-bottom: 0; }
+
+    /* --- grid2: 2列 --- */
+    .gallery-grid2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+    }
+
+    /* --- 案1 / 案2 / 案3 --- */
+    .gallery-layout1, .gallery-layout2, .gallery-layout3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+    }
+    .gallery-layout1 .gallery-item img,
+    .gallery-layout2 .gallery-item img,
+    .gallery-layout3 .gallery-item img { width: 100%; height: auto; display: block; }
+    /* 案1: 1枚目・6枚目が全幅、間は2列 */
+    .gallery-layout1 .gallery-item:nth-child(5n+1) { grid-column: 1 / -1; }
+    /* 案2: 1・2枚目が全幅、3〜4枚目2列、5枚目全幅、以降2列 */
+    .gallery-layout2 .gallery-item:nth-child(1),
+    .gallery-layout2 .gallery-item:nth-child(2),
+    .gallery-layout2 .gallery-item:nth-child(5) { grid-column: 1 / -1; }
+    /* 案3: 1枚目のみ全幅、以降すべて2列 */
+    .gallery-layout3 .gallery-item:nth-child(1) { grid-column: 1 / -1; }
+
+    .gallery-arrow { display: none; }
+
+    /* ========== PRODUCT INFO ========== */
+    .product-info {
+      padding: 0;
+    }
+
+    .product-info .product-season-label,
+    .product-info .product-name { display: none; }
+
+    .product-price {
+      font-size: 0.72rem;
+      font-weight: 300;
+      letter-spacing: 0.06em;
+      color: var(--black);
+      margin-bottom: 20px;
+    }
+
+    .product-price .tax {
+      font-size: 0.62rem;
+      color: var(--mid);
+      margin-left: 6px;
+    }
+
+    .product-divider { display: none; }
+
+    /* サイズプルダウン */
+    .size-select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      background: var(--white);
+      color: var(--black);
+      font-size: 0.72rem;
+      font-family: inherit;
+      letter-spacing: 0.04em;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23878787' stroke-width='1.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+    .size-select:focus { outline: none; border-color: var(--black); }
+
+    /* サイズ表 */
+    .size-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.68rem;
+      margin-top: 8px;
+    }
+
+    .size-table th,
+    .size-table td {
+      padding: 7px 10px;
+      text-align: center;
+      border: 1px solid var(--border);
+      color: #9a9690;
+    }
+
+    .size-table th {
+      font-weight: 400;
+      letter-spacing: 0.06em;
+      color: var(--black);
+      background: var(--cream);
+    }
+
+    .size-table td:first-child { text-align: left; color: var(--black); }
+
+    /* 説明文・商品情報 */
+    .product-desc,
+    .product-info-text {
+      font-size: 0.72rem;
+      line-height: 2;
+      color: #9a9690;
+      letter-spacing: 0.03em;
+      white-space: pre-line;
+      margin: 16px 0;
+    }
+
+    /* CTAボタン */
+    .btn-cart {
+      width: 100%;
+      padding: 13px;
+      background: var(--black);
+      color: var(--white);
+      border: none;
+      font-size: 0.6rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      margin-bottom: 24px;
+      font-family: inherit;
+    }
+
+    .btn-cart:hover { opacity: 0.7; }
+
+    .btn-soldout {
+      width: 100%;
+      padding: 13px;
+      background: none;
+      color: var(--mid);
+      border: 1px solid var(--border);
+      font-size: 0.6rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      cursor: not-allowed;
+      margin-bottom: 24px;
+      font-family: inherit;
+    }
+
+    /* 別注 */
+    .bespoke-payment { margin-bottom: 20px; border-top: 1px solid var(--border); padding-top: 16px; display: none; }
+    .bespoke-payment.show { display: block; }
+    .bespoke-payment-title { font-size: 0.52rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--mid); margin-bottom: 12px; }
+    .bespoke-opts { display: flex; flex-direction: column; gap: 8px; }
+    .bespoke-opt { display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 10px 12px; border: 1px solid var(--border); transition: border-color 0.2s; }
+    .bespoke-opt:hover { border-color: var(--black); }
+    .bespoke-opt.active { border-color: var(--black); }
+    .bespoke-opt input[type=radio] { accent-color: var(--black); }
+    .bespoke-opt-label { flex: 1; font-size: 0.72rem; letter-spacing: 0.04em; color: var(--black); }
+    .bespoke-opt-price { font-size: 0.72rem; color: var(--black); }
+
+    .other-payment { display: none; }
+    .qty-wrap { display: none; }
+
+    /* ========== RELATED PRODUCTS ========== */
+    .related-section {
+      padding: 192px 0 160px;
+      border-top: 1px solid var(--border);
+    }
+    .related-slider-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .related-arrow {
+      flex-shrink: 0;
+      width: 44px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--mid);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      transition: color 0.2s, opacity 0.2s;
+      align-self: flex-start;
+      margin-top: calc(12vw - 20px);
+    }
+    .related-arrow:hover { color: var(--black); }
+    .related-arrow:disabled { opacity: 0.15; cursor: default; pointer-events: none; }
+    .related-overflow {
+      flex: 0 0 64%;
+      overflow: hidden;
+    }
+    .related-grid {
+      display: flex;
+      gap: 5px;
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      will-change: transform;
+    }
+    .rel-card {
+      flex: 0 0 calc((100% - 15px) / 4);
+      cursor: pointer;
+      text-align: center;
+    }
+    .rel-img {
+      width: 100%;
+      aspect-ratio: 2/3;
+      overflow: hidden;
+      position: relative;
+      background-color: #d8d8d8;
+      background-size: cover;
+      background-position: center;
+      margin-bottom: 10px;
+    }
+    .rel-img-hover {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.7s cubic-bezier(0.4,0,0.2,1), transform 0.7s cubic-bezier(0.4,0,0.2,1);
+    }
+    .rel-img-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(13,13,13,0);
+      transition: background 0.5s cubic-bezier(0.4,0,0.2,1);
+    }
+    .rel-card:hover .rel-img-hover { opacity: 1; transform: translateY(0); }
+    .rel-card:hover .rel-img-overlay { background: rgba(13,13,13,0.16); }
+    .rel-name {
+      font-size: 0.825rem;
+      font-weight: 400;
+      letter-spacing: 0.02em;
+      color: #bababa;
+      margin-bottom: 3px;
+    }
+    .rel-price {
+      font-size: 0.65rem;
+      letter-spacing: 0.08em;
+      color: var(--mid);
+      opacity: 0;
+      transition: opacity 0.5s cubic-bezier(0.4,0,0.2,1);
+    }
+    .rel-card:hover .rel-price { opacity: 1; }
+
+    @media (max-width: 700px) {
+      .related-section { padding: 48px 0 60px; }
+      .related-overflow { flex: 0 0 80%; }
+      .related-arrow { width: 32px; padding: 6px; }
+      .rel-card { flex: 0 0 calc((100% - 5px) / 2); }
+    }
+
+    /* ========== FOOTER ========== */
+    footer { background: var(--white); border-top: 1px solid var(--border); padding: 56px 48px 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+    .footer-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 48px; padding-bottom: 40px; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+    .footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 300; letter-spacing: 0.24em; color: var(--black); text-decoration: none; flex-shrink: 0; }
+    .footer-cols { display: flex; gap: 56px; flex-wrap: wrap; }
+    .footer-col h4 { font-size: 0.58rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--mid); margin-bottom: 16px; white-space: nowrap; }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 11px; }
+    .footer-col a { font-size: 0.75rem; color: var(--mid); text-decoration: none; transition: color 0.2s; }
+    .footer-col a:hover { color: var(--black); }
+    .footer-bottom { display: flex; justify-content: space-between; align-items: center; }
+    .footer-copy { font-size: 0.58rem; letter-spacing: 0.1em; color: var(--mid); }
+    .footer-ig { color: var(--mid); transition: color 0.2s; display: flex; }
+    .footer-ig:hover { color: var(--black); }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 900px) {
+      nav { padding: 0 20px; }
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+
+      footer { padding: 20px; }
+      .footer-top { flex-direction: column; gap: 32px; }
+      .footer-cols { gap: 28px; flex-direction: column; }
+      .footer-bottom { flex-direction: column; gap: 12px; align-items: flex-start; }
+    }
+
+    @media (max-width: 700px) {
+      .product-layout { display: flex; flex-direction: column; padding: 0; }
+      .gallery { order: -1; width: 100%; }
+      .product-left { order: 1; position: static; max-height: none; overflow-y: visible; padding: 24px 20px 40px; width: 100%; box-sizing: border-box; }
+      .product-header { margin-bottom: 16px; }
+      .gallery-single { position: static; height: auto; }
+      .gallery-single .gallery-main { aspect-ratio: 3/4; flex: none; height: auto; }
+      .gallery-single .gallery-thumbs { justify-content: center; }
+      .gallery-scroll .gallery-item, .gallery-grid2 .gallery-item { margin-bottom: 3px; }
+      .product-info { padding: 20px 0 40px; width: 100%; }
+
+      .size-options { flex-wrap: wrap; }
+      .accordion-body { display: block !important; max-height: none !important; overflow: visible !important; }
+      .accordion-btn .accordion-arrow { display: none; }
+      .product-desc, .product-notes { font-size: 0.75rem; }
+      .size-table { font-size: 0.72rem; white-space: nowrap; }
+      .bespoke-payment { margin: 12px 0; }
+      .bespoke-payment.show { display: block !important; }
+      .gallery-arrow { display: none !important; }
+    }
+    /* ========== GOTHIC FONT OVERRIDE ==========  */
+    /* ブランドロゴ以外はゴシック体に統一 */
+    *:not(.nav-logo):not(.footer-logo):not(.logo-mark):not(.nav-logo img) {
+      font-family: 'Lato', 'Hiragino Sans', sans-serif !important;
+    }
+    .nav-logo, .footer-logo, .logo-mark {
+      font-family: 'Cormorant Garamond', serif !important;
+    }
+
+    @media (max-width: 480px) {
+      .footer-top { flex-direction: column; gap: 20px; }
+      .footer-cols { flex-direction: column; gap: 16px; }
+      .footer-bottom { flex-direction: column; gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========== NAV ========== -->
+  <nav id="nav">
+    <a class="nav-logo" href="index.html">
+      <img class="nav-logo-img" src="logo.png" alt="" onerror="this.style.display='none'" />
+      NOREM
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li id="collNavItem" onmouseenter="openNavOverlay('coll')" onmouseleave="scheduleCloseNavOverlay()"><a href="collection.html?season=2026-27AW">Collection</a></li>
+      <li id="shopNavItem" onmouseenter="openNavOverlay('shop')" onmouseleave="scheduleCloseNavOverlay()"><a href="shop.html" id="navShopLink">Shop</a></li>
+      <li><a href="about.html">About</a></li>
+    <li><a href="contact.html">Contact</a></li>
+    </ul>
+    <div class="nav-right">
+      <a href="cart.html" class="nav-icon nav-cart" aria-label="Cart" style="position:relative;text-decoration:none">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        <span class="cart-badge" id="cartBadge" style="display:none;position:absolute;top:-6px;right:-6px;background:#0d0d0d;color:#fff;font-size:9px;min-width:16px;height:16px;border-radius:8px;text-align:center;line-height:16px;padding:0 3px">0</span>
+      </a>
+      <button class="nav-icon" aria-label="Search">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
+      </button>
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="index.html" class="mobile-nav-link">Home</a>
+    <a href="about.html" class="mobile-nav-link">About</a>
+    <div class="mobile-coll-wrap">
+      <button class="mobile-coll-toggle" onclick="toggleMobileColl(event)">Collection <span class="mobile-coll-arrow" id="mobileCollArrow">▼</span></button>
+      <div class="mobile-coll-seasons" id="mobileCollSeasons"></div>
+    </div>
+    <a href="shop.html" class="mobile-nav-link">Shop</a>
+    <a href="contact.html" class="mobile-nav-link">Contact</a>
+  </div>
+
+  <!-- ========== NAV OVERLAY ========== -->
+  <div class="coll-overlay" id="collOverlay">
+    <div class="coll-overlay-inner" id="collOverlayInner"></div>
+  </div>
+
+  <!-- BREADCRUMB -->
+  <div class="breadcrumb" id="breadcrumb"></div>
+
+  <div class="product-layout">
+
+    <!-- 左列：ヘッダー＋情報 -->
+    <div class="product-left">
+      <div class="product-header" id="productHeader"></div>
+      <div class="product-info" id="productInfo"></div>
+    </div>
+
+    <!-- 右列：画像ギャラリー -->
+    <div class="gallery" id="gallery">
+      <div class="gallery-main" id="galleryMain">
+        <img id="mainImg" src="" alt="" />
+        <button class="gallery-arrow gallery-arrow-prev" id="galleryPrev" aria-label="前の画像">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <button class="gallery-arrow gallery-arrow-next" id="galleryNext" aria-label="次の画像">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+      <div class="gallery-thumbs" id="galleryThumbs"></div>
+    </div>
+
+  </div>
+
+  <!-- RELATED PRODUCTS -->
+  <section class="related-section">
+    <div class="related-slider-wrap">
+      <button class="related-arrow" id="relPrev" aria-label="前へ" disabled>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="related-overflow">
+        <div class="related-grid" id="relatedGrid"></div>
+      </div>
+      <button class="related-arrow" id="relNext" aria-label="次へ">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-top">
+      <a class="footer-logo" href="index.html">NOREM</a>
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h4>Account / Contact</h4>
+          <ul>
+            <li><a href="signup.html">Create Account</a></li>
+            <li><a href="login.html">Login</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+                <div class="footer-col">
+          <h4>Policy</h4>
+          <ul>
+            <li><a href="shipping.html">Shipping</a></li>
+            <li><a href="privacy-policy.html">Privacy Policy</a></li>
+            <li><a href="terms.html">Terms &amp; Conditions</a></li>
+            <li><a href="returns.html">Returns &amp; Refunds</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p class="footer-copy">© 2025 NOREM. All rights reserved.</p>
+      <a href="https://www.instagram.com/norem___official/?hl=ja" target="_blank" rel="noopener noreferrer" class="footer-ig">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none"/></svg>
+      </a>
+    </div>
+  </footer>
+
+  <script src="img-fallback.js"></script>
+  <script src="collections-data.js"></script>
+  <script src="products-data.js"></script>
+  <script>
+    // ============================================================
+    //  URL パラメータから商品を読み込む
+    // ============================================================
+    const params = new URLSearchParams(location.search);
+    const id = parseInt(params.get('id')) || 1;
+    const p = PRODUCTS_DATA.find(item => item.id === id);
+
+    if (!p) {
+      document.getElementById('productInfo').innerHTML = '<p style="padding:40px;color:#999;">商品が見つかりませんでした。</p>';
+    } else {
+      // ファイル名から商品名を生成
+      const displayName = nameFromFile(p.images[0]);
+      document.title = `NOREM — ${displayName}`;
+
+      // ── 画像ギャラリー ──
+      // ── 画像ギャラリー（レイアウト分岐） ──
+      const layout = p.imageLayout || 'scroll';
+      const rotations = p.imageRotations || [];
+      const galleryEl = document.getElementById('gallery');
+      let currentImg = 0;
+
+      const makeItem = (img, i) => {
+        const rot = rotations[i] || 0;
+        const src = `${p.folder}/${img}`;
+        const styleAttr = rot ? ` style="transform:rotate(${rot}deg)"` : '';
+        return `<div class="gallery-item"><img src="${src}"${styleAttr} loading="lazy" onerror="this.parentElement.remove()" alt=""></div>`;
+      };
+
+      if (layout === 'layout1' || layout === 'layout2' || layout === 'layout3') {
+        galleryEl.classList.add(`gallery-${layout}`);
+        galleryEl.innerHTML = p.images.map(makeItem).join('');
+      } else if (layout === 'scroll' || layout === 'grid2') {
+        galleryEl.classList.add('gallery-scroll');
+        if (layout === 'grid2' && p.images.length > 1) {
+          const subItems = p.images.slice(1).map((img, i) => makeItem(img, i + 1)).join('');
+          galleryEl.innerHTML = makeItem(p.images[0], 0) +
+            `<div class="gallery-grid2">${subItems}</div>`;
+        } else {
+          galleryEl.innerHTML = p.images.map(makeItem).join('');
+        }
+      } else {
+        // single: 1枚表示＋サムネイル
+        galleryEl.classList.add('gallery-single');
+
+        function setMainImage(idx) {
+          currentImg = idx;
+          const rot = rotations[idx] || 0;
+          const src = `${p.folder}/${p.images[idx] || p.images[0]}`;
+          const mainImg = document.getElementById('mainImg');
+          mainImg.onerror = () => { galleryEl.style.display = 'none'; };
+          mainImg.src = src;
+          mainImg.style.transform = rot ? `rotate(${rot}deg)` : '';
+          document.querySelectorAll('.gallery-thumb').forEach((t, i) => t.classList.toggle('active', i === idx));
+        }
+
+        document.getElementById('galleryPrev').addEventListener('click', e => {
+          e.stopPropagation();
+          setMainImage((currentImg - 1 + p.images.length) % p.images.length);
+        });
+        document.getElementById('galleryNext').addEventListener('click', e => {
+          e.stopPropagation();
+          setMainImage((currentImg + 1) % p.images.length);
+        });
+        document.addEventListener('keydown', e => {
+          if (e.key === 'ArrowLeft')  setMainImage((currentImg - 1 + p.images.length) % p.images.length);
+          if (e.key === 'ArrowRight') setMainImage((currentImg + 1) % p.images.length);
+        });
+
+        const galleryMain = document.getElementById('galleryMain');
+        let touchStartX = 0, touchStartY = 0;
+        galleryMain.addEventListener('touchstart', e => {
+          touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+        galleryMain.addEventListener('touchend', e => {
+          const dx = e.changedTouches[0].clientX - touchStartX;
+          const dy = e.changedTouches[0].clientY - touchStartY;
+          if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+            if (dx < 0) setMainImage((currentImg + 1) % p.images.length);
+            else        setMainImage((currentImg - 1 + p.images.length) % p.images.length);
+          } else if (Math.abs(dx) < 10 && Math.abs(dy) < 10) {
+            const rect = galleryMain.getBoundingClientRect();
+            const tapX = e.changedTouches[0].clientX - rect.left;
+            if (tapX < rect.width / 2) setMainImage((currentImg - 1 + p.images.length) % p.images.length);
+            else                       setMainImage((currentImg + 1) % p.images.length);
+          }
+        }, { passive: true });
+
+        const thumbsEl = document.getElementById('galleryThumbs');
+        p.images.forEach((img, i) => {
+          const thumb = document.createElement('div');
+          thumb.className = 'gallery-thumb' + (i === 0 ? ' active' : '');
+          const timg = document.createElement('img');
+          timg.src = `${p.folder}/${img}`;
+          timg.onerror = () => thumb.remove();
+          timg.alt = '';
+          thumb.appendChild(timg);
+          thumb.addEventListener('click', () => setMainImage(i));
+          thumbsEl.appendChild(thumb);
+        });
+        setMainImage(0);
+      }
+
+      // ── 商品情報レンダリング ──
+      const infoEl = document.getElementById('productInfo');
+
+      let qty = 1;
+
+      // S/M/L → 1/2/3 数字マッピング（数字ラベルはそのまま通す）
+      const SIZE_NUM = { XS:'0', S:'1', M:'2', L:'3', XL:'4', XXL:'5', 'FREE':'F', 'F':'F', 'ONE SIZE':'F' };
+      function sizeDisplay(label) {
+        const up = label.toUpperCase();
+        return SIZE_NUM[up] || label;
+      }
+
+      // サイズプルダウン HTML
+      const sizesHTML = `<select class="size-select" id="sizeSelect">
+        <option value="">--- Select Size ---</option>
+        ${p.sizes.map(s => {
+          const isSold    = s.status === 'soldout';
+          const isBespoke = s.status === 'bespoke';
+          const numLabel  = sizeDisplay(s.label) + (isBespoke ? ' (別注)' : '') + (isSold ? ' — Sold Out' : '');
+          return `<option value="${s.label}" ${isSold ? 'disabled' : ''}>${numLabel}</option>`;
+        }).join('')}
+      </select>`;
+
+      // 商品情報（ラベルなし）
+      const infoText = p.infoText || (Array.isArray(p.info) ? p.info.join('\n') : '');
+      const infoHTML = infoText ? `<p class="product-info-text">${infoText}</p>` : '';
+
+      // サイズ表（ラベルなし）
+      let sizeChartHTML = '';
+      if (p.sizeChart && p.sizeChart.headers && p.sizeChart.rows && p.sizeChart.rows.length) {
+        const sc = p.sizeChart;
+        const thead = sc.headers.map(h => `<th>${h}</th>`).join('');
+        const tbody = sc.rows.map(row =>
+          `<tr>${row.map(c => `<td>${c}</td>`).join('')}</tr>`
+        ).join('');
+        const note = '';
+        sizeChartHTML = `
+          <div style="margin:16px 0;overflow-x:auto;-webkit-overflow-scrolling:touch;">
+            <table class="size-table" style="white-space:nowrap">
+              <thead><tr>${thead}</tr></thead>
+              <tbody>${tbody}</tbody>
+            </table>
+            ${note}
+          </div>`;
+      } else if (p.sizeText) {
+        sizeChartHTML = `<p class="product-info-text">${p.sizeText}</p>`;
+      }
+
+      // 商品説明（直接表示）
+      const descText = p.description || '';
+      const descHTML = descText ? `<p class="product-desc">${descText}</p>` : '';
+
+      const notesHTML = '';
+
+      // CTA
+      const fullPrice   = p.price;
+      const depositPrice = Math.ceil(fullPrice * 0.3);
+      const isBespokeProduct = p.status === 'bespoke';
+      // サイズに別注が含まれるか
+      const hasBespokeSize = p.sizes && p.sizes.some(s => s.status === 'bespoke');
+
+      const bespokePaymentHTML = (isBespokeProduct || hasBespokeSize) ? `
+        <div class="bespoke-payment show" id="bespokePayment" style="display:block">
+          <p class="bespoke-payment-title">Payment / 別注商品のお支払いについて</p>
+          <p style="font-size:0.72rem;line-height:1.8;color:var(--mid);margin-bottom:14px;">
+            You may choose to pay 30% as a deposit or the full amount.<br>
+            <strong style="color:var(--black)">If you choose the 30% deposit,</strong> we will contact you by email once your item is ready. Payment will be processed after bank transfer confirmation, and the item will be shipped accordingly.<br><br>
+            表示価格の30%または全額をお選びいただけます。<br>
+            <strong style="color:var(--black)">30%先払いをご選択の場合</strong>、商品のご準備が整い次第メールにてご連絡いたします。お振込み確認後、発送となります。
+          </p>
+          <div class="bespoke-opts">
+            <label class="bespoke-opt active" id="optDeposit">
+              <input type="radio" name="bespokeOpt" value="deposit" checked>
+              <span class="bespoke-opt-label">30% Deposit / 先払い</span>
+              <span class="bespoke-opt-price">¥${depositPrice.toLocaleString()}</span>
+            </label>
+            <label class="bespoke-opt" id="optFull">
+              <input type="radio" name="bespokeOpt" value="full">
+              <span class="bespoke-opt-label">Full Payment / 全額お支払い</span>
+              <span class="bespoke-opt-price">¥${fullPrice.toLocaleString()}</span>
+            </label>
+          </div>
+        </div>` : '';
+
+      const ctaHTML = p.status === 'soldout'
+        ? `<button class="btn-soldout" disabled>SOLD OUT</button>`
+        : `<button class="btn-cart">カートに追加</button>`;
+
+      // ヘッダー描画
+      const headerEl = document.getElementById('productHeader');
+      headerEl.innerHTML = `
+        <p class="product-season-label">${p.season || ''}</p>
+        <h1 class="product-name">${displayName}</h1>
+      `;
+
+      // 商品情報描画
+      infoEl.innerHTML = `
+        <p class="product-price">¥${p.price.toLocaleString()}${p.taxIn ? '<span class="tax">tax incl.</span>' : ''}</p>
+
+        ${sizesHTML}
+
+        ${bespokePaymentHTML}
+        ${ctaHTML}
+
+        ${descHTML}
+        ${infoHTML}
+        ${sizeChartHTML}
+      `;
+
+      // サイズ選択（プルダウン）
+      document.getElementById('sizeSelect')?.addEventListener('change', e => {
+        const bespokePanel = document.getElementById('bespokePayment');
+        if (bespokePanel) {
+          const selectedSize = p.sizes.find(s => s.label === e.target.value);
+          const show = isBespokeProduct || (selectedSize && selectedSize.status === 'bespoke');
+          bespokePanel.classList.toggle('show', !!show);
+        }
+      });
+
+      // 別注支払いオプション選択
+      infoEl.querySelectorAll('.bespoke-opt').forEach(opt => {
+        opt.addEventListener('click', () => {
+          infoEl.querySelectorAll('.bespoke-opt').forEach(o => o.classList.remove('active'));
+          opt.classList.add('active');
+        });
+      });
+
+      // 商品全体が別注 OR 別注サイズがある場合は最初から表示
+      const bespokePanel = document.getElementById('bespokePayment');
+      if (bespokePanel && (isBespokeProduct || hasBespokeSize)) {
+        bespokePanel.classList.add('show');
+        bespokePanel.style.display = 'block';
+      }
+
+      // 数量
+      const qtyValEl = document.getElementById('qtyVal');
+      document.getElementById('qtyMinus')?.addEventListener('click', () => {
+        if (qty > 1) { qty--; qtyValEl.textContent = qty; }
+      });
+      document.getElementById('qtyPlus')?.addEventListener('click', () => {
+        qty++;
+        qtyValEl.textContent = qty;
+      });
+
+      // カートに追加
+      document.querySelector('.btn-cart')?.addEventListener('click', () => {
+        const selectedSize = document.getElementById('sizeSelect')?.value || '';
+        const payType = document.querySelector('input[name="bespokeOpt"]:checked')?.value || 'full';
+        const isBespoke = isBespokeProduct || (p.sizes.find(s => s.label === selectedSize)?.status === 'bespoke');
+        const cartItem = {
+          id: p.id,
+          name: nameFromFile(p.images[0]),
+          price: p.price,
+          size: selectedSize,
+          qty,
+          image: p.folder && p.images[0] ? `${p.folder}/${p.images[0]}` : '',
+          isBespoke,
+          paymentType: isBespoke ? payType : 'full',
+        };
+        const cart = JSON.parse(localStorage.getItem('norem_cart') || '[]');
+        // 同じ商品・サイズがあれば数量追加
+        const existing = cart.find(i => i.id === cartItem.id && i.size === cartItem.size && i.paymentType === cartItem.paymentType);
+        if (existing) { existing.qty += qty; } else { cart.push(cartItem); }
+        localStorage.setItem('norem_cart', JSON.stringify(cart));
+        // バッジ更新
+        const total = cart.reduce((s, i) => s + i.qty, 0);
+        document.querySelectorAll('#cartBadge').forEach(b => { b.textContent = total; b.style.display = total > 0 ? 'block' : 'none'; });
+        // カートアイコンへ飛ぶアニメーション
+        const cartIcon = document.querySelector('.nav-cart');
+        if (cartIcon) {
+          const cRect = cartIcon.getBoundingClientRect();
+          const dot = document.createElement('div');
+          dot.style.cssText = `position:fixed;width:12px;height:12px;background:#0d0d0d;border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9999;pointer-events:none;transition:top 0.55s cubic-bezier(0.25,0.46,0.45,0.94),left 0.55s cubic-bezier(0.25,0.46,0.45,0.94),opacity 0.55s,width 0.55s,height 0.55s`;
+          document.body.appendChild(dot);
+          requestAnimationFrame(()=>requestAnimationFrame(()=>{
+            dot.style.top  = (cRect.top  + cRect.height/2) + 'px';
+            dot.style.left = (cRect.left + cRect.width/2)  + 'px';
+            dot.style.width = '6px'; dot.style.height = '6px'; dot.style.opacity = '0';
+          }));
+          setTimeout(()=>dot.remove(), 650);
+          // カートアイコンをぴょんと動かす
+          cartIcon.style.transform = 'scale(1.4)';
+          setTimeout(()=>{ cartIcon.style.transform=''; cartIcon.style.transition='transform 0.3s'; }, 300);
+        }
+      });
+
+      // アコーディオン
+      document.querySelectorAll('.accordion-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const key = btn.dataset.acc;
+          const body = document.getElementById(`acc-${key}`);
+          const isOpen = body.classList.contains('open');
+          body.classList.toggle('open', !isOpen);
+          btn.classList.toggle('open', !isOpen);
+        });
+      });
+    }
+
+    // ============================================================
+    //  関連商品
+    // ============================================================
+    (function () {
+      const relatedGrid = document.getElementById('relatedGrid');
+      if (!relatedGrid || typeof PRODUCTS_DATA === 'undefined') return;
+      const layout = localStorage.getItem('norem_rel_layout') || '1';
+      relatedGrid.classList.add(`layout-${layout}`);
+      const related = PRODUCTS_DATA
+        .filter(item => item.id !== id && item.published !== false)
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 8);
+      relatedGrid.innerHTML = related.map(item => {
+        const main  = `${item.folder}/${item.images[0]}`;
+        const hover = item.images[1] ? `${item.folder}/${item.images[1]}` : '';
+        const priceStr = `¥${item.price.toLocaleString()}`;
+        return `
+          <div class="rel-card" onclick="location.href='product.html?id=${item.id}'">
+            <div class="rel-img" style="background-image:url('${main}')">
+              ${hover ? `<div class="rel-img-hover" style="background-image:url('${hover}')"></div>` : ''}
+              <div class="rel-img-overlay"></div>
+            </div>
+            <p class="rel-name">${nameFromFile(item.images[0])}</p>
+            <p class="rel-price">${priceStr}</p>
+          </div>`;
+      }).join('');
+    // スライダー初期化
+    (function initRelSlider() {
+      const track  = document.getElementById('relatedGrid');
+      const prev   = document.getElementById('relPrev');
+      const next   = document.getElementById('relNext');
+      if (!track || !prev || !next) return;
+
+      const VISIBLE = window.innerWidth <= 700 ? 2 : 4;
+      let current = 0;
+
+      function getItemWidth() {
+        const card = track.querySelector('.rel-card');
+        if (!card) return 0;
+        return card.getBoundingClientRect().width + 5; // width + gap
+      }
+
+      function update() {
+        const items = track.querySelectorAll('.rel-card');
+        const max   = Math.max(0, items.length - VISIBLE);
+        current = Math.min(Math.max(current, 0), max);
+        track.style.transform = `translateX(-${current * getItemWidth()}px)`;
+        prev.disabled = current === 0;
+        next.disabled = current >= max;
+      }
+
+      prev.addEventListener('click', () => { current--; update(); });
+      next.addEventListener('click', () => { current++; update(); });
+      window.addEventListener('resize', update);
+
+      // 初期状態
+      update();
+    })();
+    })();
+
+    // ============================================================
+    //  ナビ共通
+    // ============================================================
+    const SHOP_CATEGORIES = [
+      { label: 'New Arrivals', slug: 'new-arrivals' },
+      { label: 'Tops', slug: 'tops', sub: [
+        { label: 'Shirts', slug: 'shirts' },
+        { label: 'Knit', slug: 'knit' },
+        { label: 'Cut &amp; Sew / Sweat', slug: 'cut-sew-sweat' },
+      ]},
+      { label: 'Bottoms', slug: 'bottoms', sub: [
+        { label: 'Pants', slug: 'pants' },
+        { label: 'Skirts', slug: 'skirts' },
+      ]},
+      { label: 'Outerwear', slug: 'outerwear', sub: [
+        { label: 'Jackets', slug: 'jackets' },
+        { label: 'Coats', slug: 'coats' },
+      ]},
+      { label: 'Dresses / Setup', slug: 'dresses-setup' },
+      { label: 'Bags', slug: 'bags' },
+      { label: 'Shoes', slug: 'shoes' },
+      { label: 'Accessories', slug: 'accessories' },
+      { label: 'Sale', slug: 'sale' },
+    ];
+
+    let _navCloseTimer = null;
+    let _navCurrentType = null;
+    const _nav = document.getElementById('nav');
+
+    function openNavOverlay(type) {
+      clearTimeout(_navCloseTimer);
+      const overlay = document.getElementById('collOverlay');
+      const inner   = document.getElementById('collOverlayInner');
+      if (_navCurrentType !== type) {
+        _navCurrentType = type;
+        // coll → COLLECTIONS_DATA、shop → PRODUCTS_DATA のシーズンで独立管理
+        let seasonLinks = '';
+        if (type === 'coll') {
+          const items = typeof COLLECTIONS_DATA !== 'undefined'
+            ? COLLECTIONS_DATA.filter(c => c.published) : [];
+          seasonLinks = items.map(c =>
+            `<a href="collection.html?season=${encodeURIComponent(c.season)}">${c.season}</a>`
+          ).join('');
+        } else {
+          const seasons = typeof PRODUCTS_DATA !== 'undefined'
+            ? [...new Set(PRODUCTS_DATA.filter(p => p.published !== false).map(p => p.season))].sort().reverse()
+            : [];
+          seasonLinks = seasons.map(s =>
+            `<a href="shop.html?season=${encodeURIComponent(s)}">${s}</a>`
+          ).join('');
+        }
+        if (type === 'coll') {
+          inner.innerHTML = `<div class="nav-overlay-col"><p class="nav-overlay-heading">Season Look</p>${seasonLinks}</div>`;
+        } else {
+          const catLinks = SHOP_CATEGORIES.map(cat => {
+            let html = `<a href="shop.html?category=${cat.slug}">${cat.label}</a>`;
+            if (cat.sub) cat.sub.forEach(sub => { html += `<a href="shop.html?category=${sub.slug}" class="nav-overlay-sub">${sub.label}</a>`; });
+            return html;
+          }).join('');
+          inner.innerHTML = `<div class="nav-overlay-col"><p class="nav-overlay-heading">Season Look</p>${seasonLinks}</div><div class="nav-overlay-col"><p class="nav-overlay-heading">Category</p>${catLinks}</div>`;
+        }
+      }
+      overlay.classList.add('open');
+      _nav.classList.add('overlay-open');
+    }
+
+    function scheduleCloseNavOverlay() {
+      _navCloseTimer = setTimeout(() => {
+        document.getElementById('collOverlay').classList.remove('open');
+        _nav.classList.remove('overlay-open');
+        _navCurrentType = null;
+      }, 120);
+    }
+
+    document.getElementById('collOverlay').addEventListener('mouseenter', () => clearTimeout(_navCloseTimer));
+    document.getElementById('collOverlay').addEventListener('mouseleave', scheduleCloseNavOverlay);
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        document.getElementById('collOverlay').classList.remove('open');
+        _nav.classList.remove('overlay-open');
+        _navCurrentType = null;
+      }
+    });
+
+    let _lastScrollY = window.scrollY;
+    let _lastScrollTime = Date.now();
+    window.addEventListener('scroll', () => {
+      const scrollY = window.scrollY;
+      const now = Date.now();
+      const dt = now - _lastScrollTime || 1;
+      const velocity = (scrollY - _lastScrollY) / dt;
+      _nav.classList.toggle('scrolled', scrollY > 40);
+      if (scrollY <= 0) {
+        _nav.classList.remove('nav-hidden');
+      } else if (scrollY > _lastScrollY && scrollY > 80 && velocity > 0.8) {
+        _nav.classList.add('nav-hidden');
+        document.getElementById('collOverlay').classList.remove('open');
+        _nav.classList.remove('overlay-open');
+        _navCurrentType = null;
+      } else if (scrollY < _lastScrollY && velocity < -2.4) {
+        _nav.classList.remove('nav-hidden');
+      }
+      _lastScrollY = scrollY;
+      _lastScrollTime = now;
+    });
+
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      mobileMenu.classList.toggle('open');
+      document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
+    });
+    document.querySelectorAll('.mobile-nav-link').forEach(link => {
+      link.addEventListener('click', () => {
+        hamburger.classList.remove('open');
+        mobileMenu.classList.remove('open');
+        document.body.style.overflow = '';
+      });
+    });
+    function toggleMobileColl(e) {
+      e.stopPropagation();
+      const seasons = document.getElementById('mobileCollSeasons');
+      const arrow   = document.getElementById('mobileCollArrow');
+      const isOpen  = seasons.classList.contains('open');
+      seasons.classList.toggle('open', !isOpen);
+      arrow.classList.toggle('open', !isOpen);
+      if (!isOpen && seasons.innerHTML === '' && typeof COLLECTIONS_DATA !== 'undefined') {
+        seasons.innerHTML = COLLECTIONS_DATA.filter(c => c.published).map(c =>
+          '<a href="collection.html?season=' + encodeURIComponent(c.season) + '">' + c.season + '</a>'
+        ).join('');
+      }
+    }
+  </script>
+
+  <script src="cookie-consent.js"></script>
+  <script src="search.js"></script>
+</body>
+</html>

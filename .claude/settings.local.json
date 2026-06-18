@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm list *)",
+      "Bash(npx --yes http-server /Users/mac/my-website -p 8765 --cors -s)",
+      "Bash(node /Users/mac/my-website/admin-server.js)",
+      "Bash(sed -i '' 's/      background: rgba\\(255,255,255,0.85\\);/      background: transparent;/' /Users/mac/my-website/about.html /Users/mac/my-website/contact.html /Users/mac/my-website/index.html /Users/mac/my-website/shop.html /Users/mac/my-website/product.html)",
+      "Bash(sed -i '' 's/      backdrop-filter: blur\\(28px\\);/      backdrop-filter: none;/' /Users/mac/my-website/about.html /Users/mac/my-website/contact.html /Users/mac/my-website/index.html /Users/mac/my-website/shop.html /Users/mac/my-website/product.html)",
+      "Bash(sed -i '' 's/      -webkit-backdrop-filter: blur\\(28px\\);/      -webkit-backdrop-filter: none;/' /Users/mac/my-website/about.html /Users/mac/my-website/contact.html /Users/mac/my-website/index.html /Users/mac/my-website/shop.html /Users/mac/my-website/product.html)",
+      "Bash(python3 *)",
+      "Bash(node build.js)",
+      "Bash(node --check /Users/mac/my-website/collections-data.js)",
+      "Bash(node --check /Users/mac/my-website/news-data.js)",
+      "Bash(node --check /Users/mac/my-website/search.js)",
+      "Bash(pkill -f \"admin-server.js\")",
+      "Bash(curl -s http://localhost:3001/)",
+      "Bash(curl *)",
+      "Bash(node -e ' *)",
+      "Bash(node *)"
+    ]
+  }
+}

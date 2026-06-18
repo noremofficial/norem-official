@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NOREM — News</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #bababa;
+      --white: #ffffff;
+      --mid: #9a9690;
+      --border: #e4e0da;
+      --cream: #f4f2ee;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Lato', 'Hiragino Sans', sans-serif;
+      background: var(--white);
+      color: #565656;
+    }
+
+    /* ========== NAV ========== */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 144px; height: 60px;
+      background: rgba(255,255,255,0.5);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.3rem; font-weight: 400; letter-spacing: 0.24em;
+      color: var(--black); text-decoration: none;
+    }
+
+    .nav-logo-img { height: 36px; width: auto; object-fit: contain; }
+
+    .nav-links {
+      position: absolute; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 32px; list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 0.67rem; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--black); text-decoration: none; transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--mid); }
+    .nav-label { font-size: 0.67rem; letter-spacing: 0.18em; text-transform: uppercase; color: inherit; cursor: default; }
+
+    .nav-item-dropdown { position: relative; padding-bottom: 16px; margin-bottom: -16px; }
+
+    .nav-dropdown {
+      position: absolute; top: calc(100% - 16px); left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255,255,255,0.98); backdrop-filter: blur(10px);
+      border: 1px solid var(--border); min-width: 130px;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.2s; z-index: 300; padding-top: 14px;
+    }
+
+    .nav-item-dropdown:hover .nav-dropdown { opacity: 1; pointer-events: auto; }
+
+    .nav-dropdown a {
+      display: block; padding: 11px 20px;
+      font-size: 0.6rem !important; letter-spacing: 0.14em !important;
+      color: var(--black) !important; white-space: nowrap;
+      border-bottom: 1px solid var(--border); transition: background 0.15s;
+    }
+
+    .nav-dropdown a:last-child { border-bottom: none; }
+    .nav-dropdown a:hover { background: var(--cream); }
+
+    .nav-right { display: flex; align-items: center; gap: 18px; }
+
+    .nav-icon {
+      background: none; border: none; cursor: pointer;
+      color: var(--black); display: flex; transition: color 0.2s;
+    }
+
+    .hamburger {
+      display: none; flex-direction: column; gap: 5px;
+      background: none; border: none; cursor: pointer; padding: 4px;
+    }
+
+    .hamburger span {
+      display: block; width: 22px; height: 1px; background: var(--black);
+      transition: transform 0.3s, opacity 0.3s;
+    }
+
+    .hamburger.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+    .mobile-menu {
+      display: none; position: fixed; inset: 60px 0 0;
+      background: var(--white); z-index: 99;
+      flex-direction: column; align-items: center; justify-content: center; gap: 36px;
+    }
+
+    .mobile-menu.open { display: flex; }
+
+    .mobile-menu a {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.1rem; font-weight: 300; letter-spacing: 0.12em;
+      color: var(--black); text-decoration: none;
+    }
+    .mobile-coll-wrap { width: 100%; text-align: center; }
+    .mobile-coll-toggle { display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; background: none; border: none; font-family: inherit; font-size: 1.1rem; font-weight: 300; letter-spacing: 0.12em; color: var(--black); text-decoration: none; width: 100%; -webkit-tap-highlight-color: transparent; }
+    .mobile-coll-arrow { font-size: 0.7rem; color: var(--mid); transition: transform 0.25s; }
+    .mobile-coll-arrow.open { transform: rotate(180deg); }
+    .mobile-coll-seasons { display: flex; flex-direction: column; gap: 14px; margin-top: 0; max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.35s ease, opacity 0.3s ease, margin-top 0.3s ease; }
+    .mobile-coll-seasons.open { max-height: 300px; opacity: 1; margin-top: 14px; }
+    .mobile-coll-seasons a { font-size: 0.78rem !important; letter-spacing: 0.14em; color: var(--mid) !important; }
+
+    /* ========== PAGE ========== */
+    .page-header {
+      padding: 48px clamp(80px, 16vw, 240px) 16px;
+    }
+
+    .page-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.8rem; font-weight: 300; letter-spacing: 0.12em;
+    }
+
+    /* ========== NEWS LIST ========== */
+    .news-list {
+      padding: 0 clamp(80px, 16vw, 240px) 80px;
+    }
+
+    .news-article {
+      display: grid;
+      grid-template-columns: 100px 120px 1fr;
+      gap: 0 28px;
+      align-items: start;
+      padding: 32px 0;
+      border-bottom: 1px solid var(--border);
+      text-decoration: none;
+      color: var(--black);
+      transition: opacity 0.2s;
+    }
+
+    .news-article:first-child { border-top: 1px solid var(--border); }
+    .news-article:hover { opacity: 0.6; }
+    .news-article.no-thumb { grid-template-columns: 100px 1fr; }
+
+    /* 日付 */
+    .news-date-col {
+      padding-top: 2px;
+    }
+
+    .news-date {
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      color: var(--mid);
+      line-height: 1.6;
+    }
+
+    .news-cat {
+      margin-top: 6px;
+      font-size: 0.55rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--black);
+      background: var(--border);
+      display: inline-block;
+      padding: 2px 7px;
+    }
+
+    /* サムネイル */
+    .news-thumb {
+      width: 160px;
+      aspect-ratio: 16/9;
+      background: var(--cream);
+      background-size: cover;
+      background-position: center;
+      flex-shrink: 0;
+    }
+
+    /* テキスト */
+    .news-text { }
+
+    .news-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.1rem;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+
+    .news-excerpt {
+      font-size: 0.78rem;
+      color: var(--mid);
+      line-height: 1.8;
+      letter-spacing: 0.02em;
+    }
+
+    /* ========== FOOTER ========== */
+    footer { background: var(--white); border-top: 1px solid var(--border); padding: 56px 48px 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+    .footer-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 48px; padding-bottom: 40px; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+    .footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 300; letter-spacing: 0.24em; color: var(--black); text-decoration: none; flex-shrink: 0; }
+    .footer-cols { display: flex; gap: 56px; flex-wrap: wrap; }
+    .footer-col h4 { font-size: 0.58rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--mid); margin-bottom: 16px; white-space: nowrap; }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 11px; }
+    .footer-col a { font-size: 0.75rem; color: var(--mid); text-decoration: none; transition: color 0.2s; }
+    .footer-col a:hover { color: var(--black); }
+    .footer-bottom { display: flex; justify-content: space-between; align-items: center; }
+    .footer-copy { font-size: 0.58rem; letter-spacing: 0.1em; color: var(--mid); }
+    .footer-ig { color: var(--mid); transition: color 0.2s; display: flex; }
+    .footer-ig:hover { color: var(--black); }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 900px) {
+      nav { padding: 0 20px; }
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+      .page-header { padding: 36px 20px 12px; }
+      .news-list { padding: 0 20px 60px; }
+      .news-article { grid-template-columns: 80px 1fr; gap: 0 16px; }
+      .news-thumb { display: none; }
+      footer { padding: 20px; flex-direction: column; gap: 10px; }
+    }
+    /* ========== GOTHIC FONT OVERRIDE ==========  */
+    /* ブランドロゴ以外はゴシック体に統一 */
+    *:not(.nav-logo):not(.footer-logo):not(.logo-mark):not(.nav-logo img) {
+      font-family: 'Lato', 'Hiragino Sans', sans-serif !important;
+    }
+    .nav-logo, .footer-logo, .logo-mark {
+      font-family: 'Cormorant Garamond', serif !important;
+    }
+
+    @media (max-width: 480px) {
+      .footer-top { flex-direction: column; gap: 20px; }
+      .footer-cols { flex-direction: column; gap: 16px; }
+      .footer-bottom { flex-direction: column; gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav id="nav">
+    <a class="nav-logo" href="index.html">
+      <img class="nav-logo-img" src="logo.png" alt="" onerror="this.style.display='none'" />
+      NOREM
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li class="nav-item-dropdown"><a href="collection.html">Collection</a><div class="nav-dropdown" id="collDropdown"></div></li>
+      <li><a href="shop.html" id="navShopLink">Shop</a></li>
+      
+      <li><a href="about.html">About</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+    <div class="nav-right">
+      <a href="cart.html" class="nav-icon nav-cart" aria-label="Cart" style="position:relative;text-decoration:none">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        <span class="cart-badge" id="cartBadge" style="display:none;position:absolute;top:-6px;right:-6px;background:#0d0d0d;color:#fff;font-size:9px;min-width:16px;height:16px;border-radius:8px;text-align:center;line-height:16px;padding:0 3px">0</span>
+      </a>
+      <button class="nav-icon" aria-label="Search">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
+      </button>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <div class="mobile-coll-wrap">
+      <button class="mobile-coll-toggle" onclick="toggleMobileColl(event)">Collection <span class="mobile-coll-arrow" id="mobileCollArrow">▼</span></button>
+      <div class="mobile-coll-seasons" id="mobileCollSeasons"></div>
+    </div>
+    <a href="shop.html">Shop</a>
+    
+    <a href="contact.html">Contact</a>
+  </div>
+
+  <div class="page-header">
+    <h1 class="page-title">News</h1>
+  </div>
+
+  <div class="news-list" id="newsList"></div>
+
+  <footer>
+    <div class="footer-top">
+      <a class="footer-logo" href="index.html">NOREM</a>
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h4>Account / Contact</h4>
+          <ul>
+            <li><a href="signup.html">Create Account</a></li>
+            <li><a href="login.html">Login</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+                <div class="footer-col">
+          <h4>Policy</h4>
+          <ul>
+            <li><a href="shipping.html">Shipping</a></li>
+            <li><a href="privacy-policy.html">Privacy Policy</a></li>
+            <li><a href="terms.html">Terms &amp; Conditions</a></li>
+            <li><a href="returns.html">Returns &amp; Refunds</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p class="footer-copy">© 2025 NOREM. All rights reserved.</p>
+      <a href="https://www.instagram.com/norem___official/?hl=ja" target="_blank" rel="noopener noreferrer" class="footer-ig" aria-label="Instagram">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none"/></svg>
+      </a>
+    </div>
+  </footer>
+
+  <script src="img-fallback.js"></script>
+  <script src="news-data.js"></script>
+  <script src="collections-data.js"></script>
+  <script src="products-data.js"></script>
+  <script src="search.js"></script>
+  <script>
+    function toggleMobileColl(e) {
+      e.stopPropagation();
+      const seasons = document.getElementById('mobileCollSeasons');
+      const arrow   = document.getElementById('mobileCollArrow');
+      const isOpen  = seasons.classList.contains('open');
+      seasons.classList.toggle('open', !isOpen);
+      arrow.classList.toggle('open', !isOpen);
+      if (!isOpen && seasons.innerHTML === '' && typeof COLLECTIONS_DATA !== 'undefined') {
+        seasons.innerHTML = COLLECTIONS_DATA.filter(c => c.published).map(c =>
+          '<a href="collection.html?season=' + encodeURIComponent(c.season) + '">' + c.season + '</a>'
+        ).join('');
+      }
+    }
+    // hamburger
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      mobileMenu.classList.toggle('open');
+      document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
+    });
+    mobileMenu.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => {
+        hamburger.classList.remove('open');
+        mobileMenu.classList.remove('open');
+        document.body.style.overflow = '';
+      });
+    });
+
+    // Collection ドロップダウン
+    if (typeof COLLECTIONS_DATA !== 'undefined') {
+      document.getElementById('collDropdown').innerHTML =
+        COLLECTIONS_DATA.map(c =>
+          `<a href="collection.html?season=${encodeURIComponent(c.season)}">${c.season}</a>`
+        ).join('');
+    }
+
+    // News 記事レンダリング（previewモードは全件、通常は公開のみ）
+    const _newsIsPreview = new URLSearchParams(location.search).get('preview') === '1';
+    const list = document.getElementById('newsList');
+    const publishedNews = NEWS_DATA.filter(n => _newsIsPreview || n.published !== false);
+    list.innerHTML = publishedNews.map(n => `
+      <a href="news-article.html?id=${n.id}" class="news-article${n.image ? '' : ' no-thumb'}" id="news-${n.id}">
+        <div class="news-date-col">
+          <p class="news-date">${n.date}</p>
+          <span class="news-cat">${n.category}</span>
+        </div>
+        ${n.image ? `<div class="news-thumb" style="background-image:url('${n.image}');" data-img-collapse></div>` : ''}
+        <div class="news-text">
+          <p class="news-title">${n.title}</p>
+          <p class="news-excerpt">${n.excerpt}</p>
+        </div>
+      </a>`).join('');
+    initImgCollapse();
+  </script>
+
+  <script src="cookie-consent.js"></script>
+</body>
+</html>
