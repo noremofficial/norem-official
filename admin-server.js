@@ -82,7 +82,7 @@ function httpsGet(hostname, path, headers) {
   });
 }
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 const DIR  = __dirname;
 
 function loadProductsData() {
@@ -235,11 +235,26 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  if (url.pathname === '/' || url.pathname === '/admin.html') {
+  if (url.pathname === '/admin' || url.pathname === '/admin.html') {
     const html = fs.readFileSync(path.join(DIR, 'admin.html'), 'utf8');
     res.writeHead(200, { ...cors, 'Content-Type': 'text/html; charset=utf-8' });
     res.end(html);
     return;
+  }
+
+  // 静的ファイル配信（本番用：サイトページをそのまま返す）
+  if (!url.pathname.startsWith('/api/') && !url.pathname.startsWith('/auth/')) {
+    let filePath = path.join(DIR, decodeURIComponent(url.pathname));
+    if (url.pathname === '/' || filePath.endsWith('/')) filePath = path.join(DIR, 'index.html');
+    if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+      const ext = path.extname(filePath).toLowerCase();
+      const mimeMap = { '.html':'text/html;charset=utf-8', '.js':'application/javascript', '.css':'text/css', '.png':'image/png', '.jpg':'image/jpeg', '.jpeg':'image/jpeg', '.webp':'image/webp', '.svg':'image/svg+xml', '.gif':'image/gif', '.ico':'image/x-icon', '.txt':'text/plain' };
+      const type = mimeMap[ext] || 'application/octet-stream';
+      const noCache = ext === '.js' || ext === '.html';
+      res.writeHead(200, { ...cors, 'Content-Type': type, 'Cache-Control': noCache ? 'no-store' : 'public, max-age=300' });
+      fs.createReadStream(filePath).pipe(res);
+      return;
+    }
   }
 
   if (url.pathname === '/api/data' && req.method === 'GET') {
@@ -756,24 +771,30 @@ const mime = {
   '.jpeg':'image/jpeg', '.webp':'image/webp', '.svg':'image/svg+xml',
   '.gif':'image/gif', '.ico':'image/x-icon', '.txt':'text/plain',
 };
-const SITE_PORT = 8765;
-require('http').createServer((req, res) => {
-  let filePath = path.join(DIR, decodeURIComponent(req.url.split('?')[0]));
-  if (filePath.endsWith('/')) filePath += 'index.html';
-  if (!fs.existsSync(filePath)) { res.writeHead(404); res.end('Not found'); return; }
-  const ext  = path.extname(filePath).toLowerCase();
-  const type = mime[ext] || 'application/octet-stream';
-  // JSファイルはキャッシュしない（保存後すぐ反映）
-  const noCache = ext === '.js' || ext === '.html';
-  res.writeHead(200, {
-    'Content-Type': type,
-    'Cache-Control': noCache ? 'no-store, no-cache, must-revalidate' : 'public, max-age=300',
+// ローカル開発時のみ静的サイトサーバーを起動
+if (!process.env.PORT) {
+  const SITE_PORT = 8765;
+  require('http').createServer((req, res) => {
+    let filePath = path.join(DIR, decodeURIComponent(req.url.split('?')[0]));
+    if (filePath.endsWith('/')) filePath += 'index.html';
+    if (!fs.existsSync(filePath)) { res.writeHead(404); res.end('Not found'); return; }
+    const ext  = path.extname(filePath).toLowerCase();
+    const type = mime[ext] || 'application/octet-stream';
+    const noCache = ext === '.js' || ext === '.html';
+    res.writeHead(200, {
+      'Content-Type': type,
+      'Cache-Control': noCache ? 'no-store, no-cache, must-revalidate' : 'public, max-age=300',
+    });
+    fs.createReadStream(filePath).pipe(res);
+  }).listen(SITE_PORT, () => {
+    console.log(`🌐 サイト（キャッシュなし）: http://localhost:${SITE_PORT}`);
   });
-  fs.createReadStream(filePath).pipe(res);
-}).listen(SITE_PORT, () => {
-  console.log(`🌐 サイト（キャッシュなし）: http://localhost:${SITE_PORT}`);
-});
+}
 
 server.listen(PORT, () => {
-  console.log(`🔐 NOREM 管理画面: http://localhost:${PORT}\n`);
+  if (!process.env.PORT) {
+    console.log(`🔐 NOREM 管理画面: http://localhost:${PORT}\n`);
+  } else {
+    console.log(`🚀 NOREM 本番サーバー起動: port ${PORT}`);
+  }
 });

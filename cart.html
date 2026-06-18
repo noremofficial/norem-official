@@ -1384,7 +1384,7 @@ function calcTotal() {
 
 async function initPayments() {
   try {
-    const r = await fetch('http://localhost:3001/api/payment/config');
+    const r = await fetch('/api/payment/config');
     _payCfg = await r.json();
   } catch(e) {}
 
@@ -1420,7 +1420,7 @@ async function initPayments() {
         style: { paymentRequestButton: { type: 'buy', theme: 'dark', height: '44px' } },
       }).mount('#stripeGpayReal');
       pr.on('paymentmethod', async ev => {
-        const intentRes = await fetch('http://localhost:3001/api/payment/stripe/create-intent', {
+        const intentRes = await fetch('/api/payment/stripe/create-intent', {
           method: 'POST', headers: {'Content-Type':'application/json'},
           body: JSON.stringify({ amount: calcTotal() }),
         });
@@ -1454,7 +1454,7 @@ async function initPayments() {
     paypal.Buttons({
       style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'paypal', height: 44 },
       createOrder: async () => {
-        const res = await fetch('http://localhost:3001/api/payment/paypal/create-order', {
+        const res = await fetch('/api/payment/paypal/create-order', {
           method: 'POST', headers: {'Content-Type':'application/json'},
           body: JSON.stringify({ amount: calcTotal() }),
         });
@@ -1463,7 +1463,7 @@ async function initPayments() {
         return d.orderId;
       },
       onApprove: async (data) => {
-        const res = await fetch('http://localhost:3001/api/payment/paypal/capture', {
+        const res = await fetch('/api/payment/paypal/capture', {
           method: 'POST', headers: {'Content-Type':'application/json'},
           body: JSON.stringify({ orderId: data.orderID }),
         });
@@ -1487,7 +1487,7 @@ async function initPayments() {
       btnPaypay.disabled = true; btnPaypay.textContent = '処理中...';
       const orderId = 'NRM-' + Date.now();
       try {
-        const res = await fetch('http://localhost:3001/api/payment/paypay/create', {
+        const res = await fetch('/api/payment/paypay/create', {
           method: 'POST', headers: {'Content-Type':'application/json'},
           body: JSON.stringify({ amount: calcTotal(), orderId, orderDescription: 'NOREM Order' }),
         });
@@ -1537,7 +1537,7 @@ document.getElementById('btnSubmit').addEventListener('click', async (e) => {
 
     if (method === 'card' && _stripeCard) {
       // Stripe カード決済
-      const intentRes = await fetch('http://localhost:3001/api/payment/stripe/create-intent', {
+      const intentRes = await fetch('/api/payment/stripe/create-intent', {
         method: 'POST', headers: {'Content-Type':'application/json'},
         body: JSON.stringify({ amount: total, metadata: { email: d.email } }),
       });
@@ -1565,7 +1565,7 @@ document.getElementById('btnSubmit').addEventListener('click', async (e) => {
       const result = await new Promise((res, rej) => {
         pr.on('paymentmethod', async ev => {
           const { error, paymentIntent } = await _stripeInstance.confirmCardPayment(
-            (await (await fetch('http://localhost:3001/api/payment/stripe/create-intent', {
+            (await (await fetch('/api/payment/stripe/create-intent', {
               method:'POST', headers:{'Content-Type':'application/json'},
               body: JSON.stringify({ amount: total }),
             })).json()).clientSecret,
@@ -1597,7 +1597,7 @@ document.getElementById('btnSubmit').addEventListener('click', async (e) => {
 // メール送信（注文確定後）
 async function sendOrderMail(order) {
   try {
-    await fetch('http://localhost:3001/api/order/send-mail', {
+    await fetch('/api/order/send-mail', {
       method: 'POST', headers: {'Content-Type':'application/json'},
       body: JSON.stringify(order),
     });

@@ -321,10 +321,10 @@ a{color:var(--accent);text-decoration:none}
       <div class="about-preview-side">
         <div class="preview-label" style="font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--mid);margin-bottom:12px">Preview</div>
         <div style="margin-bottom:12px">
-          <button class="btn btn-ghost" onclick="document.getElementById('home-preview-iframe').src='http://localhost:8765/index.html?t='+Date.now()">プレビューを更新</button>
+          <button class="btn btn-ghost" onclick="document.getElementById('home-preview-iframe').src='/index.html?t='+Date.now()">プレビューを更新</button>
         </div>
         <div class="preview-iframe-wrap">
-          <iframe id="home-preview-iframe" class="preview-iframe" src="http://localhost:8765/index.html"></iframe>
+          <iframe id="home-preview-iframe" class="preview-iframe" src="/index.html"></iframe>
         </div>
       </div>
     </div>
@@ -402,7 +402,7 @@ a{color:var(--accent);text-decoration:none}
           <button class="btn btn-ghost" onclick="reloadAboutPreview()">プレビューを更新</button>
         </div>
         <div class="preview-iframe-wrap">
-          <iframe id="about-preview-iframe" class="preview-iframe" src="http://localhost:8765/about.html"></iframe>
+          <iframe id="about-preview-iframe" class="preview-iframe" src="/about.html"></iframe>
         </div>
       </div>
     </div>
@@ -581,7 +581,7 @@ const CARE_GROUPS = [
   { name: 'ドライクリーニング',   files: Array.from({length:5}, (_,i) => `ドライクリーニング${i+1}.png`) },
   { name: 'ウェットクリーニング', files: Array.from({length:4}, (_,i) => `ウェットクリーニング${i+1}.png`) },
 ];
-const ICON_BASE = 'http://localhost:8765/' + encodeURIComponent('洗濯表示アイコン') + '/';
+const ICON_BASE = '/' + encodeURIComponent('洗濯表示アイコン') + '/';
 
 function renderCareIcons(selectedIcons) {
   const selected = new Set(selectedIcons || []);
@@ -782,7 +782,7 @@ function renderSidebar() {
           const meta = getMeta(p);
           const pub  = meta.published !== false;
           const name = p.images[0]?.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ');
-          const imgSrc = p.folder && p.images[0] ? `http://localhost:8765/${p.folder}/${p.images[0]}` : '';
+          const imgSrc = p.folder && p.images[0] ? `/${p.folder}/${p.images[0]}` : '';
           return `<div class="sidebar-item${p.id === currentId ? ' active' : ''}${!pub ? ' unpublished' : ''}">
             <input type="checkbox" class="pub-check" ${pub ? 'checked' : ''}
               onchange="togglePublish(${p.id}, this.checked)" title="公開/非公開"
@@ -835,7 +835,7 @@ function selectSeason(season) {
         <div class="img-upload-sub">collections/${escHtml(season)}/top.png に保存されます</div>
       </div>
       <div id="top-preview-${escJs(season)}" style="margin-top:10px">
-        <img src="http://localhost:8765/collections/${escHtml(season)}/top.png?t=${Date.now()}"
+        <img src="/collections/${escHtml(season)}/top.png?t=${Date.now()}"
           style="max-height:160px;max-width:100%;object-fit:contain;border:1px solid var(--border)"
           onerror="this.style.display='none'" alt="現在のTOP画像"/>
       </div>
@@ -844,11 +844,11 @@ function selectSeason(season) {
     <div class="section">
       <div class="section-title">プレビュー（公開時のショップ表示）</div>
       <div class="preview-bar">
-        <span class="preview-label">http://localhost:8765/shop.html?season=${escHtml(season)}</span>
+        <span class="preview-label">/shop.html?season=${escHtml(season)}</span>
         <button class="btn btn-sm" onclick="refreshSeasonPreview('${escJs(season)}')">🔄 プレビュー更新</button>
       </div>
       <div class="preview-iframe-wrap">
-        <iframe class="preview-iframe" id="season-preview-frame" src="http://localhost:8765/shop.html?season=${escHtml(season)}&preview=1" loading="lazy"></iframe>
+        <iframe class="preview-iframe" id="season-preview-frame" src="/shop.html?season=${escHtml(season)}&preview=1" loading="lazy"></iframe>
       </div>
     </div>
   `;
@@ -856,7 +856,7 @@ function selectSeason(season) {
 
 function refreshSeasonPreview(season) {
   const frame = document.getElementById('season-preview-frame');
-  if (frame) frame.src = 'http://localhost:8765/shop.html?season=' + encodeURIComponent(season) + '&t=' + Date.now();
+  if (frame) frame.src = '/shop.html?season=' + encodeURIComponent(season) + '&t=' + Date.now();
 }
 
 function selectProduct(id) {
@@ -867,7 +867,7 @@ function selectProduct(id) {
   const meta = getMeta(p);
   const name = p.images[0]?.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ');
 
-  const imgBase = p.folder ? `http://localhost:8765/${p.folder}/` : '';
+  const imgBase = p.folder ? `/${p.folder}/` : '';
   const thumbsHTML = p.images.map((img, i) =>
     `<img class="prod-img-thumb${i===0?' active':''}" src="${imgBase}${img}" alt="${img}"
       onclick="selectAdminImg(this,'${imgBase}${img}')"
@@ -1434,7 +1434,7 @@ function _renderHomeGrid() {
     <div style="border:1px solid var(--border);border-radius:4px;background:${img.active ? 'var(--bg)' : '#fafafa'};opacity:${img.active ? '1' : '0.55'};overflow:hidden" id="home-row-${i}">
       <div style="display:grid;grid-template-columns:24px 1fr auto;gap:10px;align-items:center;padding:12px">
         <input type="checkbox" ${img.active ? 'checked' : ''} onchange="toggleHomeActive(${i},this.checked)" style="cursor:pointer;width:16px;height:16px"/>
-        <img src="http://localhost:8765/${img.src}?t=${Date.now()}" style="width:100%;height:140px;object-fit:cover;display:block;border:1px solid var(--border)"/>
+        <img src="/${img.src}?t=${Date.now()}" style="width:100%;height:140px;object-fit:cover;display:block;border:1px solid var(--border)"/>
         <button onclick="deleteHomeImg('${img.filename}',${i})" style="background:none;border:1px solid var(--border);border-radius:3px;cursor:pointer;color:var(--mid);font-size:11px;padding:5px 10px;white-space:nowrap;align-self:start" title="削除">削除</button>
       </div>
       <div style="padding:0 12px 12px">
@@ -1510,7 +1510,7 @@ async function saveHomeSlider() {
     showToast('反映しました ✓（表示中: ' + json.count + '枚）');
     setTimeout(() => {
       const iframe = document.getElementById('home-preview-iframe');
-      if (iframe) iframe.src = 'http://localhost:8765/index.html?t=' + Date.now();
+      if (iframe) iframe.src = '/index.html?t=' + Date.now();
     }, 400);
   } else showToast('エラー: ' + json.error, true);
 }
@@ -1533,7 +1533,7 @@ function renderAbout() {
     const url = ab[key + 'Url'];
     if (url) {
       previewEl.innerHTML = `<div style="margin-top:8px;position:relative;display:inline-block">
-        <img src="http://localhost:8765/${url}?t=${Date.now()}" style="width:100%;max-height:140px;object-fit:cover;border:1px solid var(--border);display:block"/>
+        <img src="/${url}?t=${Date.now()}" style="width:100%;max-height:140px;object-fit:cover;border:1px solid var(--border);display:block"/>
         <div style="font-size:10px;color:var(--mid);margin-top:4px">${url}</div>
       </div>`;
     } else {
@@ -1544,7 +1544,7 @@ function renderAbout() {
 
 function reloadAboutPreview() {
   const iframe = document.getElementById('about-preview-iframe');
-  if (iframe) iframe.src = 'http://localhost:8765/about.html?t=' + Date.now();
+  if (iframe) iframe.src = '/about.html?t=' + Date.now();
 }
 
 async function handleAboutImgFile(event, key) {
@@ -1724,7 +1724,7 @@ async function selectCollSeason(season) {
         <button class="btn btn-ghost" onclick="reloadCollPreview('${escJs(season)}')">プレビューを更新</button>
       </div>
       <div class="preview-iframe-wrap">
-        <iframe id="coll-preview-iframe" class="preview-iframe" src="http://localhost:8765/collection.html?season=${encodeURIComponent(season)}&preview=1"></iframe>
+        <iframe id="coll-preview-iframe" class="preview-iframe" src="/collection.html?season=${encodeURIComponent(season)}&preview=1"></iframe>
       </div>
     </div>
 
@@ -1736,7 +1736,7 @@ async function selectCollSeason(season) {
 
 function reloadCollPreview(season) {
   const iframe = document.getElementById('coll-preview-iframe');
-  if (iframe) iframe.src = 'http://localhost:8765/collection.html?season=' + encodeURIComponent(season) + '&preview=1&t=' + Date.now();
+  if (iframe) iframe.src = '/collection.html?season=' + encodeURIComponent(season) + '&preview=1&t=' + Date.now();
 }
 
 // 商品詳細からシーズンTOP画像をアップロード
@@ -2113,10 +2113,10 @@ function selectNewsArticle(key) {
   if (!a) return;
 
   const editor = document.getElementById('newsEditor');
-  const imgUrl = a.image ? `http://localhost:8765/${a.image}` : '';
+  const imgUrl = a.image ? `/${a.image}` : '';
   const existingImgs = (a.images || []).map((url, i) =>
     `<div class="img-thumb-wrap" id="newsimg-wrap-${i}">
-      <img class="img-thumb" src="http://localhost:8765/${url}" onerror="this.src=''"/>
+      <img class="img-thumb" src="/${url}" onerror="this.src=''"/>
       <button class="img-thumb-del" onclick="removeNewsImage('${key}',${i})">×</button>
       <div class="img-thumb-insert" onclick="insertNewsImgTag('${escJs(url.split('/').pop())}','${key}')">挿入</div>
     </div>`
@@ -2212,7 +2212,7 @@ function selectNewsArticle(key) {
             <button class="btn btn-ghost" style="font-size:10px;padding:5px 10px;margin-left:auto" onclick="reloadNewsPreview('${key}')">↺ 更新</button>
           </div>
           <div class="preview-iframe-wrap">
-            <iframe id="news-preview-iframe-${key}" class="preview-iframe" src="http://localhost:8765/news-article.html?id=${a.id}&preview=1"></iframe>
+            <iframe id="news-preview-iframe-${key}" class="preview-iframe" src="/news-article.html?id=${a.id}&preview=1"></iframe>
           </div>`}
       </div>
 
@@ -2231,9 +2231,9 @@ function setNewsPreview(key, mode) {
   const iframe = document.getElementById('news-preview-iframe-' + key);
   if (!iframe) return;
   if (mode === 'list') {
-    iframe.src = 'http://localhost:8765/news.html?preview=1&t=' + Date.now();
+    iframe.src = '/news.html?preview=1&t=' + Date.now();
   } else {
-    iframe.src = 'http://localhost:8765/news-article.html?id=' + a.id + '&preview=1&t=' + Date.now();
+    iframe.src = '/news-article.html?id=' + a.id + '&preview=1&t=' + Date.now();
   }
 }
 
@@ -2242,7 +2242,7 @@ function reloadNewsPreview(key) {
   const a = all.find(x => String(x.id) === key);
   if (!a) return;
   const iframe = document.getElementById('news-preview-iframe-' + key);
-  if (iframe) iframe.src = 'http://localhost:8765/news-article.html?id=' + a.id + '&preview=1&t=' + Date.now();
+  if (iframe) iframe.src = '/news-article.html?id=' + a.id + '&preview=1&t=' + Date.now();
 }
 
 async function handleNewsMainImgFile(event, key) {
@@ -2382,7 +2382,7 @@ function saveNewsItem(key, isNew) {
         if (wrap) {
           wrap.style.display = 'block';
           const iframe = document.getElementById('news-preview-iframe-' + key);
-          if (iframe) iframe.src = 'http://localhost:8765/news-article.html?id=' + key + '&preview=1&t=' + Date.now();
+          if (iframe) iframe.src = '/news-article.html?id=' + key + '&preview=1&t=' + Date.now();
         } else {
           reloadNewsPreview(key);
         }
