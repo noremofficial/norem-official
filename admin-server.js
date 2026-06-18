@@ -104,6 +104,59 @@ function saveAdminData(data) {
   fs.writeFileSync(path.join(DIR, 'admin-data.json'), JSON.stringify(data, null, 2), 'utf8');
 }
 
+// ── Admin セッション管理 ──────────────────────────────
+const adminSessions = new Map();
+
+function generateSessionToken() {
+  return require('crypto').randomBytes(32).toString('hex');
+}
+
+function getAdminSession(req) {
+  const cookie = req.headers.cookie || '';
+  const match = cookie.match(/norem_admin=([a-f0-9]+)/);
+  if (!match) return null;
+  const session = adminSessions.get(match[1]);
+  if (!session) return null;
+  if (Date.now() > session.expires) { adminSessions.delete(match[1]); return null; }
+  return session;
+}
+
+const LOGIN_HTML = `<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NOREM 管理画面</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,sans-serif;background:#f5f5f5;display:flex;align-items:center;justify-content:center;min-height:100vh}
+.card{background:#fff;padding:40px;border-radius:12px;box-shadow:0 2px 16px rgba(0,0,0,.1);width:320px}
+h1{font-size:1.2rem;font-weight:700;margin-bottom:24px;text-align:center;letter-spacing:.05em}
+input{width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:1rem;margin-bottom:16px}
+button{width:100%;padding:12px;background:#111;color:#fff;border:none;border-radius:8px;font-size:1rem;cursor:pointer}
+button:hover{background:#333}
+.err{color:#e00;font-size:.85rem;margin-bottom:12px;text-align:center;min-height:1.2em}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>NOREM 管理画面</h1>
+  <div class="err" id="err"></div>
+  <input type="password" id="pw" placeholder="パスワード" autofocus>
+  <button onclick="login()">ログイン</button>
+</div>
+<script>
+async function login(){
+  const pw=document.getElementById('pw').value;
+  const r=await fetch('/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})});
+  if(r.ok){location.reload();}
+  else{document.getElementById('err').textContent='パスワードが違います';}
+}
+document.getElementById('pw').addEventListener('keydown',e=>{if(e.key==='Enter')login();});
+</script>
+</body>
+</html>`;
+
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://localhost:${PORT}`);
 
@@ -236,13 +289,59 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (url.pathname === '/admin' || url.pathname === '/admin.html') {
-    // 本番環境（Render）では管理画面を非公開
-    if (process.env.PORT) {
-      res.writeHead(403, cors); res.end('Forbidden'); return;
+    if (!getAdminSession(req)) {
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      res.end(LOGIN_HTML);
+      return;
     }
     const html = fs.readFileSync(path.join(DIR, 'admin.html'), 'utf8');
     res.writeHead(200, { ...cors, 'Content-Type': 'text/html; charset=utf-8' });
     res.end(html);
+    return;
+  }
+
+  // ── Admin ログイン ──────────────────────────────────
+  if (url.pathname === '/api/admin/login' && req.method === 'POST') {
+    let body = '';
+    req.on('data', c => body += c);
+    req.on('end', () => {
+      try {
+        const { password } = JSON.parse(body);
+        const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
+        if (!ADMIN_PASSWORD || password !== ADMIN_PASSWORD) {
+          res.writeHead(401, cors); res.end(JSON.stringify({ ok: false })); return;
+        }
+        const token = generateSessionToken();
+        adminSessions.set(token, { expires: Date.now() + 7 * 24 * 60 * 60 * 1000 });
+        res.writeHead(200, {
+          ...cors,
+          'Set-Cookie': `norem_admin=${token}; HttpOnly; Path=/; Max-Age=604800; SameSite=Strict`,
+          'Content-Type': 'application/json',
+        });
+        res.end(JSON.stringify({ ok: true }));
+      } catch(e) { res.writeHead(400, cors); res.end('{}'); }
+    });
+    return;
+  }
+
+  if (url.pathname === '/api/admin/logout' && req.method === 'POST') {
+    const cookie = req.headers.cookie || '';
+    const match = cookie.match(/norem_admin=([a-f0-9]+)/);
+    if (match) adminSessions.delete(match[1]);
+    res.writeHead(200, {
+      ...cors,
+      'Set-Cookie': 'norem_admin=; HttpOnly; Path=/; Max-Age=0',
+      'Content-Type': 'application/json',
+    });
+    res.end(JSON.stringify({ ok: true }));
+    return;
+  }
+
+  // ── 管理API 認証チェック ────────────────────────────
+  const ADMIN_APIS = ['/api/data', '/api/create-season', '/api/save', '/api/delete-file', '/api/upload', '/api/rebuild-home', '/api/delete-home-image', '/api/files'];
+  if (ADMIN_APIS.includes(url.pathname) && !getAdminSession(req)) {
+    res.writeHead(401, { ...cors, 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ ok: false, error: 'Unauthorized' }));
     return;
   }
 
