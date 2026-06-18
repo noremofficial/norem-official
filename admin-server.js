@@ -236,6 +236,10 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (url.pathname === '/admin' || url.pathname === '/admin.html') {
+    // 本番環境（Render）では管理画面を非公開
+    if (process.env.PORT) {
+      res.writeHead(403, cors); res.end('Forbidden'); return;
+    }
     const html = fs.readFileSync(path.join(DIR, 'admin.html'), 'utf8');
     res.writeHead(200, { ...cors, 'Content-Type': 'text/html; charset=utf-8' });
     res.end(html);
@@ -321,6 +325,10 @@ const server = http.createServer(async (req, res) => {
       try {
         saveAdminData(JSON.parse(body));
         execSync('node build.js', { cwd: DIR, stdio: 'pipe' });
+        // GitHubに自動プッシュ（Renderに反映）
+        try {
+          execSync('git add -A && git commit -m "管理画面から更新" --allow-empty && git push', { cwd: DIR, stdio: 'pipe' });
+        } catch(gitErr) {}
         res.writeHead(200, { ...cors, 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ ok: true }));
       } catch(e) {
