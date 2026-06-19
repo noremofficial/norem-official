@@ -735,6 +735,10 @@ const server = http.createServer(async (req, res) => {
           { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
           JSON.stringify({ intent: 'CAPTURE', purchase_units: [{ amount: { currency_code: 'JPY', value: String(amount) } }] })
         );
+        if (!order.id) {
+          res.writeHead(500, { ...cors, 'Content-Type': 'application/json' });
+          return res.end(JSON.stringify({ ok: false, error: 'PayPal order creation failed', detail: order }));
+        }
         res.writeHead(200, { ...cors, 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ ok: true, orderId: order.id }));
       } catch(e) {
