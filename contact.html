@@ -261,6 +261,14 @@
     .mobile-coll-seasons { display: flex; flex-direction: column; gap: 14px; margin-top: 0; max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.35s ease, opacity 0.3s ease, margin-top 0.3s ease; }
     .mobile-coll-seasons.open { max-height: 300px; opacity: 1; margin-top: 14px; }
     .mobile-coll-seasons a { font-size: 0.78rem !important; letter-spacing: 0.14em; color: var(--mid) !important; }
+    .mobile-shop-wrap { width: 100%; text-align: center; }
+    .mobile-shop-toggle { display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; background: none; border: none; font-family: inherit; font-size: 1.1rem; font-weight: 300; letter-spacing: 0.12em; color: var(--black); text-decoration: none; width: 100%; -webkit-tap-highlight-color: transparent; }
+    .mobile-shop-arrow { font-size: 0.7rem; color: var(--mid); transition: transform 0.25s; }
+    .mobile-shop-arrow.open { transform: rotate(180deg); }
+    .mobile-shop-items { display: flex; flex-direction: column; gap: 14px; margin-top: 0; max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.35s ease, opacity 0.3s ease, margin-top 0.3s ease; }
+    .mobile-shop-items.open { max-height: 500px; opacity: 1; margin-top: 14px; }
+    .mobile-shop-items a { font-size: 0.78rem !important; letter-spacing: 0.14em; color: var(--mid) !important; }
+    .mobile-shop-items .shop-section-head { font-size: 0.65rem !important; letter-spacing: 0.18em; color: #aaa !important; text-transform: uppercase; margin-top: 6px; pointer-events: none; }
 
     /* ========== CONTACT FORM ========== */
     @keyframes fadeUp {
@@ -379,13 +387,16 @@
   </nav>
 
   <div class="mobile-menu" id="mobileMenu">
-    <a href="index.html" class="mobile-nav-link">Home</a>
-    <a href="about.html" class="mobile-nav-link">About</a>
+    <a href="index.html"   class="mobile-nav-link">Home</a>
     <div class="mobile-coll-wrap">
       <button class="mobile-coll-toggle" onclick="toggleMobileColl(event)">Collection <span class="mobile-coll-arrow" id="mobileCollArrow">▼</span></button>
       <div class="mobile-coll-seasons" id="mobileCollSeasons"></div>
     </div>
-    <a href="shop.html" class="mobile-nav-link">Shop</a>
+    <div class="mobile-shop-wrap">
+      <button class="mobile-shop-toggle" onclick="toggleMobileShop(event)">Shop <span class="mobile-shop-arrow" id="mobileShopArrow">▼</span></button>
+      <div class="mobile-shop-items" id="mobileShopItems"></div>
+    </div>
+    <a href="about.html"   class="mobile-nav-link">About</a>
     <a href="contact.html" class="mobile-nav-link">Contact</a>
   </div>
 

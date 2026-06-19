@@ -278,13 +278,16 @@ footer{background:var(--white);border-top:1px solid var(--border);padding:56px 4
 </nav>
 
 <div class="mobile-menu" id="mobileMenu">
-  <a href="index.html" class="mobile-nav-link">Home</a>
-  <a href="about.html" class="mobile-nav-link">About</a>
+  <a href="index.html"   class="mobile-nav-link">Home</a>
   <div class="mobile-coll-wrap">
     <button class="mobile-coll-toggle" onclick="toggleMobileColl(event)">Collection <span class="mobile-coll-arrow" id="mobileCollArrow">▼</span></button>
     <div class="mobile-coll-seasons" id="mobileCollSeasons"></div>
   </div>
-  <a href="shop.html" class="mobile-nav-link">Shop</a>
+  <div class="mobile-shop-wrap">
+    <button class="mobile-shop-toggle" onclick="toggleMobileShop(event)">Shop <span class="mobile-shop-arrow" id="mobileShopArrow">▼</span></button>
+    <div class="mobile-shop-items" id="mobileShopItems"></div>
+  </div>
+  <a href="about.html"   class="mobile-nav-link">About</a>
   <a href="contact.html" class="mobile-nav-link">Contact</a>
 </div>
 

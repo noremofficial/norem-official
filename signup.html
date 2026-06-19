@@ -211,12 +211,15 @@ footer { background: var(--white); border-top: 1px solid var(--border); padding:
 
 <div class="mobile-menu" id="mobileMenu">
   <a href="index.html">Home</a>
-  <a href="about.html">About</a>
   <div class="mobile-coll-wrap">
     <button class="mobile-coll-toggle" onclick="toggleMobileColl(event)">Collection <span class="mobile-coll-arrow" id="mobileCollArrow">▼</span></button>
     <div class="mobile-coll-seasons" id="mobileCollSeasons"></div>
   </div>
-  <a href="shop.html">Shop</a>
+  <div class="mobile-shop-wrap">
+    <button class="mobile-shop-toggle" onclick="toggleMobileShop(event)">Shop <span class="mobile-shop-arrow" id="mobileShopArrow">▼</span></button>
+    <div class="mobile-shop-items" id="mobileShopItems"></div>
+  </div>
+  <a href="about.html">About</a>
   <a href="contact.html">Contact</a>
 </div>
 
