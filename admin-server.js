@@ -106,6 +106,7 @@ function saveAdminData(data) {
 
 // ── Admin セッション管理 ──────────────────────────────
 const adminSessions = new Map();
+const loginAttempts = new Map(); // ip → { count, lockedUntil }
 
 function generateSessionToken() {
   return require('crypto').randomBytes(32).toString('hex');
@@ -149,8 +150,10 @@ button:hover{background:#333}
 async function login(){
   const pw=document.getElementById('pw').value;
   const r=await fetch('/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})});
+  const d=await r.json().catch(()=>({}));
   if(r.ok){location.reload();}
-  else{document.getElementById('err').textContent='パスワードが違います';}
+  else if(r.status===429){document.getElementById('err').textContent=d.error||'アカウントがロックされています';}
+  else{const msg='パスワードが違います'+(d.remaining!=null?' (残り'+d.remaining+'回)':'');document.getElementById('err').textContent=msg;}
 }
 document.getElementById('pw').addEventListener('keydown',e=>{if(e.key==='Enter')login();});
 </script>
@@ -306,11 +309,28 @@ const server = http.createServer(async (req, res) => {
     req.on('data', c => body += c);
     req.on('end', () => {
       try {
+        const ip = req.headers['x-forwarded-for']?.split(',')[0].trim() || req.socket.remoteAddress || 'unknown';
+        const now = Date.now();
+        const attempt = loginAttempts.get(ip) || { count: 0, lockedUntil: 0 };
+
+        if (attempt.lockedUntil > now) {
+          const wait = Math.ceil((attempt.lockedUntil - now) / 60000);
+          res.writeHead(429, cors); res.end(JSON.stringify({ ok: false, error: `ロック中。${wait}分後に再試行してください` })); return;
+        }
+
         const { password } = JSON.parse(body);
         const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
         if (!ADMIN_PASSWORD || password !== ADMIN_PASSWORD) {
-          res.writeHead(401, cors); res.end(JSON.stringify({ ok: false })); return;
+          attempt.count += 1;
+          if (attempt.count >= 10) {
+            attempt.lockedUntil = now + 30 * 60 * 1000; // 30分ロック
+            attempt.count = 0;
+          }
+          loginAttempts.set(ip, attempt);
+          res.writeHead(401, cors); res.end(JSON.stringify({ ok: false, remaining: Math.max(0, 10 - attempt.count) })); return;
         }
+
+        loginAttempts.delete(ip);
         const token = generateSessionToken();
         adminSessions.set(token, { expires: Date.now() + 7 * 24 * 60 * 60 * 1000 });
         res.writeHead(200, {
