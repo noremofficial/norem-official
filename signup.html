@@ -90,6 +90,14 @@ nav.overlay-open { background: transparent !important; backdrop-filter: none !im
 .mobile-coll-seasons { display: flex; flex-direction: column; gap: 14px; margin-top: 0; max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.35s ease, opacity 0.3s ease, margin-top 0.3s ease; }
 .mobile-coll-seasons.open { max-height: 300px; opacity: 1; margin-top: 14px; }
 .mobile-coll-seasons a { font-size: 0.78rem !important; letter-spacing: 0.14em; color: var(--mid) !important; }
+.mobile-shop-wrap { width: 100%; text-align: center; }
+.mobile-shop-toggle { display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; background: none; border: none; font-family: inherit; font-size: 1.1rem; font-weight: 300; letter-spacing: 0.12em; color: var(--black); text-decoration: none; width: 100%; -webkit-tap-highlight-color: transparent; }
+.mobile-shop-arrow { font-size: 0.7rem; color: var(--mid); transition: transform 0.25s; }
+.mobile-shop-arrow.open { transform: rotate(180deg); }
+.mobile-shop-items { display: flex; flex-direction: column; gap: 14px; margin-top: 0; max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.35s ease, opacity 0.3s ease, margin-top 0.3s ease; }
+.mobile-shop-items.open { max-height: 500px; opacity: 1; margin-top: 14px; }
+.mobile-shop-items a { font-size: 0.78rem !important; letter-spacing: 0.14em; color: var(--mid) !important; }
+.mobile-shop-items .shop-section-head { font-size: 0.65rem !important; letter-spacing: 0.18em; color: #aaa !important; text-transform: uppercase; margin-top: 6px; pointer-events: none; }
 
 /* ========== FORM ========== */
 @keyframes fadeUp {
@@ -163,6 +171,8 @@ footer { background: var(--white); border-top: 1px solid var(--border); padding:
 @media (max-width: 900px) {
   nav { padding: 0 20px; }
   .nav-links { display: none; }
+  .signup-section { margin: 0 24px; }
+  .done-section { margin: 0 24px; }
   .hamburger { display: flex; }
   footer { padding: 40px 20px 24px; }
       .footer-top { flex-direction: column; gap: 32px; }
@@ -377,6 +387,17 @@ footer { background: var(--white); border-top: 1px solid var(--border); padding:
       seasons.innerHTML = COLLECTIONS_DATA.filter(c => c.published).map(c =>
         `<a href="collection.html?season=${encodeURIComponent(c.season)}">${c.season}</a>`
       ).join('');
+    }
+  }
+  function toggleMobileShop(e) {
+    e.stopPropagation();
+    const items  = document.getElementById('mobileShopItems');
+    const arrow  = document.getElementById('mobileShopArrow');
+    const isOpen = items.classList.contains('open');
+    items.classList.toggle('open', !isOpen);
+    arrow.classList.toggle('open', !isOpen);
+    if (!isOpen && items.innerHTML === '') {
+      items.innerHTML = '<a class="shop-section-head">Season Look</a><a href="shop.html">Shop All</a>';
     }
   }
   if (typeof COLLECTIONS_DATA !== 'undefined') {
