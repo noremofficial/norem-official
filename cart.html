@@ -481,17 +481,13 @@ footer{background:var(--white);border-top:1px solid var(--border);padding:56px 4
               <span class="pay-opt-label" id="payLabelTransfer">銀行振込</span>
               <span class="pay-opt-sub" id="paySubTransfer">手数料無料</span>
             </label>
-            <label class="pay-opt" id="optCard">
-              <input type="radio" name="payMethod" value="card">
-              <span class="pay-opt-label">クレジットカード</span>
-              <span class="pay-opt-sub" id="paySubCard"></span>
-            </label>
           </div>
 
           <!-- Stripe カード入力フォーム -->
-          <div id="stripeCardWrap" style="display:none;margin-top:12px">
+          <div id="stripeCardWrap" style="display:none">
             <div id="stripeCardElement"></div>
             <div id="stripeCardError"></div>
+            <span id="paySubCard" style="display:none"></span>
           </div>
 
           <p id="payMethodNote" style="font-size:0.65rem;color:var(--mid);margin-top:10px;line-height:1.8">
