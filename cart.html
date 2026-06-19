@@ -1377,7 +1377,7 @@ function loadScript(src) {
 }
 
 function calcTotal() {
-  const cart = loadCart();
+  const cart = getCart();
   const sub  = cart.reduce((s, i) => s + i.price * (i.qty||1), 0);
   return sub + (sub < 30000 && sub > 0 ? 1100 : 0);
 }

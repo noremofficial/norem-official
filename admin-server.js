@@ -827,7 +827,18 @@ const server = http.createServer(async (req, res) => {
           <p style="font-family:sans-serif;font-size:13px;color:#555;line-height:1.8">
             お支払い方法: ${order.payMethod || '-'}<br>
             お届け先: ${order.address || '-'}<br><br>
-            ${order.payMethod === '銀行振込' ? '振込先口座は別途ご案内いたします。ご入金確認後、発送手配を行います。<br><br>' : ''}
+            ${order.payMethod === '銀行振込' ? `
+            ━━━━━━━━━━━━━━━━━━━━<br>
+            【振込先口座】<br>
+            銀行名：PayPay銀行<br>
+            支店名：ビジネス営業部（005）<br>
+            口座種別：普通<br>
+            口座番号：2209288<br>
+            口座名義：ノーレム　トガシタツヤ<br>
+            ━━━━━━━━━━━━━━━━━━━━<br><br>
+            ご入金確認後、発送手配を行います。<br>
+            お振込期限：ご注文より7日以内<br><br>
+            ` : ''}
             ご不明な点はお気軽にお問い合わせください。<br>
             NOREM
           </p>`;
